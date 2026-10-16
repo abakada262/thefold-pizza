@@ -1,0 +1,2706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — The Fold Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="/js/app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--red:#B71C1C;--red-mid:#C62828;--gold:#F9A825;--border:#E8E2D9;--text:#1A1714;--text-mid:#6B6560;--text-light:#9B9490;--bg:#F8F5F0;--white:#fff;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+.nav{background:var(--green);height:64px;display:flex;align-items:center;padding:0 28px;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:38px;height:38px;border-radius:50%;object-fit:contain;}
+.nav-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;}
+.nav-role{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);background:rgba(249,168,37,0.15);padding:3px 10px;border-radius:2px;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-user{font-size:13px;color:rgba(255,255,255,0.7);}
+.btn-signout{background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.8);font-size:12px;font-weight:500;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.btn-signout:hover{border-color:rgba(255,255,255,0.5);color:white;}
+.layout{display:flex;min-height:calc(100vh - 64px);}
+.sidebar{width:220px;flex-shrink:0;background:white;border-right:1px solid var(--border);position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;padding:20px 0;}
+.sidebar-section{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-light);padding:16px 20px 8px;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-mid);border-left:2px solid transparent;transition:all 0.15s;position:relative;}
+.sidebar-item:hover{background:#F5F0E8;color:var(--text);}
+.sidebar-item.active{background:#F0F7F0;color:var(--green);border-left-color:var(--green);font-weight:600;}
+.sidebar-icon{width:16px;height:16px;flex-shrink:0;opacity:0.6;}
+.sidebar-item.active .sidebar-icon{opacity:1;}
+.sidebar-badge{background:var(--red);color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:auto;font-family:'Inter',sans-serif;}
+.main{flex:1;padding:32px;overflow:hidden;max-width:1100px;}
+.panel{display:none;} .panel.active{display:block;}
+.page-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text-mid);margin-bottom:28px;font-weight:300;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:white;border:1px solid var(--border);border-radius:6px;padding:20px 22px;}
+.stat-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:10px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text);line-height:1;}
+.stat-value.green{color:var(--green);}
+.stat-value.red{color:var(--red);}
+.card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:14px;font-weight:600;color:var(--text);}
+.card-body{padding:20px;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);background:#FDFAF5;}
+td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FDFAF5;}
+.badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;}
+.badge-pending{background:#FEF3C7;color:#92400E;}
+.badge-confirmed{background:#DBEAFE;color:#1E40AF;}
+.badge-preparing{background:#EDE9FE;color:#5B21B6;}
+.badge-out_for_delivery{background:#D1FAE5;color:#065F46;}
+.badge-delivered{background:#ECFDF5;color:#065F46;}
+.badge-cancelled{background:#FEE2E2;color:#991B1B;}
+.status-select{padding:5px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;background:white;font-family:'Inter',sans-serif;color:var(--text);}
+.status-select:focus{outline:none;border-color:var(--green);}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:6px;}
+.form-input{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:white;transition:border-color 0.15s;}
+.form-input:focus{outline:none;border-color:var(--green);}
+.form-input::placeholder{color:#C0BAB3;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:0.01em;}
+.btn-primary{background:var(--green);color:white;}
+.btn-primary:hover{background:var(--green-mid);}
+.btn-danger{background:var(--red);color:white;}
+.btn-danger:hover{background:var(--red-mid);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-mid);}
+.btn-outline:hover{border-color:var(--green);color:var(--green);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn:disabled{opacity:0.6;cursor:not-allowed;}
+.toggle{width:40px;height:22px;border-radius:11px;background:var(--border);cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;border:none;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:3px;left:3px;transition:left 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+.toggle.on::after{left:21px;}
+.filter-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);}
+.filter-tab{padding:9px 16px;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:13px;font-weight:500;color:var(--text-mid);cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.15s;}
+.filter-tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;}
+.menu-admin-card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:all 0.2s;}
+.menu-admin-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.menu-admin-img{height:110px;background:linear-gradient(160deg,#0a2010,#1B5E20);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.menu-admin-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.menu-admin-body{padding:12px;}
+.menu-admin-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.menu-admin-cat{font-size:11px;color:var(--text-light);text-transform:capitalize;margin-bottom:10px;letter-spacing:0.02em;}
+.menu-admin-footer{display:flex;align-items:center;justify-content:space-between;}
+.menu-admin-price{font-size:15px;font-weight:700;color:var(--red);}
+.upload-zone{border:1px dashed var(--border);border-radius:5px;padding:20px;text-align:center;cursor:pointer;background:#FDFAF5;transition:all 0.15s;}
+.upload-zone:hover{border-color:var(--green);background:#F0F7F0;}
+.upload-zone-label{font-size:13px;font-weight:500;color:var(--text-mid);margin-bottom:4px;}
+.upload-zone-sub{font-size:11px;color:var(--text-light);}
+.addon-row{display:flex;gap:8px;align-items:center;background:#FDFAF5;border:1px solid var(--border);border-radius:5px;padding:8px 10px;}
+.inv-bar-bg{background:#EDE8E0;border-radius:3px;height:6px;overflow:hidden;flex:1;}
+.inv-bar-fill{height:100%;border-radius:3px;transition:width 0.3s;}
+.price-grid-label{font-size:11px;color:var(--text-mid);font-weight:500;display:block;margin-bottom:4px;}
+.spinner{width:32px;height:32px;border:2px solid rgba(27,94,32,0.12);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:40px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--green);color:white;padding:12px 18px;border-radius:5px;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);animation:slideIn 0.2s ease;}
+.toast-error{background:var(--red);}.toast-info{background:#1565C0;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+#confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;align-items:center;justify-content:center;padding:20px;}
+#confirm-modal.open{display:flex;}
+.confirm-box{background:white;border-radius:8px;padding:32px;width:100%;max-width:360px;text-align:center;}
+.confirm-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+.confirm-msg{font-size:14px;color:var(--text-mid);margin-bottom:24px;line-height:1.6;font-weight:300;}
+.confirm-actions{display:flex;gap:10px;}
+@media(max-width:900px){.sidebar{display:none;}.stats-row{grid-template-columns:1fr 1fr;}.main{padding:20px;}}
+.inv-tab{padding:10px 18px;font-size:13px;font-weight:500;color:var(--text-mid);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.inv-tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
+.inv-tab:hover{color:var(--text);}
+/* ── Notification Bell ─────────────────────────────────── */
+.notif-btn{position:relative;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;flex-shrink:0;}
+.notif-btn:hover{background:rgba(255,255,255,0.22);}
+.notif-btn svg{width:18px;height:18px;stroke:white;fill:none;stroke-width:1.6;}
+.notif-badge{position:absolute;top:-5px;right:-5px;background:var(--red);color:white;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--green);display:none;}
+.notif-badge.show{display:flex;}
+/* Dropdown panel */
+.notif-panel{position:absolute;top:calc(100% + 10px);right:0;width:380px;max-height:520px;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.16);z-index:9999;display:none;flex-direction:column;overflow:hidden;}
+.notif-panel.open{display:flex;}
+.notif-panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.notif-panel-title{font-size:14px;font-weight:700;color:var(--text);}
+.notif-read-all{font-size:12px;font-weight:600;color:var(--green);cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;padding:0;}
+.notif-read-all:hover{text-decoration:underline;}
+.notif-list{overflow-y:auto;flex:1;}
+.notif-item{padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;display:flex;gap:12px;align-items:flex-start;}
+.notif-item:last-child{border-bottom:none;}
+.notif-item:hover{background:#F8F5F0;}
+.notif-item.unread{background:#F0F7F0;}
+.notif-item.unread:hover{background:#E8F5E9;}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;}
+.notif-dot.read{background:transparent;}
+.notif-body{flex:1;min-width:0;}
+.notif-body-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.notif-body-sub{font-size:12px;color:var(--text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.notif-body-time{font-size:11px;color:var(--text-light);margin-top:4px;}
+.notif-empty{padding:40px 20px;text-align:center;color:var(--text-light);font-size:13px;}
+/* Notification order detail modal */
+#notif-detail-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;align-items:center;justify-content:center;padding:20px;}
+#notif-detail-modal.open{display:flex;}
+.notif-detail-box{background:white;border-radius:8px;width:100%;max-width:480px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.25);}
+.notif-detail-head{background:var(--green);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.notif-detail-body{overflow-y:auto;padding:20px 22px;flex:1;}
+.notif-detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.notif-detail-row:last-child{border-bottom:none;}
+.notif-detail-label{color:var(--text-mid);font-weight:500;}
+.notif-detail-val{color:var(--text);font-weight:600;text-align:right;}
+.notif-detail-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-left">
+    <img src="/images/thefold_logo.png" alt="" class="nav-logo" onerror="this.style.display='none'">
+    <span class="nav-name">The Fold Pizza</span>
+    <span class="nav-role">Admin</span>
+  </div>
+  <div class="nav-right" style="position:relative;">
+    <!-- Notification Bell -->
+    <div class="notif-btn" id="notif-btn" onclick="toggleNotifPanel(event)" title="Notifications">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-badge" id="notif-badge">0</span>
+    </div>
+    <!-- Notification Panel -->
+    <div class="notif-panel" id="notif-panel">
+      <div class="notif-panel-head">
+        <span class="notif-panel-title">Notifications</span>
+        <button class="notif-read-all" onclick="markAllRead()">Mark all as read</button>
+      </div>
+      <div class="notif-list" id="notif-list">
+        <div class="notif-empty">No notifications yet</div>
+      </div>
+    </div>
+    <span class="nav-user" id="user-name">Admin</span>
+    <button class="btn-signout" id="btn-logout">Sign out</button>
+  </div>
+</nav>
+
+<!-- Notification Order Detail Modal -->
+<div id="notif-detail-modal">
+  <div class="notif-detail-box">
+    <div class="notif-detail-head">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;" id="nd-title">Order Details</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:2px;" id="nd-sub"></div>
+      </div>
+      <button onclick="closeNotifDetail()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;">✕</button>
+    </div>
+    <div class="notif-detail-body" id="nd-body"></div>
+    <div class="notif-detail-foot">
+      <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="closeNotifDetail()">Close</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" id="nd-view-btn">View in Orders</button>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section">Management</div>
+    <div class="sidebar-item active" data-panel="overview">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Overview
+    </div>
+    <div class="sidebar-item" data-panel="orders">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h2l2 8h6l2-6H6"/><circle cx="7" cy="13" r="1"/><circle cx="11" cy="13" r="1"/></svg>
+      Orders
+      <span class="sidebar-badge" id="pending-badge">0</span>
+    </div>
+    <div class="sidebar-item" data-panel="menu-mgmt">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 3"/></svg>
+      Menu
+    </div>
+    <div class="sidebar-item" data-panel="inventory">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M5 3V1M11 3V1M1 7h14"/></svg>
+      Inventory
+    </div>
+    <div class="sidebar-item" data-panel="customers">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5s5 2 5 5"/><path d="M12 7c1.66 0 3 1.34 3 3s-1.34 3-3 3"/><path d="M15 14c0-2-1-3-3-3"/></svg>
+      Customers
+    </div>
+    <div class="sidebar-item" data-panel="custom-pricing">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v1.5M8 9.5V11M6 7h4M6 9h4"/></svg>
+      Custom Pricing
+    </div>
+    <div class="sidebar-item" data-panel="cancel-requests">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4"/></svg>
+      Cancellations
+      <span class="sidebar-badge" id="cancel-req-badge" style="display:none;">0</span>
+    </div>
+    <div class="sidebar-item" data-panel="refunds">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M3 8l3-3M3 8l3 3"/><rect x="1" y="1" width="14" height="14" rx="2"/></svg>
+      Refunds
+    </div>
+    <div class="sidebar-section">System</div>
+    <div class="sidebar-item" data-panel="settings">
+      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M2.93 2.93l1.06 1.06M12.01 12.01l1.06 1.06M2.93 13.07l1.06-1.06M12.01 3.99l1.06-1.06"/></svg>
+      Settings
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="page-title">Overview</div>
+      <div class="page-sub">Today's performance at a glance</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total revenue</div><div class="stat-value green" id="ov-revenue">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total orders</div><div class="stat-value" id="ov-orders">—</div></div>
+        <div class="stat-card"><div class="stat-label">Pending orders</div><div class="stat-value red" id="ov-pending">—</div></div>
+        <div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-value red" id="ov-cancelled">—</div></div>
+        <div class="stat-card"><div class="stat-label">Customers</div><div class="stat-value" id="ov-customers">—</div></div>
+        <div class="stat-card" style="cursor:pointer;border-left:2px solid var(--gold);" onclick="showSalesBreakdown('day')"><div class="stat-label">Daily income</div><div class="stat-value green" id="ov-daily">—</div></div>
+        <div class="stat-card" style="cursor:pointer;border-left:2px solid var(--green);" onclick="showSalesBreakdown('week')"><div class="stat-label">Weekly income</div><div class="stat-value green" id="ov-weekly">—</div></div>
+        <div class="stat-card" style="cursor:pointer;border-left:2px solid #1565C0;" onclick="showSalesBreakdown('month')"><div class="stat-label">Monthly income</div><div class="stat-value green" id="ov-monthly">—</div></div>
+        <div class="stat-card" style="cursor:pointer;border-left:2px solid #6A1B9A;" onclick="showSalesBreakdown('year')"><div class="stat-label">Yearly income</div><div class="stat-value green" id="ov-yearly">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Recent orders</span><button class="btn btn-outline btn-sm" onclick="showPanel('orders')">View all</button></div>
+        <div class="table-wrap" style="overflow-x:auto;"><table>
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="recent-orders-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="panel" id="panel-orders">
+      <div class="page-title">Orders</div>
+      <div class="page-sub">Manage and update order statuses</div>
+      <div class="filter-tabs" id="order-filter-tabs">
+        <button class="filter-tab active" data-status="all">All</button>
+        <button class="filter-tab" data-status="pending">Pending</button>
+        <button class="filter-tab" data-status="confirmed">Confirmed</button>
+        <button class="filter-tab" data-status="preparing">Preparing</button>
+        <button class="filter-tab" data-status="out_for_delivery">Out for delivery</button>
+        <button class="filter-tab" data-status="delivered">Delivered</button>
+        <button class="filter-tab" data-status="cancelled">Cancelled</button>
+        <button class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="loadOrders()">Refresh</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap" style="overflow-x:auto;"><table>
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="orders-tbody"><tr><td colspan="8" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="panel" id="panel-menu-mgmt">
+      <div class="page-title">Menu management</div>
+      <div class="page-sub">Add and manage menu items</div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-head"><span class="card-title">Add new item</span></div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Item name</label><input type="text" class="form-input" id="new-name" placeholder="e.g. BBQ Chicken"></div>
+            <div class="form-group"><label class="form-label">Category</label>
+              <select class="form-input" id="new-cat" onchange="updatePriceFields()">
+                <option value="pizza">Pizza</option><option value="sides">Sides</option>
+                <option value="drinks">Drinks</option><option value="desserts">Desserts</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-input" id="new-desc" placeholder="Brief description of the item"></div>
+          <div class="form-group"><label class="form-label">Fallback icon (emoji)</label><input type="text" class="form-input" id="new-emoji" placeholder="🍕" maxlength="2" style="max-width:100px;"></div>
+          <div id="pizza-prices" style="margin-bottom:16px;">
+            <div class="form-label" style="margin-bottom:10px;">Price per size (₱)</div>
+            <div class="grid-3">
+              <div><label class="price-grid-label">10" Small</label><input type="number" class="form-input" id="p-10" placeholder="e.g. 210"></div>
+              <div><label class="price-grid-label">12" Medium</label><input type="number" class="form-input" id="p-12" placeholder="e.g. 260"></div>
+              <div><label class="price-grid-label">16" Large</label><input type="number" class="form-input" id="p-16" placeholder="e.g. 350"></div>
+              <div><label class="price-grid-label">20" XL</label><input type="number" class="form-input" id="p-20" placeholder="e.g. 460"></div>
+              <div><label class="price-grid-label">30" Party</label><input type="number" class="form-input" id="p-30" placeholder="e.g. 830"></div>
+              <div><label class="price-grid-label">36" Fiesta</label><input type="number" class="form-input" id="p-36" placeholder="e.g. 1100"></div>
+            </div>
+          </div>
+          <div id="sides-prices" style="display:none;margin-bottom:16px;">
+            <div class="form-label" style="margin-bottom:10px;">Price per size (₱)</div>
+            <div class="grid-2">
+              <div><label class="price-grid-label">Single</label><input type="number" class="form-input" id="p-single" placeholder="e.g. 80"></div>
+              <div><label class="price-grid-label">Family</label><input type="number" class="form-input" id="p-family" placeholder="e.g. 200"></div>
+            </div>
+          </div>
+          <div id="drinks-prices" style="display:none;margin-bottom:16px;">
+            <div class="form-label" style="margin-bottom:10px;">Price per size (₱)</div>
+            <div class="grid-3">
+              <div><label class="price-grid-label">Small</label><input type="number" class="form-input" id="p-sm" placeholder="e.g. 60"></div>
+              <div><label class="price-grid-label">Medium</label><input type="number" class="form-input" id="p-md" placeholder="e.g. 80"></div>
+              <div><label class="price-grid-label">Large</label><input type="number" class="form-input" id="p-lg" placeholder="e.g. 100"></div>
+            </div>
+          </div>
+          <div id="desserts-prices" style="display:none;margin-bottom:16px;">
+            <div class="form-group"><label class="form-label">Price (₱)</label><input type="number" class="form-input" id="p-dessert" placeholder="e.g. 120"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Add-ons</label>
+            <div id="addons-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+            <button type="button" onclick="addAddonRow()" class="btn btn-outline btn-sm">+ Add option</button>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Item photo</label>
+            <div class="upload-zone" id="upload-drop-zone" onclick="document.getElementById('new-image').click()">
+              <div id="upload-preview" style="display:none;margin-bottom:8px;"><img id="preview-img" src="" style="max-height:90px;border-radius:4px;object-fit:cover;"></div>
+              <div id="upload-placeholder">
+                <div class="upload-zone-label">Click to upload photo</div>
+                <div class="upload-zone-sub">JPG, PNG, WEBP — max 5MB</div>
+              </div>
+              <input type="file" id="new-image" accept="image/*" style="display:none;" onchange="previewImage(this)">
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <button class="btn btn-primary" id="btn-add-item">Add to menu</button>
+            <span id="add-status" style="font-size:13px;color:var(--text-mid);"></span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Current menu</span><button class="btn btn-outline btn-sm" onclick="loadMenu()">Refresh</button></div>
+        <div class="card-body" id="menu-list"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div class="panel" id="panel-inventory">
+      <div class="page-title">Inventory</div>
+      <div class="page-sub">Set daily order limits per item, track raw ingredients, and view usage logs</div>
+
+      <!-- TABS -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;">
+        <button class="inv-tab active" data-inv="stock" onclick="switchInvTab('stock',this)">Daily Limits</button>
+        <button class="inv-tab" data-inv="ingredients" onclick="switchInvTab('ingredients',this)">Raw Ingredients</button>
+        <button class="inv-tab" data-inv="recipes" onclick="switchInvTab('recipes',this)">Recipes / BOM</button>
+        <button class="inv-tab" data-inv="logs" onclick="switchInvTab('logs',this)">Usage Logs</button>
+      </div>
+
+      <!-- DAILY LIMITS TAB -->
+      <div id="inv-stock">
+        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:16px;">ℹ️</span>
+          <div style="font-size:13px;color:#1E40AF;line-height:1.5;">
+            <strong>Daily Limits</strong> let you control how many orders to accept per item each shift. Set the limit at the start of your day — orders are blocked once the limit is reached. Ingredient stock is tracked separately in <em>Raw Ingredients</em>.
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;">
+            <div class="stat-label">Total Items</div><div class="stat-value" id="inv-total">—</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;">
+            <div class="stat-label">Available</div><div class="stat-value green" id="inv-instock">—</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;">
+            <div class="stat-label">Almost Full</div><div class="stat-value" style="color:#F57F17;" id="inv-low">—</div>
+          </div></div>
+          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;">
+            <div class="stat-label">Fully Booked</div><div class="stat-value" style="color:var(--red);" id="inv-out">—</div>
+          </div></div>
+        </div>
+        <div class="filter-tabs" id="inv-filter-tabs">
+          <button class="filter-tab active" data-inv-filter="all">All</button>
+          <button class="filter-tab" data-inv-filter="low">Almost full</button>
+          <button class="filter-tab" data-inv-filter="out">Fully booked</button>
+        </div>
+        <div style="overflow-x:auto;"><table>
+          <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Daily Limit</th><th>Status</th><th>Available</th><th>Actions</th></tr></thead>
+          <tbody id="inv-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+        </table></div>
+      </div>
+
+      <!-- INGREDIENTS TAB -->
+      <div id="inv-ingredients" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:13px;color:var(--text-mid);">Track raw materials used in your recipes</div>
+          <button onclick="openIngModal()" class="btn btn-primary btn-sm">+ Add Ingredient</button>
+        </div>
+        <div style="overflow-x:auto;"><table>
+          <thead><tr><th>Ingredient</th><th>Unit</th><th>Current Stock</th><th>Low Stock Alert</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="ing-tbody"><tr><td colspan="6" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+        </table></div>
+      </div>
+
+      <!-- RECIPES TAB -->
+      <div id="inv-recipes" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:13px;color:var(--text-mid);">Define what ingredients each menu item uses per order</div>
+          <button onclick="openRecipeModal()" class="btn btn-primary btn-sm">+ Add Recipe</button>
+        </div>
+        <div style="overflow-x:auto;"><table>
+          <thead><tr><th>Menu Item</th><th>Size</th><th>Ingredients</th><th>Actions</th></tr></thead>
+          <tbody id="recipe-tbody"><tr><td colspan="4" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+        </table></div>
+      </div>
+
+      <!-- LOGS TAB -->
+      <div id="inv-logs" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:13px;color:var(--text-mid);">Auto-deduction history from orders</div>
+          <button onclick="loadIngLogs()" class="btn btn-outline btn-sm">↻ Refresh</button>
+        </div>
+        <div style="overflow-x:auto;"><table>
+          <thead><tr><th>Date</th><th>Ingredient</th><th>Action</th><th>Qty</th><th>Before</th><th>After</th><th>Reason</th></tr></thead>
+          <tbody id="logs-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+    <!-- CUSTOMERS -->
+    <div class="panel" id="panel-customers">
+      <div class="page-title">Customers</div>
+      <div class="page-sub">All registered customer accounts</div>
+      <div class="card">
+        <div style="overflow-x:auto;"><table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Joined</th></tr></thead>
+          <tbody id="customers-tbody"><tr><td colspan="5" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- CUSTOM PRICING -->
+    <div class="panel" id="panel-custom-pricing">
+      <div class="page-title">Custom Build Pricing</div>
+      <div class="page-sub">Set individual prices for each pizza customizer package</div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">30" Pizza packages</span>
+          <button class="btn btn-outline btn-sm" onclick="loadCustomPrices()">↻ Refresh</button>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px;font-weight:300;line-height:1.6;">These prices are independent from your regular 30" menu price.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">Combination (2–4 flavors)</label>
+              <input type="number" class="form-input" id="cp-30-combo" placeholder="e.g. 830">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">No Pork (5 flavors)</label>
+              <input type="number" class="form-input" id="cp-30-nopork" placeholder="e.g. 880">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">9 Flavors</label>
+              <input type="number" class="form-input" id="cp-30-nine" placeholder="e.g. 950">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">36" Pizza packages</span></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px;font-weight:300;line-height:1.6;">These prices are independent from your regular 36" menu price.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">Combination (2–4 flavors)</label>
+              <input type="number" class="form-input" id="cp-36-combo" placeholder="e.g. 1100">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">No Pork (5 flavors)</label>
+              <input type="number" class="form-input" id="cp-36-nopork" placeholder="e.g. 1150">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">9 Flavors</label>
+              <input type="number" class="form-input" id="cp-36-nine" placeholder="e.g. 1200">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">11 Flavors</label>
+              <input type="number" class="form-input" id="cp-36-eleven" placeholder="e.g. 1300">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="btn btn-primary" id="btn-save-custom-prices">Save all prices</button>
+        <span id="custom-price-status" style="font-size:13px;color:var(--text-mid);"></span>
+      </div>
+    </div>
+
+    <!-- CANCELLATION REQUESTS -->
+    <div class="panel" id="panel-cancel-requests">
+      <div class="page-title">Cancellation Requests</div>
+      <div class="page-sub">Review and action customer cancellation requests</div>
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+        <input id="cr-search" type="text" placeholder="Search by order ID or customer…" oninput="renderCancelRequests()" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <select id="cr-filter" onchange="renderCancelRequests()" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;background:white;outline:none;">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div id="cr-loading" style="text-align:center;padding:40px;color:var(--text-light);">Loading…</div>
+      <div id="cr-table-wrap" style="display:none;overflow-x:auto;">
+        <table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#F8F5F0;">
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Request</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Order</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Customer</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Items / Total</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Payment</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Reason</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Status</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Requested</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Actions</th>
+          </tr></thead>
+          <tbody id="cr-tbody"></tbody>
+        </table>
+      </div>
+      <div id="cr-empty" style="display:none;text-align:center;padding:60px;color:var(--text-light);">No cancellation requests found.</div>
+    </div>
+
+    <!-- REFUND MANAGEMENT -->
+    <div class="panel" id="panel-refunds">
+      <div class="page-title">Refund Management</div>
+      <div class="page-sub">Track and update GCash refund statuses manually</div>
+      <div style="background:#FEF3C7;border-left:3px solid #F59E0B;padding:12px 16px;border-radius:0 4px 4px 0;font-size:13px;color:#92400E;margin-bottom:20px;line-height:1.6;">
+        <strong>Manual refund process:</strong> GCash refunds must be processed manually through your GCash Business or PayMongo dashboard. Update the status here only after confirming the refund has been sent.
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+        <input id="rf-search" type="text" placeholder="Search by order ID or customer…" oninput="renderRefunds()" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <select id="rf-filter" onchange="renderRefunds()" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;background:white;outline:none;">
+          <option value="">All statuses</option>
+          <option value="pending_review">Pending Review</option>
+          <option value="approved">Approved</option>
+          <option value="processing">Processing</option>
+          <option value="refunded">Refunded</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div id="rf-loading" style="text-align:center;padding:40px;color:var(--text-light);">Loading…</div>
+      <div id="rf-table-wrap" style="display:none;overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#F8F5F0;">
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Order</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Customer</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Amount</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Payment Ref</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Status</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Date</th>
+            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Actions</th>
+          </tr></thead>
+          <tbody id="rf-tbody"></tbody>
+        </table>
+      </div>
+      <div id="rf-empty" style="display:none;text-align:center;padding:60px;color:var(--text-light);">No refund records found.</div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">System configuration and health</div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-title">System health</span></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);">
+              <span style="font-size:14px;font-weight:500;">Firebase Auth</span>
+              <span style="font-size:12px;font-weight:600;color:#065F46;background:#ECFDF5;padding:3px 10px;border-radius:3px;text-transform:uppercase;letter-spacing:0.04em;">Operational</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);">
+              <span style="font-size:14px;font-weight:500;">Firestore Database</span>
+              <span style="font-size:12px;font-weight:600;color:#065F46;background:#ECFDF5;padding:3px 10px;border-radius:3px;text-transform:uppercase;letter-spacing:0.04em;">Operational</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;">
+              <span style="font-size:14px;font-weight:500;">Express Server</span>
+              <span style="font-size:12px;font-weight:600;color:#065F46;background:#ECFDF5;padding:3px 10px;border-radius:3px;text-transform:uppercase;letter-spacing:0.04em;">Running :3000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- STATUS CONFIRM MODAL -->
+<div id="status-confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9200;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:8px;padding:32px;width:100%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text);">Confirm action</div>
+    <div id="sc-msg" style="font-size:14px;color:var(--text-mid);margin-bottom:24px;line-height:1.6;font-weight:300;"></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeStatusConfirm()" class="btn btn-outline" style="flex:1;justify-content:center;">Go Back</button>
+      <button id="sc-confirm-btn" onclick="doStatusConfirm()" class="btn btn-primary" style="flex:1;justify-content:center;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- CANCEL REASON MODAL -->
+<div id="cancel-reason-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9200;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:8px;padding:32px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:4px;color:var(--red);">Cancel Order</div>
+    <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px;line-height:1.5;font-weight:300;">This cannot be undone. If the order is already being prepared, consumed ingredients will <strong>not</strong> be restored.</div>
+    <div class="form-group" style="margin-bottom:20px;">
+      <label class="form-label">Reason for cancellation <span style="color:var(--red);">*</span></label>
+      <textarea id="cancel-reason-input" class="form-input" rows="3" placeholder="e.g. Customer requested cancellation, item unavailable…" style="resize:none;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeCancelModal()" class="btn btn-outline" style="flex:1;justify-content:center;">Go Back</button>
+      <button id="cancel-confirm-btn" onclick="doCancelOrder()" class="btn btn-danger" style="flex:1;justify-content:center;">Cancel Order</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- INGREDIENT MODAL -->
+<div id="ing-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:8px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="padding:18px 24px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;" id="ing-modal-title">Add Ingredient</div>
+      <button onclick="closeIngModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <div class="form-group"><label class="form-label">Ingredient name</label><input type="text" class="form-input" id="ing-name" placeholder="e.g. Mozzarella Cheese"></div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Unit</label>
+          <select class="form-input" id="ing-unit">
+            <option value="grams">Grams (g)</option>
+            <option value="kilograms">Kilograms (kg)</option>
+            <option value="milliliters">Milliliters (ml)</option>
+            <option value="liters">Liters (L)</option>
+            <option value="pieces">Pieces (pcs)</option>
+            <option value="slices">Slices</option>
+            <option value="cups">Cups</option>
+            <option value="tablespoons">Tablespoons</option>
+            <option value="ounces">Ounces (oz)</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Current Stock</label><input type="number" class="form-input" id="ing-stock" placeholder="0" min="0"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Low Stock Alert At</label><input type="number" class="form-input" id="ing-threshold" placeholder="e.g. 500" min="0"></div>
+        <div class="form-group"><label class="form-label">Cost per unit (₱)</label><input type="number" class="form-input" id="ing-cost" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button id="btn-save-ing" onclick="saveIngredient()" class="btn btn-primary" style="flex:1;">Save ingredient</button>
+        <button onclick="closeIngModal()" class="btn btn-outline">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECIPE MODAL -->
+<div id="recipe-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:white;border-radius:8px;width:100%;max-width:560px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="padding:18px 24px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;">Recipe / BOM</div>
+      <button onclick="closeRecipeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Menu item</label>
+          <select class="form-input" id="rec-item">
+            <option value="">Select item...</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Size (or All)</label>
+          <select class="form-input" id="rec-size">
+            <option value="all">All sizes</option>
+            <option value="10">10" Small</option>
+            <option value="12">12" Medium</option>
+            <option value="16">16" Large</option>
+            <option value="20">20" XL</option>
+            <option value="30">30" Party</option>
+            <option value="36">36" Fiesta</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-label" style="margin-bottom:8px;">Ingredients</div>
+      <div id="rec-ing-list" style="margin-bottom:10px;"></div>
+      <button onclick="addRecipeRow()" style="background:none;border:1px dashed var(--border);border-radius:4px;width:100%;padding:9px;font-size:13px;color:var(--text-mid);cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)';">+ Add ingredient row</button>
+
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button id="btn-save-recipe" onclick="saveRecipe()" class="btn btn-primary" style="flex:1;">Save recipe</button>
+        <button onclick="closeRecipeModal()" class="btn btn-outline">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INGREDIENT SETUP PROMPT -->
+<div id="ing-setup-prompt" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8500;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:10px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;">
+    <div style="background:var(--green);padding:20px 24px;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;" id="ing-prompt-title">Item Added!</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px;">Would you like to set up ingredients for this item?</div>
+    </div>
+    <div style="padding:20px 24px;">
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px;line-height:1.6;">
+        Setting up a <strong style="color:var(--text);">Recipe / BOM</strong> lets the system automatically deduct raw ingredients (flour, cheese, sauce, etc.) from your inventory every time this item is ordered.
+      </p>
+      <div style="display:flex;gap:10px;">
+        <button id="btn-setup-yes" onclick="goSetupIngredients()" style="flex:1;padding:11px;background:var(--green);color:white;border:none;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">
+          Yes, set up ingredients
+        </button>
+        <button onclick="closeIngSetupPrompt()" style="flex:1;padding:11px;background:white;color:var(--text-mid);border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;">
+          Skip for now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT ITEM MODAL -->
+<div id="edit-item-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9100;align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+  <div style="background:white;border-radius:12px;width:100%;max-width:600px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;">
+    <div style="background:var(--primary);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;">Edit Menu Item</div>
+      <button onclick="closeEditItem()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="padding:22px;display:flex;flex-direction:column;gap:14px;">
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Item name</label><input type="text" class="form-input" id="edit-name"></div>
+        <div class="form-group"><label class="form-label">Category</label>
+          <select class="form-input" id="edit-cat" onchange="updateEditPriceFields()">
+            <option value="pizza">Pizza</option><option value="sides">Sides</option>
+            <option value="drinks">Drinks</option><option value="desserts">Desserts</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-input" id="edit-desc" placeholder="Brief description of the item"></div>
+      <div class="form-group"><label class="form-label">Fallback emoji</label><input type="text" class="form-input" id="edit-emoji" placeholder="🍕" maxlength="2" style="max-width:80px;"></div>
+      <!-- Size prices -->
+      <div id="edit-pizza-prices">
+        <div class="form-label" style="margin-bottom:10px;">Price per size (₱)</div>
+        <div class="grid-3">
+          <div><label class="price-grid-label">10" Small</label><input type="number" class="form-input" id="ep-10" placeholder="—"></div>
+          <div><label class="price-grid-label">12" Medium</label><input type="number" class="form-input" id="ep-12" placeholder="—"></div>
+          <div><label class="price-grid-label">16" Large</label><input type="number" class="form-input" id="ep-16" placeholder="—"></div>
+          <div><label class="price-grid-label">20" XL</label><input type="number" class="form-input" id="ep-20" placeholder="—"></div>
+          <div><label class="price-grid-label">30" Party</label><input type="number" class="form-input" id="ep-30" placeholder="—"></div>
+          <div><label class="price-grid-label">36" Fiesta</label><input type="number" class="form-input" id="ep-36" placeholder="—"></div>
+        </div>
+      </div>
+      <div id="edit-sides-prices" style="display:none;">
+        <div class="form-label" style="margin-bottom:10px;">Price per size (₱)</div>
+        <div class="grid-2">
+          <div><label class="price-grid-label">Single</label><input type="number" class="form-input" id="ep-single" placeholder="—"></div>
+          <div><label class="price-grid-label">Family</label><input type="number" class="form-input" id="ep-family" placeholder="—"></div>
+        </div>
+      </div>
+      <div id="edit-drinks-prices" style="display:none;">
+        <div class="form-label" style="margin-bottom:10px;">Price per size (₱)</div>
+        <div class="grid-3">
+          <div><label class="price-grid-label">Small</label><input type="number" class="form-input" id="ep-sm" placeholder="—"></div>
+          <div><label class="price-grid-label">Medium</label><input type="number" class="form-input" id="ep-md" placeholder="—"></div>
+          <div><label class="price-grid-label">Large</label><input type="number" class="form-input" id="ep-lg" placeholder="—"></div>
+        </div>
+      </div>
+      <div id="edit-desserts-prices" style="display:none;">
+        <div class="form-group"><label class="form-label">Price (₱)</label><input type="number" class="form-input" id="ep-dessert" placeholder="—"></div>
+      </div>
+      <!-- Add-ons -->
+      <div class="form-group">
+        <label class="form-label">Add-ons</label>
+        <div id="edit-addons-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+        <button type="button" onclick="addEditAddonRow()" class="btn btn-outline btn-sm">+ Add option</button>
+      </div>
+      <!-- Photo -->
+      <div class="form-group">
+        <label class="form-label">Item photo</label>
+        <div id="edit-current-photo" style="margin-bottom:8px;display:none;"><img id="edit-current-img" src="" style="height:80px;border-radius:6px;object-fit:cover;border:1px solid var(--border);"></div>
+        <div class="upload-zone" onclick="document.getElementById('edit-image-input').click()" style="padding:14px;">
+          <div id="edit-upload-preview" style="display:none;margin-bottom:6px;"><img id="edit-preview-img" src="" style="max-height:70px;border-radius:4px;object-fit:cover;"></div>
+          <div id="edit-upload-placeholder"><div class="upload-zone-label" style="font-size:13px;">Click to replace photo</div><div class="upload-zone-sub">Leave blank to keep current photo</div></div>
+          <input type="file" id="edit-image-input" accept="image/*" style="display:none;" onchange="previewEditImage(this)">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding-top:4px;">
+        <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="closeEditItem()">Cancel</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" id="btn-save-edit" onclick="saveEditItem()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Delete item?</div>
+    <div class="confirm-msg" id="confirm-msg">This cannot be undone.</div>
+    <div class="confirm-actions">
+      <button id="confirm-cancel-btn" class="btn btn-outline" style="flex:1;justify-content:center;">Cancel</button>
+      <button id="confirm-ok-btn" class="btn btn-danger" style="flex:1;justify-content:center;">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- REJECT CANCELLATION MODAL -->
+<div id="reject-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9300;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:10px;width:100%;max-width:460px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:6px;">Reject Cancellation Request</div>
+    <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px;">Please provide a reason for rejecting this cancellation request. The customer will be notified.</p>
+    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Rejection Reason <span style="color:var(--red);">*</span></label>
+    <textarea id="reject-reason-input" rows="4" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:6px;padding:10px;font-size:13px;resize:vertical;" placeholder="e.g. Order is already being prepared and cannot be cancelled at this stage."></textarea>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button id="reject-cancel-btn" class="btn btn-outline" style="flex:1;justify-content:center;">Go Back</button>
+      <button id="reject-confirm-btn" class="btn btn-danger" style="flex:1;justify-content:center;background:#991B1B;border-color:#991B1B;">Reject Request</button>
+    </div>
+  </div>
+</div>
+<!-- REJECT MODAL open class -->
+<style>#reject-modal.open{display:flex;}</style>
+
+<!-- REFUND STATUS UPDATE MODAL -->
+<div id="refund-status-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9300;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:10px;width:100%;max-width:500px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:16px;">Update Refund Status</div>
+    <div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:6px;padding:10px 14px;font-size:12px;color:#854D0E;margin-bottom:16px;">
+      ⚠️ Only mark a refund as <strong>Refunded</strong> after you have verified the actual GCash transfer in your PayMongo/GCash dashboard. Provide the transaction reference below.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:13px;">
+      <div><span style="color:var(--text-mid);">Order:</span> <strong id="rsu-order-id"></strong></div>
+      <div><span style="color:var(--text-mid);">Customer:</span> <strong id="rsu-customer"></strong></div>
+      <div><span style="color:var(--text-mid);">Amount:</span> <strong id="rsu-amount" style="color:var(--red);"></strong></div>
+      <div><span style="color:var(--text-mid);">Current Status:</span> <strong id="rsu-current-status"></strong></div>
+    </div>
+    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">New Status</label>
+    <select id="rsu-status-select" style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:9px;font-size:13px;margin-bottom:14px;">
+      <option value="pending_review">Pending Review</option>
+      <option value="approved">Approved</option>
+      <option value="processing">Processing</option>
+      <option value="refunded">Refunded (confirmed transfer)</option>
+      <option value="rejected">Rejected</option>
+    </select>
+    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">GCash Refund Reference <span style="font-weight:400;color:var(--text-mid);">(required if marking Refunded)</span></label>
+    <input id="rsu-ref" type="text" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:6px;padding:9px;font-size:13px;margin-bottom:14px;" placeholder="e.g. PAYMONGO-REF-12345 or GCash transaction ID">
+    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Notes</label>
+    <textarea id="rsu-notes" rows="3" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:6px;padding:10px;font-size:13px;resize:vertical;" placeholder="Optional notes about this refund action…"></textarea>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button id="rsu-cancel-btn" class="btn btn-outline" style="flex:1;justify-content:center;">Cancel</button>
+      <button id="rsu-confirm-btn" class="btn" style="flex:1;justify-content:center;background:var(--red);color:#fff;border-color:var(--red);">Update Status</button>
+    </div>
+  </div>
+</div>
+<style>#refund-status-modal.open{display:flex;}</style>
+
+<!-- SALES MODAL -->
+<div id="sales-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:8px;width:100%;max-width:580px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="background:var(--green);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;" id="sales-modal-title">Sales Breakdown</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;" id="sales-modal-sub"></div>
+      </div>
+      <button onclick="closeSalesModal()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;">✕</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);">
+        <div style="padding:16px;text-align:center;border-right:1px solid var(--border);"><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--red);" id="sm-revenue">—</div><div style="font-size:11px;color:var(--text-light);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em;">Revenue</div></div>
+        <div style="padding:16px;text-align:center;border-right:1px solid var(--border);"><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--green);" id="sm-orders">—</div><div style="font-size:11px;color:var(--text-light);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em;">Orders</div></div>
+        <div style="padding:16px;text-align:center;"><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--green);" id="sm-items">—</div><div style="font-size:11px;color:var(--text-light);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em;">Items sold</div></div>
+      </div>
+      <div style="padding:20px;"><div style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:16px;">Items sold</div><div id="sm-items-list"></div></div>
+      <div style="padding:0 20px 20px;"><div style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:16px;">Orders in period</div><div id="sm-orders-list"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PREPARING CONFIRMATION DIALOG -->
+<div id="prep-dialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9500;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:8px;width:100%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.25);">
+    <div style="background:var(--green);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;">Confirm — Start Preparing</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:2px;">The following ingredients will be deducted from stock</div>
+      </div>
+      <button onclick="closePrepDialog()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#FDFAF5;">
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);border-bottom:1px solid var(--border);">Ingredient</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);border-bottom:1px solid var(--border);">Will Use</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);border-bottom:1px solid var(--border);">In Stock</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);border-bottom:1px solid var(--border);">Status</th>
+          </tr>
+        </thead>
+        <tbody id="prep-ing-list"></tbody>
+      </table>
+    </div>
+    <div id="prep-warning" style="display:none;margin:0;padding:14px 20px;background:#FEE2E2;border-top:1px solid #FECACA;">
+      <div style="color:var(--red);font-size:13px;font-weight:600;">⚠ Insufficient stock — cannot proceed to Preparing until stock is restocked.</div>
+    </div>
+    <div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;">
+      <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="closePrepDialog()">Cancel</button>
+      <button id="prep-confirm-btn" class="btn btn-primary" style="flex:1;justify-content:center;" onclick="confirmPreparing()">Confirm &amp; Deduct</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAILY LIMIT MODAL -->
+<div id="inv-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:8px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;">
+    <div style="background:var(--green);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;" id="modal-item-name">Item</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:3px;" id="modal-item-cat"></div>
+      </div>
+      <button onclick="closeInvModal()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="padding:22px 24px;">
+      <div style="background:#F0F7F0;border-radius:6px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#2E7D32;line-height:1.5;">
+        Set how many orders to accept for this item today. Orders will be blocked once the limit is reached.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Daily Limit (orders)</label>
+        <input id="modal-stock" type="number" min="0" class="form-input" placeholder="e.g. 20">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Almost-Full Threshold</label>
+        <input id="modal-threshold" type="number" min="0" class="form-input" placeholder="e.g. 5">
+        <div style="font-size:11px;color:var(--text-light);margin-top:4px;">Show "Almost Full" warning when remaining orders drop to this number.</div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Notes (optional)</label>
+        <textarea id="modal-notes" class="form-input" rows="2" placeholder="e.g. Special event day — increase limit" style="resize:none;"></textarea>
+      </div>
+    </div>
+    <div style="padding:0 24px 22px;display:flex;gap:10px;">
+      <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="closeInvModal()">Cancel</button>
+      <button id="modal-save-btn" class="btn btn-primary" style="flex:1;justify-content:center;" onclick="saveInvModal()">Save limit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allOrders=[],orderFilter='all',invItems=[],invFilter='all',currentInvItem=null,addonRowIds=[],menuItems=[],cachedOrders=[];
+
+// ── Workflow map ──────────────────────────────────────────────
+const NEXT_STATUSES={
+  pending:['confirmed','cancelled'],
+  confirmed:['preparing','cancelled'],
+  preparing:['out_for_delivery','cancelled'],
+  out_for_delivery:['delivered'],
+  delivered:[],
+  cancelled:[],
+};
+const nextLabels={
+  confirmed:'Confirm Order',
+  preparing:'Start Preparing',
+  out_for_delivery:'Out for Delivery',
+  delivered:'Mark Delivered',
+  cancelled:'Cancel Order',
+};
+
+function renderStatusAction(o){
+  const nexts=NEXT_STATUSES[o.status]||[];
+  if(!nexts.length){
+    return `<span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span>`;
+  }
+  const opts=nexts.map(s=>`<option value="${s}" ${s==='cancelled'?'style="color:var(--red);"':''}>${nextLabels[s]||statusNames[s]}</option>`).join('');
+  return `<select class="status-select" onchange="updateStatus('${o.id}',this.value,this)" data-current="${o.status}">
+    <option value="" disabled selected style="color:var(--text-light);">Move to…</option>
+    ${opts}
+  </select>`;
+}
+const statusNames={pending:'Pending',confirmed:'Confirmed',preparing:'Preparing',out_for_delivery:'Out for delivery',delivered:'Delivered',cancelled:'Cancelled'};
+const statusColors={pending:'badge-pending',confirmed:'badge-confirmed',preparing:'badge-preparing',out_for_delivery:'badge-out_for_delivery',delivered:'badge-delivered',cancelled:'badge-cancelled'};
+
+async function init(){
+  const user=await requireAdmin();
+  if(!user)return;
+  document.getElementById('user-name').textContent=user.name||'Admin';
+  loadStats();loadOrders();
+}
+
+document.querySelectorAll('.sidebar-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    showPanel(item.dataset.panel);
+  });
+});
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id)?.classList.add('active');
+  if(id==='orders')loadOrders();
+  if(id==='menu-mgmt')loadMenu();
+  if(id==='inventory'){loadInventory();}
+  if(id==='customers')loadCustomers();
+  if(id==='custom-pricing')loadCustomPrices();
+  if(id==='settings'){}
+  if(id==='cancel-requests') loadCancelRequests();
+  if(id==='refunds') loadRefunds();
+}
+
+function paymentBadge(o){
+  if(o.paymentMethod!=='gcash')return '<span style="font-size:12px;color:var(--text-light);">Cash</span>';
+  if(o.paymentStatus==='paid')return '<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">GCash paid</span>';
+  return '<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">GCash pending</span>';
+}
+
+async function loadStats(){
+  try{
+    const{stats}=await api('/admin/stats');
+    document.getElementById('ov-revenue').textContent=formatCurrency(stats.totalRevenue);
+    document.getElementById('ov-orders').textContent=stats.totalOrders;
+    document.getElementById('ov-pending').textContent=stats.pendingOrders;
+    document.getElementById('ov-customers').textContent=stats.totalCustomers;
+    document.getElementById('pending-badge').textContent=stats.pendingOrders;
+    const{orders}=await api('/admin/orders');
+    cachedOrders=orders;
+    const now=new Date();
+    const todayStart=new Date(now);todayStart.setHours(0,0,0,0);
+    const weekStart=new Date(now);weekStart.setDate(now.getDate()-now.getDay());weekStart.setHours(0,0,0,0);
+    const monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+    const yearStart=new Date(now.getFullYear(),0,1);
+    let daily=0,weekly=0,monthly=0,yearly=0,cancelled=0;
+    orders.forEach(o=>{
+      const d=new Date(o.createdAt);
+      if(o.status==='cancelled'){cancelled++;return;}
+      if(o.status!=='delivered')return;
+      const r=o.total||0;
+      if(d>=todayStart)daily+=r;
+      if(d>=weekStart)weekly+=r;
+      if(d>=monthStart)monthly+=r;
+      if(d>=yearStart)yearly+=r;
+    });
+    document.getElementById('ov-cancelled').textContent=cancelled;
+    document.getElementById('ov-daily').textContent=formatCurrency(daily);
+    document.getElementById('ov-weekly').textContent=formatCurrency(weekly);
+    document.getElementById('ov-monthly').textContent=formatCurrency(monthly);
+    document.getElementById('ov-yearly').textContent=formatCurrency(yearly);
+    allOrders=orders;loadRecentOrders();
+  }catch(e){console.error(e);}
+}
+
+async function loadOrders(){
+  try{
+    const{orders}=await api('/admin/orders');
+    allOrders=orders;renderOrders();loadRecentOrders();
+  }catch(e){toast('Failed to load orders','error');}
+}
+
+function renderOrders(){
+  const filtered=orderFilter==='all'?allOrders:allOrders.filter(o=>o.status===orderFilter);
+  document.getElementById('orders-tbody').innerHTML=filtered.length?filtered.map(o=>`
+    <tr>
+      <td style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
+      <td><div style="font-weight:500;">${o.userName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${o.userEmail||''}</div></td>
+      <td style="font-size:12px;width:240px;max-width:240px;">${buildOrderItemCell(o)}</td>
+      <td style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
+      <td>${paymentBadge(o)}</td>
+      <td><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
+      <td style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
+      <td>${renderStatusAction(o)}</td>
+    </tr>`).join(''):
+    `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-mid);">No orders found</td></tr>`;
+}
+
+function loadRecentOrders(){
+  document.getElementById('recent-orders-tbody').innerHTML=allOrders.slice(0,6).map(o=>`
+    <tr>
+      <td style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
+      <td style="font-weight:500;">${o.userName||'—'}</td>
+      <td style="font-size:12px;max-width:220px;">
+        ${(o.items||[]).map(i=>{
+          const isCustom = i.name && i.name.toLowerCase().includes('custom');
+          return `<div>${i.qty}× ${i.name}${isCustom&&i.addonNames?` <span style="font-size:10px;color:var(--green);font-weight:600;">[${[...new Set(i.addonNames.split(' / '))].slice(0,3).join(', ')}${i.addonNames.split(' / ').length>3?'…':''}]</span>`:''}`;
+        }).join('<br>')}
+      </td>
+      <td style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
+      <td>${paymentBadge(o)}</td>
+      <td><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
+      <td style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
+    </tr>`).join('')||`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-mid);">No orders yet</td></tr>`;
+}
+
+document.querySelectorAll('[data-status]').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('[data-status]').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');orderFilter=tab.dataset.status;renderOrders();
+  });
+});
+
+document.querySelectorAll('[data-inv-filter]').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('[data-inv-filter]').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    invFilter=tab.dataset.invFilter;
+    renderInventory();
+  });
+});
+
+// ── Ingredient confirmation dialog ────────────────────────────
+let _prepOrderId=null,_prepSelectEl=null,_prepPrevStatus=null;
+
+// ── Status confirm modal state ────────────────────────────────
+let _scOrderId=null,_scStatus=null,_scSelectEl=null,_scPrevStatus=null;
+let _cancelOrderId=null,_cancelSelectEl=null,_cancelPrevStatus=null;
+
+const confirmMessages={
+  confirmed:'Confirm this order? The customer will be notified.',
+  out_for_delivery:'Mark this order as out for delivery?',
+  delivered:'Mark this order as delivered? This is a final status.',
+};
+
+function updateStatus(id,status,selectEl){
+  const prevStatus=allOrders.find(o=>o.id===id)?.status;
+  selectEl.value=''; // reset placeholder immediately
+
+  if(status==='cancelled'){
+    _cancelOrderId=id; _cancelSelectEl=selectEl; _cancelPrevStatus=prevStatus;
+    document.getElementById('cancel-reason-input').value='';
+    document.getElementById('cancel-reason-modal').style.display='flex';
+    document.body.style.overflow='hidden';
+    return;
+  }
+
+  if(status==='preparing'&&prevStatus!=='preparing'){
+    _prepOrderId=id; _prepSelectEl=selectEl; _prepPrevStatus=prevStatus;
+    selectEl.disabled=true;
+    api('/admin/orders/'+id+'/prepare-preview').then(data=>{
+      if(data.alreadyDeducted){
+        _commitStatus(id,'preparing',selectEl,prevStatus);
+        return;
+      }
+      _showPrepDialog(data.ingredients,data.allSufficient);
+    }).catch(e=>{
+      toast('Failed to load ingredient preview','error');
+      selectEl.disabled=false;
+    });
+    return;
+  }
+
+  // Generic confirmation for confirmed / out_for_delivery / delivered
+  _scOrderId=id; _scStatus=status; _scSelectEl=selectEl; _scPrevStatus=prevStatus;
+  const msg=confirmMessages[status]||`Move order to "${statusNames[status]||status}"?`;
+  document.getElementById('sc-msg').textContent=msg;
+  document.getElementById('status-confirm-modal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeStatusConfirm(){
+  document.getElementById('status-confirm-modal').style.display='none';
+  document.body.style.overflow='';
+  _scOrderId=null; _scStatus=null; _scSelectEl=null; _scPrevStatus=null;
+}
+
+async function doStatusConfirm(){
+  const btn=document.getElementById('sc-confirm-btn');
+  btn.disabled=true; btn.textContent='Updating…';
+  const id=_scOrderId,status=_scStatus,selectEl=_scSelectEl,prevStatus=_scPrevStatus;
+  document.getElementById('status-confirm-modal').style.display='none';
+  document.body.style.overflow='';
+  _scOrderId=null; _scStatus=null; _scSelectEl=null; _scPrevStatus=null;
+  btn.disabled=false; btn.textContent='Confirm';
+  await _commitStatus(id,status,selectEl,prevStatus);
+}
+
+function closeCancelModal(){
+  document.getElementById('cancel-reason-modal').style.display='none';
+  document.body.style.overflow='';
+  _cancelOrderId=null; _cancelSelectEl=null; _cancelPrevStatus=null;
+}
+
+async function doCancelOrder(){
+  const reason=document.getElementById('cancel-reason-input').value.trim();
+  if(!reason){
+    document.getElementById('cancel-reason-input').focus();
+    document.getElementById('cancel-reason-input').style.borderColor='var(--red)';
+    return;
+  }
+  document.getElementById('cancel-reason-input').style.borderColor='';
+  const btn=document.getElementById('cancel-confirm-btn');
+  btn.disabled=true; btn.textContent='Cancelling…';
+  const id=_cancelOrderId,selectEl=_cancelSelectEl,prevStatus=_cancelPrevStatus;
+  document.getElementById('cancel-reason-modal').style.display='none';
+  document.body.style.overflow='';
+  _cancelOrderId=null; _cancelSelectEl=null; _cancelPrevStatus=null;
+  btn.disabled=false; btn.textContent='Cancel Order';
+
+  const row=selectEl?.closest('tr');
+  try{
+    await api('/admin/orders/'+id+'/status','PATCH',{status:'cancelled',reason});
+    toast('Order cancelled','success');
+    const o=allOrders.find(o=>o.id===id);if(o)o.status='cancelled';
+    // Replace dropdown with final badge
+    if(selectEl){const td=selectEl.closest('td');if(td)td.innerHTML='<span class="badge badge-cancelled">Cancelled</span>';}
+    if(row){const b=row.querySelector('.badge');if(b){b.className='badge badge-cancelled';b.textContent='Cancelled';}}
+  }catch(e){
+    toast(e.message||'Failed to cancel order','error');
+  }
+}
+
+async function _commitStatus(id,status,selectEl,prevStatus){
+  const row=selectEl?.closest('tr');
+  if(row){const b=row.querySelector('.badge');if(b){b.className='badge '+(statusColors[status]||'badge-pending');b.textContent=statusNames[status]||status;}}
+  try{
+    await api('/admin/orders/'+id+'/status','PATCH',{status});
+    toast('Status updated to '+statusNames[status],'success');
+    const o=allOrders.find(o=>o.id===id);if(o)o.status=status;
+    // If final state, replace dropdown with static badge
+    const nexts=NEXT_STATUSES[status]||[];
+    if(selectEl){
+      if(!nexts.length){
+        const td=selectEl.closest('td');
+        if(td)td.innerHTML=`<span class="badge ${statusColors[status]||'badge-pending'}">${statusNames[status]||status}</span>`;
+      } else {
+        // Rebuild dropdown with new next steps
+        const td=selectEl.closest('td');
+        if(td){const tmp=allOrders.find(o=>o.id===id);if(tmp)td.innerHTML=renderStatusAction(tmp);}
+        else {selectEl.disabled=false;}
+      }
+    }
+  }catch(e){
+    toast('Failed: '+(e.message||'Unknown error'),'error');
+    if(row){const b=row.querySelector('.badge');if(b){b.className='badge '+(statusColors[prevStatus]||'badge-pending');b.textContent=statusNames[prevStatus]||prevStatus;}}
+    if(selectEl)selectEl.disabled=false;
+  }
+}
+
+function _showPrepDialog(ingredients,allSufficient){
+  const el=document.getElementById('prep-dialog');
+  const tbody=document.getElementById('prep-ing-list');
+  const btnConfirm=document.getElementById('prep-confirm-btn');
+  const warning=document.getElementById('prep-warning');
+
+  if(ingredients.length===0){
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;">No ingredient recipes defined for this order\'s items.<br><small>The order will proceed without ingredient deduction.</small></td></tr>';
+    warning.style.display='none';
+    btnConfirm.disabled=false;
+    btnConfirm.style.opacity='1';
+  } else {
+    tbody.innerHTML=ingredients.map(i=>`
+      <tr>
+        <td style="font-weight:500;">${i.name}</td>
+        <td style="color:var(--red);font-weight:600;">${i.needed} ${i.unit}</td>
+        <td style="color:${i.sufficient?'var(--green)':'var(--red)'};">${i.currentStock} ${i.unit}</td>
+        <td>${i.sufficient
+          ?'<span style="color:var(--green);font-weight:600;">✓ OK</span>'
+          :'<span style="color:var(--red);font-weight:700;">✗ Short by '+(i.needed-i.currentStock)+' '+i.unit+'</span>'
+        }</td>
+      </tr>`).join('');
+    if(!allSufficient){
+      warning.style.display='block';
+      btnConfirm.disabled=true;
+      btnConfirm.style.opacity='0.4';
+    } else {
+      warning.style.display='none';
+      btnConfirm.disabled=false;
+      btnConfirm.style.opacity='1';
+    }
+  }
+  el.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+window.closePrepDialog=()=>{
+  document.getElementById('prep-dialog').style.display='none';
+  document.body.style.overflow='';
+  if(_prepSelectEl){_prepSelectEl.value=_prepPrevStatus;_prepSelectEl.disabled=false;}
+  _prepOrderId=null;_prepSelectEl=null;_prepPrevStatus=null;
+};
+
+window.confirmPreparing=async()=>{
+  const btnConfirm=document.getElementById('prep-confirm-btn');
+  btnConfirm.disabled=true; btnConfirm.textContent='Processing...';
+  try{
+    const data=await api('/admin/orders/'+_prepOrderId+'/status','PATCH',{status:'preparing'});
+    btnConfirm.disabled=false; btnConfirm.textContent='Confirm & Deduct';
+    document.getElementById('prep-dialog').style.display='none';
+    document.body.style.overflow='';
+    toast('Status set to Preparing — ingredients deducted','success');
+    const o=allOrders.find(o=>o.id===_prepOrderId);if(o)o.status='preparing';
+    const row=_prepSelectEl?.closest('tr');
+    if(row){const b=row.querySelector('.badge');if(b){b.className='badge badge-preparing';b.textContent='Preparing';}}
+    // Rebuild action cell with new next steps
+    if(_prepSelectEl){
+      const td=_prepSelectEl.closest('td');
+      if(td&&o)td.innerHTML=renderStatusAction(o);
+      else if(_prepSelectEl){_prepSelectEl.disabled=false;}
+    }
+    _prepOrderId=null;_prepSelectEl=null;_prepPrevStatus=null;
+  }catch(e){
+    // 409 = insufficient stock (should not happen since dialog disabled btn, but guard anyway)
+    toast(e.message||'Failed to update status','error');
+    btnConfirm.disabled=false; btnConfirm.textContent='Confirm & Deduct';
+    document.getElementById('prep-dialog').style.display='none';
+    document.body.style.overflow='';
+    if(_prepSelectEl){_prepSelectEl.value=_prepPrevStatus;_prepSelectEl.disabled=false;}
+    _prepOrderId=null;_prepSelectEl=null;_prepPrevStatus=null;
+  }
+}
+
+window.updatePriceFields=()=>{
+  const cat=document.getElementById('new-cat').value;
+  ['pizza','sides','drinks','desserts'].forEach(c=>document.getElementById(c+'-prices').style.display=c===cat?'':'none');
+};
+
+function getSizePrices(){
+  const cat=document.getElementById('new-cat').value;const sizes={};
+  const fields=cat==='pizza'?[['10','10" Small'],['12','12" Medium'],['16','16" Large'],['20','20" XL'],['30','30" Party'],['36','36" Fiesta']]:
+    cat==='sides'?[['single','Single'],['family','Family']]:
+    cat==='drinks'?[['sm','Small'],['md','Medium'],['lg','Large']]:[];
+  fields.forEach(([key,label])=>{const val=parseFloat(document.getElementById('p-'+key)?.value);if(val>0)sizes[key]={label,price:val};});
+  if(cat==='desserts'){const val=parseFloat(document.getElementById('p-dessert').value);if(val>0)sizes['regular']={label:'Regular',price:val};}
+  return sizes;
+}
+
+window.addAddonRow=(name='',price='')=>{
+  const id=Date.now();addonRowIds.push(id);
+  const row=document.createElement('div');row.id='addon-row-'+id;row.className='addon-row';
+  row.innerHTML=`<input type="text" placeholder="Add-on name (e.g. Extra Cheese)" value="${name}" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;" id="addon-name-${id}"><span style="font-size:13px;color:var(--text-mid);font-weight:500;">₱</span><input type="number" placeholder="Price" value="${price}" min="0" style="width:80px;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;" id="addon-price-${id}"><button onclick="removeAddonRow(${id})" style="background:#FEE2E2;color:#991B1B;border:none;border-radius:4px;width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0;">✕</button>`;
+  document.getElementById('addons-list').appendChild(row);
+};
+window.removeAddonRow=(id)=>{document.getElementById('addon-row-'+id)?.remove();addonRowIds=addonRowIds.filter(r=>r!==id);};
+function getAddons(){const addons={};addonRowIds.forEach(id=>{const name=document.getElementById('addon-name-'+id)?.value.trim();const price=parseFloat(document.getElementById('addon-price-'+id)?.value)||0;if(name)addons[name.toLowerCase().replace(/\s+/g,'_')]={label:name,price};});return addons;}
+function clearAddons(){addonRowIds=[];document.getElementById('addons-list').innerHTML='';}
+
+// ── EDIT ITEM ──────────────────────────────────────────────
+let _editItemId=null;
+let _editAddonIds=[];
+
+function updateEditPriceFields(){
+  const cat=document.getElementById('edit-cat').value;
+  ['pizza','sides','drinks','desserts'].forEach(c=>document.getElementById('edit-'+c+'-prices').style.display=c===cat?'':'none');
+}
+
+function addEditAddonRow(name='',price=''){
+  const id=Date.now()+Math.random();_editAddonIds.push(id);
+  const row=document.createElement('div');row.id='edit-addon-row-'+id;row.className='addon-row';
+  row.innerHTML=`<input type="text" placeholder="Add-on name" value="${name}" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;" id="edit-addon-name-${id}"><span style="font-size:13px;color:var(--text-mid);font-weight:500;">₱</span><input type="number" placeholder="Price" value="${price}" min="0" style="width:80px;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;" id="edit-addon-price-${id}"><button onclick="removeEditAddonRow(${id})" style="background:#FEE2E2;color:#991B1B;border:none;border-radius:4px;width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0;">✕</button>`;
+  document.getElementById('edit-addons-list').appendChild(row);
+}
+window.addEditAddonRow=addEditAddonRow;
+window.removeEditAddonRow=(id)=>{document.getElementById('edit-addon-row-'+id)?.remove();_editAddonIds=_editAddonIds.filter(r=>r!==id);};
+
+function getEditAddons(){
+  const addons={};
+  _editAddonIds.forEach(id=>{
+    const name=document.getElementById('edit-addon-name-'+id)?.value.trim();
+    const price=parseFloat(document.getElementById('edit-addon-price-'+id)?.value)||0;
+    if(name)addons[name.toLowerCase().replace(/\s+/g,'_')]={label:name,price};
+  });
+  return addons;
+}
+
+function getEditSizePrices(){
+  const cat=document.getElementById('edit-cat').value;
+  const sizes={};
+  const sizeMap={pizza:[{k:'10',l:'10" Small'},{k:'12',l:'12" Medium'},{k:'16',l:'16" Large'},{k:'20',l:'20" XL'},{k:'30',l:'30" Party'},{k:'36',l:'36" Fiesta'}],sides:[{k:'single',l:'Single'},{k:'family',l:'Family'}],drinks:[{k:'sm',l:'Small'},{k:'md',l:'Medium'},{k:'lg',l:'Large'}],desserts:[{k:'dessert',l:'Regular'}]};
+  (sizeMap[cat]||[]).forEach(({k,l})=>{const v=parseFloat(document.getElementById('ep-'+k)?.value);if(v>0)sizes[k]={label:l,price:v};});
+  return sizes;
+}
+
+window.openEditItem=async(id)=>{
+  // Fetch fresh full data from admin API to ensure all fields are present
+  let item=menuItems.find(i=>i.id===id);
+  if(!item){
+    try{const{items}=await api('/admin/stock');menuItems=items;item=items.find(i=>i.id===id);}catch(e){}
+  }
+  if(!item)return toast('Item not found','error');
+  _editItemId=id;_editAddonIds=[];
+  // Basic fields
+  document.getElementById('edit-name').value=item.name||'';
+  document.getElementById('edit-desc').value=item.description||'';
+  document.getElementById('edit-emoji').value=(item.image&&!item.image.startsWith('/'))?item.image:'';
+  // Category + show correct price section
+  const cat=item.category||'pizza';
+  document.getElementById('edit-cat').value=cat;
+  updateEditPriceFields();
+  // Size prices — clear all first, then fill from item
+  ['10','12','16','20','30','36','single','family','sm','md','lg','dessert'].forEach(k=>{const el=document.getElementById('ep-'+k);if(el)el.value='';});
+  const sizes=item.sizes||{};
+  Object.entries(sizes).forEach(([k,v])=>{const el=document.getElementById('ep-'+k);if(el&&v?.price)el.value=v.price;});
+  // If no sizes object but has flat price (legacy items), fill first size field
+  if(!Object.keys(sizes).length&&item.price){
+    const firstKey={pizza:'10',sides:'single',drinks:'sm',desserts:'dessert'}[cat]||'10';
+    const el=document.getElementById('ep-'+firstKey);if(el)el.value=item.price;
+  }
+  // Add-ons
+  document.getElementById('edit-addons-list').innerHTML='';
+  Object.values(item.addons||{}).forEach(a=>addEditAddonRow(a.label||'',a.price||0));
+  // Current photo
+  const cp=document.getElementById('edit-current-photo');
+  const ci=document.getElementById('edit-current-img');
+  if(item.image&&item.image.startsWith('/')){cp.style.display='block';ci.src=item.image;}else{cp.style.display='none';}
+  document.getElementById('edit-upload-preview').style.display='none';
+  document.getElementById('edit-upload-placeholder').style.display='block';
+  document.getElementById('edit-image-input').value='';
+  document.getElementById('btn-save-edit').disabled=false;
+  document.getElementById('btn-save-edit').textContent='Save changes';
+  document.getElementById('edit-item-modal').style.display='flex';
+  document.body.style.overflow='hidden';
+};
+
+function closeEditItem(){
+  document.getElementById('edit-item-modal').style.display='none';
+  document.body.style.overflow='';
+  _editItemId=null;
+}
+
+async function saveEditItem(){
+  if(!_editItemId)return;
+  const name=document.getElementById('edit-name').value.trim();
+  if(!name)return toast('Item name is required','error');
+  const sizes=getEditSizePrices();
+  if(!Object.keys(sizes).length)return toast('Set at least one price','error');
+  const btn=document.getElementById('btn-save-edit');
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    let imageUrl=undefined;
+    const imageFile=document.getElementById('edit-image-input').files[0];
+    if(imageFile){
+      btn.textContent='Uploading photo...';
+      const fd=new FormData();fd.append('image',imageFile);
+      const r=await fetch('/api/admin/upload-image',{method:'POST',credentials:'include',body:fd});
+      const d=await r.json();
+      if(d.success)imageUrl=d.imageUrl;else throw new Error(d.message||'Upload failed');
+    } else {
+      const emoji=document.getElementById('edit-emoji').value.trim();
+      const currentItem=menuItems.find(i=>i.id===_editItemId);
+      imageUrl=emoji||(currentItem?.image)||'🍕';
+    }
+    btn.textContent='Saving...';
+    const payload={name,description:document.getElementById('edit-desc').value,category:document.getElementById('edit-cat').value,image:imageUrl,sizes,addons:getEditAddons(),price:Object.values(sizes)[0].price};
+    await api('/admin/menu/'+_editItemId,'PATCH',payload);
+    toast(name+' updated!','success');
+    closeEditItem();
+    loadMenu();
+  }catch(e){toast(e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='Save changes';}
+}
+// ────────────────────────────────────────────────────────────
+
+window.previewImage=(input)=>{
+  if(!input.files?.[0])return;
+  const reader=new FileReader();
+  reader.onload=e=>{document.getElementById('preview-img').src=e.target.result;document.getElementById('upload-preview').style.display='block';document.getElementById('upload-placeholder').style.display='none';};
+  reader.readAsDataURL(input.files[0]);
+};
+
+window.previewEditImage=(input)=>{
+  if(!input.files?.[0])return;
+  const reader=new FileReader();
+  reader.onload=e=>{document.getElementById('edit-preview-img').src=e.target.result;document.getElementById('edit-upload-preview').style.display='block';document.getElementById('edit-upload-placeholder').style.display='none';};
+  reader.readAsDataURL(input.files[0]);
+};
+
+document.getElementById('btn-add-item').onclick=async()=>{
+  const name=document.getElementById('new-name').value.trim();const cat=document.getElementById('new-cat').value;
+  if(!name)return toast('Item name is required','error');
+  const sizes=getSizePrices();if(!Object.keys(sizes).length)return toast('Set at least one price','error');
+  const basePrice=Object.values(sizes)[0].price;
+  const btn=document.getElementById('btn-add-item');const status=document.getElementById('add-status');
+  btn.disabled=true;btn.textContent='Adding...';
+  try{
+    let imageUrl=document.getElementById('new-emoji').value||'🍕';
+    const imageFile=document.getElementById('new-image').files[0];
+    if(imageFile){status.textContent='Uploading photo...';const fd=new FormData();fd.append('image',imageFile);const r=await fetch('/api/admin/upload-image',{method:'POST',credentials:'include',body:fd});const d=await r.json();if(d.success)imageUrl=d.imageUrl;else throw new Error(d.message);}
+    status.textContent='Saving...';
+    await api('/admin/menu','POST',{name,price:basePrice,category:cat,description:document.getElementById('new-desc').value,image:imageUrl,sizes,addons:getAddons()});
+    toast(name + ' added to menu!','success');
+    loadMenu();
+    // Prompt to set up ingredients
+    showIngredientSetupPrompt(name, data.id || data.itemId || '');
+    ['new-name','new-desc','new-emoji','p-10','p-12','p-16','p-20','p-30','p-36','p-single','p-family','p-sm','p-md','p-lg','p-dessert'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('new-image').value='';document.getElementById('upload-preview').style.display='none';document.getElementById('upload-placeholder').style.display='block';
+    clearAddons();status.textContent='';loadMenu();
+  }catch(e){toast(e.message,'error');status.textContent='';}
+  finally{btn.disabled=false;btn.textContent='Add to menu';}
+};
+
+async function loadMenu(){
+  try{
+    const{items}=await api('/admin/stock');menuItems=items;
+    document.getElementById('menu-list').innerHTML=`<div class="menu-grid">${items.map(item=>{
+      const isPhoto=item.image&&item.image.startsWith('/');
+      return `<div class="menu-admin-card">
+        <div class="menu-admin-img">${isPhoto?`<img src="${item.image}" alt="${item.name}">`:`<span>${item.image||'🍕'}</span>`}</div>
+        <div class="menu-admin-body">
+          <div class="menu-admin-name">${item.name}</div>
+          <div class="menu-admin-cat">${item.category}</div>
+          <div class="menu-admin-footer">
+            <span class="menu-admin-price">${formatCurrency(item.price)}</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="toggle ${item.available?'on':''}" onclick="toggleMenu('${item.id}',${item.available},this)"></button>
+              <button onclick="openEditItem('${item.id}')" style="background:#EFF6FF;color:#1D4ED8;border:none;border-radius:3px;width:26px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;" title="Edit item">✎</button>
+              <button onclick="deleteMenuItem('${item.id}','${item.name}')" style="background:#FEE2E2;color:#991B1B;border:none;border-radius:3px;width:26px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>`;}).join('')}</div>`;
+  }catch(e){toast('Failed to load menu','error');}
+}
+
+window.toggleMenu=async(id,current,btn)=>{
+  const newVal=!current;
+  if(btn){btn.classList.toggle('on',newVal);btn.setAttribute('onclick',`toggleMenu('${id}',${newVal},this)`);}
+  try{await api('/admin/menu/'+id,'PATCH',{available:newVal});toast(newVal?'Item is now available':'Item hidden from menu','info');}
+  catch(e){if(btn){btn.classList.toggle('on',current);btn.setAttribute('onclick',`toggleMenu('${id}',${current},this)`);}toast('Failed','error');}
+};
+
+function confirmModal(title,msg){
+  return new Promise(resolve=>{
+    document.getElementById('confirm-title').textContent=title;
+    document.getElementById('confirm-msg').textContent=msg;
+    document.getElementById('confirm-modal').classList.add('open');
+    document.body.style.overflow='hidden';
+    const ok=document.getElementById('confirm-ok-btn');
+    const cancel=document.getElementById('confirm-cancel-btn');
+    function cleanup(){document.getElementById('confirm-modal').classList.remove('open');document.body.style.overflow='';ok.removeEventListener('click',onOk);cancel.removeEventListener('click',onCancel);}
+    function onOk(){cleanup();resolve(true);}
+    function onCancel(){cleanup();resolve(false);}
+    ok.addEventListener('click',onOk,{once:true});
+    cancel.addEventListener('click',onCancel,{once:true});
+  });
+}
+
+function showConfirm(title,msg,onConfirm){
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  const ok=document.getElementById('confirm-ok-btn');const cancel=document.getElementById('confirm-cancel-btn');
+  const close=()=>{document.getElementById('confirm-modal').classList.remove('open');document.body.style.overflow='';ok.removeEventListener('click',handleOk);cancel.removeEventListener('click',close);};
+  const handleOk=()=>{close();onConfirm();};
+  ok.addEventListener('click',handleOk);cancel.addEventListener('click',close);
+}
+
+window.deleteMenuItem=async(id,name)=>{
+  showConfirm(`Delete "${name}"?`,'This will permanently remove the item from the menu and inventory.',async()=>{
+    try{
+      await api('/admin/menu/'+id,'DELETE');
+      try{await api('/admin/stock/'+id,'DELETE');}catch(e){}
+      toast(`${name} deleted`,'info');
+      menuItems=menuItems.filter(i=>i.id!==id);invItems=invItems.filter(i=>i.id!==id);
+      loadMenu();updateInvStats();renderInventory();
+    }catch(e){toast('Failed to delete: '+e.message,'error');}
+  });
+};
+
+async function loadInventory(){
+  try{const{items}=await api('/admin/stock');invItems=items;renderInventory();updateInvStats();}
+  catch(e){toast('Failed to load inventory','error');}
+}
+
+function getStockStatus(item){const qty=item.quantity??50;if(qty===0)return'out';if(qty<=(item.threshold||10))return'low';return'instock';}
+function updateInvStats(){
+  const safe = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  safe('inv-total', invItems.length);
+  safe('inv-instock', invItems.filter(i=>getStockStatus(i)==='instock').length);
+  safe('inv-low', invItems.filter(i=>getStockStatus(i)==='low').length);
+  safe('inv-out', invItems.filter(i=>getStockStatus(i)==='out').length);
+}
+function renderInventory(){
+  const filtered=invFilter==='all'?invItems:invItems.filter(i=>getStockStatus(i)===invFilter);
+  const statusBadge=i=>{
+    const s=getStockStatus(i);
+    return s==='instock'?'<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">In stock</span>':
+      s==='low'?'<span style="background:#FFFBEB;color:#92400E;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Low stock</span>':
+      '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Out of stock</span>';
+  };
+  document.getElementById('inv-tbody').innerHTML=filtered.length?filtered.map(item=>{
+    const limit=item.quantity??50;
+    const threshold=item.threshold??10;
+    const status=getStockStatus(item); // 'ok','low','out'
+    const color=status==='out'?'#EF4444':status==='low'?'#F59E0B':'#10B981';
+    const pct=Math.min((limit/Math.max(limit,50))*100,100);
+    const isPhoto=item.image&&item.image.startsWith('/');
+    const availBadge=status==='out'
+      ? `<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Fully Booked</span>`
+      : status==='low'
+      ? `<span style="background:#FFFBEB;color:#92400E;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Almost Full</span>`
+      : `<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Open</span>`;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:4px;background:#F5F0E8;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">${isPhoto?`<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;">`:(item.image||'🍕')}</div>
+        <div><div style="font-weight:500;font-size:13px;">${item.name}</div></div>
+      </div></td>
+      <td style="font-size:12px;text-transform:capitalize;color:var(--text-mid);">${item.category}</td>
+      <td style="font-weight:600;">${formatCurrency(item.price)}</td>
+      <td style="min-width:150px;"><div style="display:flex;align-items:center;gap:8px;"><div class="inv-bar-bg"><div class="inv-bar-fill" style="width:${pct}%;background:${color};"></div></div><span style="font-weight:600;font-size:13px;">${limit}</span><span style="font-size:11px;color:var(--text-light);">/ day</span></div></td>
+      <td>${availBadge}</td>
+      <td><button class="toggle ${item.available?'on':''}" onclick="toggleMenu('${item.id}',${item.available},this)"></button></td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-outline btn-sm" onclick="openInvModal('${item.id}')">Set Limit</button>
+        <button class="btn btn-outline btn-sm" style="margin-left:4px;border-color:#BFDBFE;color:#1E40AF;" onclick="openEditItem('${item.id}')">Edit</button>
+        <button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;margin-left:4px;" onclick="deleteMenuItem('${item.id}','${item.name}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-mid);">No items found</td></tr>`;
+}
+
+document.querySelectorAll('[data-inv]').forEach(tab=>{
+  tab.addEventListener('click',()=>{document.querySelectorAll('[data-inv]').forEach(t=>t.classList.remove('active'));tab.classList.add('active');invFilter=tab.dataset.inv;renderInventory();});
+});
+
+window.openInvModal=(id)=>{
+  currentInvItem=invItems.find(i=>i.id===id);if(!currentInvItem)return;
+  document.getElementById('modal-item-name').textContent=currentInvItem.name;
+  document.getElementById('modal-item-cat').textContent=currentInvItem.category+' — '+formatCurrency(currentInvItem.price);
+  document.getElementById('modal-stock').value=currentInvItem.quantity??50;
+  document.getElementById('modal-threshold').value=currentInvItem.threshold||10;
+  document.getElementById('modal-notes').value=currentInvItem.notes||'';
+  document.getElementById('inv-modal').style.display='flex';
+};
+window.closeInvModal=()=>{ const im=document.getElementById('inv-modal'); if(im) im.style.display='none';currentInvItem=null;};
+window.saveInvModal=async()=>{
+  if(!currentInvItem)return;
+  const quantity=parseInt(document.getElementById('modal-stock').value);
+  const threshold=parseInt(document.getElementById('modal-threshold').value)||10;
+  const notes=document.getElementById('modal-notes').value;
+  if(isNaN(quantity)||quantity<0)return toast('Enter a valid quantity','error');
+  const previousQty=currentInvItem.quantity??50;
+  const btn=document.getElementById('modal-save-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    await api('/admin/stock/'+currentInvItem.id,'PATCH',{quantity,threshold,notes});
+    await api('/admin/stock/'+currentInvItem.id+'/log','POST',{quantity,threshold,notes,previousQty});
+    toast('Daily limit updated','success');closeInvModal();loadInventory();
+  }catch(e){toast(e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='Save changes';}
+};
+
+async function loadCustomers(){
+  try{
+    const{users}=await api('/admin/users');
+    const customers=users.filter(u=>u.role==='customer'||!u.role);
+    document.getElementById('customers-tbody').innerHTML=customers.length?customers.map(u=>`
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;">${(u.name||'?').charAt(0).toUpperCase()}</div><span style="font-weight:500;">${u.name||'—'}</span></div></td>
+        <td style="font-size:13px;">${u.email||'—'}</td>
+        <td style="font-size:13px;">${u.phone||'—'}</td>
+        <td style="font-weight:600;">${u.totalOrders||0}</td>
+        <td style="font-size:12px;color:var(--text-mid);">${formatDate(u.createdAt)}</td>
+      </tr>`).join(''):
+      `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-mid);">No customers yet</td></tr>`;
+  }catch(e){toast('Failed to load customers','error');}
+}
+
+window.showSalesBreakdown=async(period)=>{
+  document.getElementById('sales-modal').style.display='flex';document.body.style.overflow='hidden';
+  document.getElementById('sm-items-list').innerHTML='<div class="spinner"></div>';document.getElementById('sm-orders-list').innerHTML='';
+  document.getElementById('sm-revenue').textContent='—';document.getElementById('sm-orders').textContent='—';document.getElementById('sm-items').textContent='—';
+  try{const{orders}=await api('/admin/orders');cachedOrders=orders;}catch(e){toast('Failed to load orders','error');return;}
+  const now=new Date();let startDate,title,sub;
+  if(period==='day'){startDate=new Date(now);startDate.setHours(0,0,0,0);title='Daily sales breakdown';sub=now.toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
+  else if(period==='week'){startDate=new Date(now);startDate.setDate(now.getDate()-now.getDay());startDate.setHours(0,0,0,0);title='Weekly sales breakdown';sub='From '+startDate.toLocaleDateString('en-PH',{month:'long',day:'numeric'})+' to today';}
+  else if(period==='month'){startDate=new Date(now.getFullYear(),now.getMonth(),1);title='Monthly sales breakdown';sub=now.toLocaleDateString('en-PH',{month:'long',year:'numeric'});}
+  else{startDate=new Date(now.getFullYear(),0,1);title='Yearly sales breakdown';sub='Year '+now.getFullYear();}
+  const filtered=cachedOrders.filter(o=>o.status!=='cancelled'&&new Date(o.createdAt)>=startDate);
+  const revenue=filtered.reduce((s,o)=>s+(o.total||0),0);
+  const itemCount={};let totalItems=0;
+  filtered.forEach(o=>{(o.items||[]).forEach(i=>{if(!itemCount[i.name])itemCount[i.name]={qty:0,revenue:0};itemCount[i.name].qty+=i.qty;itemCount[i.name].revenue+=(i.price||0)*i.qty;totalItems+=i.qty;});});
+  document.getElementById('sales-modal-title').textContent=title;document.getElementById('sales-modal-sub').textContent=sub;
+  document.getElementById('sm-revenue').textContent=formatCurrency(revenue);document.getElementById('sm-orders').textContent=filtered.length;document.getElementById('sm-items').textContent=totalItems;
+  const sorted=Object.entries(itemCount).sort((a,b)=>b[1].qty-a[1].qty);const maxQ=sorted[0]?.[1]?.qty||1;
+  document.getElementById('sm-items-list').innerHTML=sorted.length?sorted.map(([name,data],i)=>`
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;border-radius:50%;background:var(--green);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">${i+1}</span><span style="font-weight:500;font-size:14px;">${name}</span></div>
+        <div style="text-align:right;"><span style="font-weight:700;font-size:13px;color:var(--red);">${formatCurrency(data.revenue)}</span><span style="font-size:12px;color:var(--text-light);margin-left:8px;">${data.qty} sold</span></div>
+      </div>
+      <div class="inv-bar-bg"><div class="inv-bar-fill" style="width:${Math.round(data.qty/maxQ*100)}%;background:var(--green);"></div></div>
+    </div>`).join(''):'<p style="color:var(--text-mid);font-size:13px;">No items sold in this period</p>';
+  document.getElementById('sm-orders-list').innerHTML=filtered.slice(0,10).map(o=>`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div><div style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</div><div style="font-size:12px;color:var(--text-mid);">${o.userName||'—'} · ${formatDate(o.createdAt)}</div><div style="font-size:11px;color:var(--text-light);margin-top:2px;">${(o.items||[]).map(i=>`${i.qty}× ${i.name}`).join(', ')}</div></div>
+      <span style="font-weight:700;color:var(--red);font-size:13px;flex-shrink:0;margin-left:12px;">${formatCurrency(o.total)}</span>
+    </div>`).join('')+(filtered.length>10?`<p style="text-align:center;font-size:12px;color:var(--text-light);padding:10px;">And ${filtered.length-10} more orders</p>`:'')||'<p style="color:var(--text-mid);font-size:13px;">No orders in this period</p>';
+};
+window.closeSalesModal=()=>{document.getElementById('sales-modal').style.display='none';document.body.style.overflow='';};
+document.getElementById('sales-modal').addEventListener('click',function(e){if(e.target===this)closeSalesModal();});
+
+
+// ===== CUSTOM PIZZA PRICING =====
+const PRICE_FIELDS = [
+  {id:'cp-30-combo',  key:'30_combo'},
+  {id:'cp-30-nopork', key:'30_nopork'},
+  {id:'cp-30-nine',   key:'30_nine'},
+  {id:'cp-36-combo',  key:'36_combo'},
+  {id:'cp-36-nopork', key:'36_nopork'},
+  {id:'cp-36-nine',   key:'36_nine'},
+  {id:'cp-36-eleven', key:'36_eleven'},
+];
+
+async function loadCustomPrices() {
+  try {
+    const data = await api('/admin/custom-prices');
+    if (data.prices) {
+      PRICE_FIELDS.forEach(({id, key}) => {
+        const el = document.getElementById(id);
+        if (el && data.prices[key]) el.value = data.prices[key];
+      });
+    }
+  } catch(e) {}
+}
+
+document.getElementById('btn-save-custom-prices').onclick = async () => {
+  const prices = {};
+  let hasAll = true;
+  PRICE_FIELDS.forEach(({id, key}) => {
+    const val = parseFloat(document.getElementById(id)?.value);
+    if (!val || val < 100) { hasAll = false; return; }
+    prices[key] = val;
+  });
+  if (!hasAll) return toast('Please fill in all package prices (min ₱100)','error');
+  const btn = document.getElementById('btn-save-custom-prices');
+  const status = document.getElementById('custom-price-status');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    await api('/admin/custom-prices', 'POST', prices);
+    toast('All custom prices saved!', 'success');
+    status.textContent = 'Updated successfully';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Save all prices'; }
+};
+
+// ===== INGREDIENT SETUP PROMPT =====
+let _pendingNewItemId = '';
+let _pendingNewItemName = '';
+
+window.showIngredientSetupPrompt = (name, itemId) => {
+  _pendingNewItemId = itemId;
+  _pendingNewItemName = name;
+  document.getElementById('ing-prompt-title').textContent = '"' + name + '" added!';
+  document.getElementById('ing-setup-prompt').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeIngSetupPrompt = () => {
+  document.getElementById('ing-setup-prompt').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.goSetupIngredients = async () => {
+  closeIngSetupPrompt();
+  // Switch to Inventory > Recipes tab
+  showPanel('inventory');
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelector('[data-panel="inventory"]')?.classList.add('active');
+  // Load ingredients first, then open recipe modal for the new item
+  await loadIngredients();
+  await loadRecipes();
+  // Switch to recipes tab
+  const recTab = document.querySelector('.inv-tab[data-inv="recipes"]');
+  if (recTab) switchInvTab('recipes', recTab);
+  // Wait a tick then open recipe modal pre-selected to new item
+  setTimeout(() => {
+    openRecipeModal('');
+    // Pre-select the new item
+    const sel = document.getElementById('rec-item');
+    if (sel && _pendingNewItemId) {
+      sel.value = _pendingNewItemId;
+    } else if (sel && _pendingNewItemName) {
+      // Try to find by name
+      for (const opt of sel.options) {
+        if (opt.textContent.trim() === _pendingNewItemName) {
+          sel.value = opt.value;
+          break;
+        }
+      }
+    }
+    // Pre-fill common ingredients based on item name
+    prefillCommonIngredients(_pendingNewItemName);
+  }, 300);
+};
+
+function prefillCommonIngredients(name) {
+  const nameLower = name.toLowerCase();
+  // Auto-suggest common pizza ingredients if name contains known keywords
+  const suggestions = [];
+  if (nameLower.includes('pizza') || nameLower.includes('pepperoni') ||
+      nameLower.includes('hawaiian') || nameLower.includes('bbq') ||
+      nameLower.includes('cheese') || nameLower.includes('meat')) {
+    // Find matching ingredients from ingItems
+    const dough = ingItems.find(i => i.name.toLowerCase().includes('dough'));
+    const sauce = ingItems.find(i => i.name.toLowerCase().includes('sauce'));
+    const mozz  = ingItems.find(i => i.name.toLowerCase().includes('mozzarella') || i.name.toLowerCase().includes('cheese'));
+    if (dough || sauce || mozz) {
+      // Clear existing rows and add suggestions
+      document.getElementById('rec-ing-list').innerHTML = '';
+      if (dough) addRecipeRow({ ingredientId: dough.id, name: dough.name, qty: 200, unit: dough.unit });
+      if (sauce) addRecipeRow({ ingredientId: sauce.id, name: sauce.name, qty: 80, unit: sauce.unit });
+      if (mozz)  addRecipeRow({ ingredientId: mozz.id, name: mozz.name, qty: 150, unit: mozz.unit });
+      toast('Common pizza ingredients pre-filled. Adjust quantities as needed.', 'info');
+    }
+  }
+}
+
+// ===== INVENTORY TABS =====
+let ingItems = [], recipeItems = [];
+let currentIngId = null;
+
+window.switchInvTab = (tab, btn) => {
+  ['stock','ingredients','recipes','logs'].forEach(t => {
+    document.getElementById('inv-' + t).style.display = t === tab ? '' : 'none';
+  });
+  document.querySelectorAll('.inv-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (tab === 'stock') {
+    invFilter = 'all';
+    // Reset filter buttons
+    document.querySelectorAll('[data-inv-filter]').forEach(b => b.classList.remove('active'));
+    const allBtn = document.querySelector('[data-inv-filter="all"]');
+    if (allBtn) allBtn.classList.add('active');
+    // Small delay to ensure DOM is visible before rendering
+    setTimeout(() => {
+      invFilter = 'all';
+      if (invItems && invItems.length) {
+        renderInventory();
+        updateInvStats();
+      }
+      loadInventory();
+    }, 30);
+  }
+  if (tab === 'ingredients') loadIngredients();
+  if (tab === 'recipes') { loadIngredients(); loadRecipes(); }
+  if (tab === 'logs') loadIngLogs();
+};
+
+// ── INGREDIENTS ──
+async function loadIngredients() {
+  try {
+    const { ingredients } = await api('/admin/ingredients');
+    ingItems = ingredients || [];
+    renderIngredients();
+  } catch(e) { toast('Failed to load ingredients', 'error'); }
+}
+
+function renderIngredients() {
+  const tbody = document.getElementById('ing-tbody');
+  if (!tbody) return;
+  if (!ingItems.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-mid);">No ingredients yet. Click + Add Ingredient to get started.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = ingItems.map(ing => {
+    const pct = ing.lowStockThreshold ? Math.min(100, (ing.currentStock / Math.max(ing.currentStock, ing.lowStockThreshold * 3)) * 100) : 100;
+    const isLow = ing.lowStockThreshold && ing.currentStock <= ing.lowStockThreshold;
+    const isOut = ing.currentStock <= 0;
+    const barColor = isOut ? 'var(--red)' : isLow ? '#F57F17' : 'var(--green)';
+    const badge = isOut ? '<span class="badge badge-out">Out</span>' : isLow ? '<span class="badge badge-low">Low</span>' : '<span class="badge badge-ok">OK</span>';
+    return `<tr>
+      <td style="font-weight:600;">${ing.name}</td>
+      <td style="color:var(--text-mid);">${ing.unit}</td>
+      <td>
+        <div style="font-size:14px;font-weight:700;">${Number(ing.currentStock).toLocaleString()} <span style="font-size:11px;font-weight:400;color:var(--text-mid);">${ing.unit}</span></div>
+        <div style="height:5px;background:var(--border);border-radius:3px;margin-top:4px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width 0.3s;"></div>
+        </div>
+      </td>
+      <td style="color:var(--text-mid);">${ing.lowStockThreshold ? Number(ing.lowStockThreshold).toLocaleString() + ' ' + ing.unit : '—'}</td>
+      <td>${badge}</td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="openIngModal('${ing.id}')">Edit</button>
+        <button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;margin-left:4px;" onclick="deleteIngredient('${ing.id}','${ing.name}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.openIngModal = (id) => {
+  currentIngId = id || null;
+  const ing = id ? ingItems.find(i => i.id === id) : null;
+  document.getElementById('ing-modal-title').textContent = ing ? 'Edit Ingredient' : 'Add Ingredient';
+  document.getElementById('ing-name').value = ing?.name || '';
+  document.getElementById('ing-unit').value = ing?.unit || 'grams';
+  document.getElementById('ing-stock').value = ing?.currentStock ?? '';
+  document.getElementById('ing-threshold').value = ing?.lowStockThreshold ?? '';
+  document.getElementById('ing-cost').value = ing?.cost ?? '';
+  document.getElementById('ing-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeIngModal = () => {
+  document.getElementById('ing-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  currentIngId = null;
+};
+
+window.saveIngredient = async () => {
+  const name = document.getElementById('ing-name').value.trim();
+  const unit = document.getElementById('ing-unit').value;
+  const currentStock = document.getElementById('ing-stock').value;
+  const lowStockThreshold = document.getElementById('ing-threshold').value;
+  const cost = document.getElementById('ing-cost').value;
+  if (!name) return toast('Name is required', 'error');
+  const btn = document.getElementById('btn-save-ing');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    if (currentIngId) {
+      await api('/admin/ingredients/' + currentIngId, 'PATCH', { name, unit, currentStock, lowStockThreshold, cost });
+    } else {
+      await api('/admin/ingredients', 'POST', { name, unit, currentStock, lowStockThreshold, cost });
+    }
+    toast(name + ' saved!', 'success');
+    closeIngModal();
+    loadIngredients();
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Save ingredient'; }
+};
+
+window.deleteIngredient = (id, name) => {
+  showConfirm('Delete "' + name + '"?', 'This ingredient will be removed from all recipes too.', async () => {
+    await api('/admin/ingredients/' + id, 'DELETE');
+    toast(name + ' deleted', 'info');
+    loadIngredients();
+  });
+};
+
+// ── RECIPES ──
+async function loadRecipes() {
+  try {
+    const { recipes } = await api('/admin/recipes');
+    recipeItems = recipes || [];
+    renderRecipes();
+  } catch(e) { toast('Failed to load recipes', 'error'); }
+}
+
+function renderRecipes() {
+  const tbody = document.getElementById('recipe-tbody');
+  if (!tbody) return;
+  if (!recipeItems.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-mid);">No recipes yet. Add a recipe to enable auto stock deduction.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = recipeItems.map(r => `<tr>
+    <td style="font-weight:600;">${r.menuItemName || r.menuItemId}</td>
+    <td>${r.size === 'all' ? 'All sizes' : r.size + '"'}</td>
+    <td style="font-size:12px;color:var(--text-mid);">${(r.ingredients||[]).map(i => i.qty + ' ' + i.unit + ' ' + i.name).join('<br>')}</td>
+    <td>
+      <button class="btn btn-outline btn-sm" onclick="openRecipeModal('${r.id}')">Edit</button>
+      <button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;margin-left:4px;" onclick="deleteRecipe('${r.id}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+window.openRecipeModal = (id) => {
+  const rec = id ? recipeItems.find(r => r.id === id) : null;
+  // Populate menu items dropdown
+  const sel = document.getElementById('rec-item');
+  sel.innerHTML = '<option value="">Select item...</option>';
+  (menuItems||[]).forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.id; opt.textContent = item.name;
+    if (rec && rec.menuItemId === item.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  document.getElementById('rec-size').value = rec?.size || 'all';
+  // Render ingredient rows
+  const ingList = document.getElementById('rec-ing-list');
+  ingList.innerHTML = '';
+  const rows = rec?.ingredients?.length ? rec.ingredients : [{}];
+  rows.forEach(ing => addRecipeRow(ing));
+  document.getElementById('recipe-modal').dataset.editId = id || '';
+  document.getElementById('recipe-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeRecipeModal = () => {
+  document.getElementById('recipe-modal').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.addRecipeRow = (ing) => {
+  ing = ing || {};
+  const div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;margin-bottom:8px;align-items:center;';
+  div.innerHTML = `
+    <select class="form-input" style="font-size:12px;" data-field="ingId">
+      <option value="">Select ingredient...</option>
+      ${ingItems.map(i => '<option value="' + i.id + '" data-name="' + i.name + '" data-unit="' + i.unit + '"' + (ing.ingredientId===i.id?' selected':'') + '>' + i.name + '</option>').join('')}
+    </select>
+    <input type="number" class="form-input" placeholder="Qty" min="0" step="0.01" value="${ing.qty||''}" data-field="qty" style="font-size:12px;text-align:center;">
+    <input type="text" class="form-input" placeholder="Unit" value="${ing.unit||''}" data-field="unit" style="font-size:12px;" readonly>
+    <button onclick="this.parentElement.remove()" style="background:#FEE2E2;color:#991B1B;border:none;border-radius:4px;width:28px;height:36px;cursor:pointer;font-size:14px;">✕</button>`;
+  // Auto-fill unit when ingredient selected
+  div.querySelector('[data-field="ingId"]').onchange = function() {
+    const opt = this.options[this.selectedIndex];
+    div.querySelector('[data-field="unit"]').value = opt.dataset.unit || '';
+  };
+  document.getElementById('rec-ing-list').appendChild(div);
+};
+
+window.saveRecipe = async () => {
+  const menuItemId = document.getElementById('rec-item').value;
+  const size = document.getElementById('rec-size').value;
+  const editId = document.getElementById('recipe-modal').dataset.editId;
+  if (!menuItemId) return toast('Select a menu item', 'error');
+  const rows = document.querySelectorAll('#rec-ing-list > div');
+  const ingredients = [];
+  rows.forEach(row => {
+    const sel = row.querySelector('[data-field="ingId"]');
+    const qty = parseFloat(row.querySelector('[data-field="qty"]').value);
+    const unit = row.querySelector('[data-field="unit"]').value;
+    if (sel.value && qty > 0) {
+      const opt = sel.options[sel.selectedIndex];
+      ingredients.push({ ingredientId: sel.value, name: opt.dataset.name || opt.textContent, qty, unit });
+    }
+  });
+  if (!ingredients.length) return toast('Add at least one ingredient', 'error');
+  const menuItemName = document.getElementById('rec-item').options[document.getElementById('rec-item').selectedIndex]?.textContent || '';
+  const btn = document.getElementById('btn-save-recipe');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    if (editId) await api('/admin/recipes/' + editId, 'PATCH', { menuItemId, menuItemName, size, ingredients }).catch(() =>
+      api('/admin/recipes', 'POST', { menuItemId, menuItemName, size, ingredients }));
+    else await api('/admin/recipes', 'POST', { menuItemId, menuItemName, size, ingredients });
+    toast('Recipe saved!', 'success');
+    closeRecipeModal();
+    loadRecipes();
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Save recipe'; }
+};
+
+window.deleteRecipe = (id) => {
+  showConfirm('Delete this recipe?', 'Auto stock deduction will stop for this item.', async () => {
+    await api('/admin/recipes/' + id, 'DELETE');
+    toast('Recipe deleted', 'info');
+    loadRecipes();
+  });
+};
+
+// ── LOGS ──
+async function loadIngLogs() {
+  try {
+    const { logs } = await api('/admin/ingredient-logs');
+    const tbody = document.getElementById('logs-tbody');
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-mid);">No usage logs yet</td></tr>';
+      return;
+    }
+    const actionColor = { deducted: 'var(--red)', restocked: 'var(--green)', cancelled: '#F57F17', adjusted: '#1565C0' };
+    tbody.innerHTML = logs.map(l => `<tr>
+      <td style="font-size:12px;color:var(--text-mid);">${formatDate(l.createdAt)}</td>
+      <td style="font-weight:600;">${l.ingredientName||'—'}</td>
+      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;background:${actionColor[l.action]||'var(--border)'}20;color:${actionColor[l.action]||'var(--text-mid)'};">${l.action}</span></td>
+      <td style="font-weight:700;color:${l.qty<0?'var(--red)':'var(--green)'};">${l.qty>0?'+':''}${l.qty} ${l.unit}</td>
+      <td style="font-size:12px;">${Number(l.balanceBefore||0).toLocaleString()}</td>
+      <td style="font-size:12px;font-weight:600;">${Number(l.balanceAfter||0).toLocaleString()}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${l.reason||'—'}</td>
+    </tr>`).join('');
+  } catch(e) { toast('Failed to load logs', 'error'); }
+}
+
+window.toggleOrderDetail=(id)=>{
+  const el=document.getElementById(id);
+  if(!el){ console.warn('Detail not found:',id); return; }
+  const isOpen=el.style.display==='block';
+  document.querySelectorAll('[id^="od-"]').forEach(d=>d.style.display='none');
+  document.querySelectorAll('[data-detail]').forEach(b=>b.textContent='Details');
+  // Remove any existing backdrop
+  const old=document.getElementById('detail-backdrop');if(old)old.remove();
+  if(!isOpen){
+    el.style.display='block';
+    const btn=document.querySelector('[data-detail="'+id+'"]');
+    if(btn) btn.textContent='Close';
+    // Add backdrop
+    const bd=document.createElement('div');
+    bd.id='detail-backdrop';
+    bd.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9998;';
+    bd.onclick=()=>toggleOrderDetail(id);
+    document.body.appendChild(bd);
+  } else {
+    const bd=document.getElementById('detail-backdrop');if(bd)bd.remove();
+  }
+};
+
+// Flavor color map for pizza preview
+const ORDER_FLAVOR_COLORS = {
+  'BBQ Chicken':'#C62828','Hawaiian':'#1565C0','Veggies':'#2E7D32',
+  'Jalapeño':'#E65100','All Meat':'#4A148C','Pepperoni':'#00695C',
+  'Four Cheese':'#F57F17','Shrimp':'#880E4F','Spinach':'#33691E',
+  'Fold Special':'#BF360C','Luau Chicken':'#0D47A1'
+};
+
+function getPizzaOutlinePath(shape, s) {
+  if (shape === 'square') {
+    const r = s * 0.12;
+    return 'M ' + (-s+r) + ',' + (-s) + ' H ' + (s-r) + ' Q ' + s + ',' + (-s) + ' ' + s + ',' + (-s+r) + ' V ' + (s-r) + ' Q ' + s + ',' + s + ' ' + (s-r) + ',' + s + ' H ' + (-s+r) + ' Q ' + (-s) + ',' + s + ' ' + (-s) + ',' + (s-r) + ' V ' + (-s+r) + ' Q ' + (-s) + ',' + (-s) + ' ' + (-s+r) + ',' + (-s) + ' Z';
+  }
+    if (shape === 'heart') {
+    // Sharp bottom point using L line commands
+    return 'M 0,' + (s*0.556).toFixed(1) + ' L ' + (-s*0.744).toFixed(1) + ',' + (s*0.133).toFixed(1) + ' C ' + (-s).toFixed(1) + ',' + (-s*0.133).toFixed(1) + ' ' + (-s).toFixed(1) + ',' + (-s*0.5).toFixed(1) + ' ' + (-s*0.744).toFixed(1) + ',' + (-s*0.689).toFixed(1) + ' C ' + (-s*0.5).toFixed(1) + ',' + (-s*0.889).toFixed(1) + ' ' + (-s*0.2).toFixed(1) + ',' + (-s*0.8).toFixed(1) + ' 0,' + (-s*0.578).toFixed(1) + ' C ' + (s*0.2).toFixed(1) + ',' + (-s*0.8).toFixed(1) + ' ' + (s*0.5).toFixed(1) + ',' + (-s*0.889).toFixed(1) + ' ' + (s*0.744).toFixed(1) + ',' + (-s*0.689).toFixed(1) + ' C ' + s.toFixed(1) + ',' + (-s*0.5).toFixed(1) + ' ' + s.toFixed(1) + ',' + (-s*0.133).toFixed(1) + ' ' + (s*0.744).toFixed(1) + ',' + (s*0.133).toFixed(1) + ' Z';
+  }
+  return null;
+}
+
+function buildPizzaSVG(flavors, shape) {
+  shape = shape || 'circle';
+  const n = flavors.length;
+  const R = 90, IR = 78;
+  const clipId = 'oc-' + Math.random().toString(36).slice(2,6);
+  const innerPath = getPizzaOutlinePath(shape, IR);
+  const crustPath = getPizzaOutlinePath(shape, R);
+  let svg = '<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">';
+  // Clip path
+  svg += '<defs><clipPath id="' + clipId + '">';
+  if (shape === 'circle') svg += '<circle cx="0" cy="0" r="' + IR + '"/>';
+  else svg += '<path d="' + innerPath + '"/>';
+  svg += '</clipPath></defs>';
+  // Shadow
+  if (shape === 'circle') svg += '<ellipse cx="2" cy="4" rx="92" ry="92" fill="rgba(0,0,0,0.08)"/>';
+  else svg += '<path d="' + crustPath + '" fill="rgba(0,0,0,0.08)" transform="translate(2,4)"/>';
+  // Crust
+  if (shape === 'circle') svg += '<circle cx="0" cy="0" r="' + R + '" fill="#D4A017"/>';
+  else svg += '<path d="' + crustPath + '" fill="#D4A017"/>';
+  // Filling
+  if (n === 0) {
+    if (shape === 'circle') svg += '<circle cx="0" cy="0" r="' + IR + '" fill="#F5C842" opacity="0.85"/>';
+    else svg += '<path d="' + innerPath + '" fill="#F5C842" opacity="0.85"/>';
+  } else if (n === 1) {
+    const col = ORDER_FLAVOR_COLORS[flavors[0]] || '#C62828';
+    if (shape === 'circle') svg += '<circle cx="0" cy="0" r="' + IR + '" fill="' + col + '" opacity="0.82"/>';
+    else svg += '<path d="' + innerPath + '" fill="' + col + '" opacity="0.82"/>';
+  } else {
+    svg += '<g clip-path="url(#' + clipId + ')">';
+    const sa = (2 * Math.PI) / n;
+    flavors.forEach((flavor, i) => {
+      const a = i * sa - Math.PI / 2, e = a + sa, la = sa > Math.PI ? 1 : 0;
+      const bigR = 200;
+      const col = ORDER_FLAVOR_COLORS[flavor] || '#999';
+      svg += '<path d="M 0 0 L ' + (bigR*Math.cos(a)).toFixed(2) + ' ' + (bigR*Math.sin(a)).toFixed(2) + ' A ' + bigR + ' ' + bigR + ' 0 ' + la + ' 1 ' + (bigR*Math.cos(e)).toFixed(2) + ' ' + (bigR*Math.sin(e)).toFixed(2) + ' Z" fill="' + col + '" opacity="0.82"/>';
+      svg += '<line x1="0" y1="0" x2="' + (bigR*Math.cos(a)).toFixed(2) + '" y2="' + (bigR*Math.sin(a)).toFixed(2) + '" stroke="rgba(0,0,0,0.15)" stroke-width="1.5"/>';
+    });
+    svg += '<rect x="-200" y="-200" width="400" height="400" fill="#F5C842" opacity="0.08"/>';
+    svg += '</g>';
+    flavors.forEach((flavor, i) => {
+      const m = i * sa - Math.PI / 2 + sa / 2;
+      const lr = shape === 'circle' ? IR * 0.58 : IR * 0.5;
+      svg += '<text x="' + (lr*Math.cos(m)).toFixed(1) + '" y="' + (lr*Math.sin(m)+4).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif">' + (i+1) + '</text>';
+    });
+  }
+  svg += '<circle cx="0" cy="0" r="7" fill="#A52020" opacity="0.7"/>';
+  svg += '</svg>';
+  return svg;
+}
+
+function buildOrderItemCell(o) {
+  return (o.items||[]).map((item,idx)=>{
+    const isCustom = item.name && item.name.toLowerCase().includes('custom');
+    const detailId = 'od-' + o.id.slice(0,6) + idx;
+    let html = '<div style="margin-bottom:4px;">';
+    html += '<span>' + item.qty + '× ' + item.name + '</span>';
+    const hasRegularDetail = !isCustom && (item.size || item.price != null || item.note);
+    if (isCustom) {
+      html += ' <button data-detail="' + detailId + '" onclick="toggleOrderDetail(this.dataset.detail)" style="background:none;border:1px solid var(--border);border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600;cursor:pointer;color:var(--text-mid);font-family:Inter,sans-serif;">Details</button>';
+      html += '<div id="' + detailId + '" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:white;border:1px solid #C8E6C9;border-radius:10px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.25);width:400px;max-width:90vw;">';
+
+      if (item.addonNames) {
+        const parts = item.addonNames.split(' / ');
+        const flavors = parts.map(f => f.split(' · ')[0].trim()).filter(Boolean);
+        const note = item.addonNames.includes(' · ') ? item.addonNames.split(' · ').slice(1).join(' · ') : '';
+
+        // Layout: SVG left, legend right
+        html += '<div style="display:flex;gap:14px;align-items:flex-start;">';
+        // Pizza SVG
+        const orderShape = item.name && item.name.toLowerCase().includes('heart') ? 'heart' : item.name && item.name.toLowerCase().includes('square') ? 'square' : 'circle';
+        html += '<div style="width:120px;height:120px;flex-shrink:0;">' + buildPizzaSVG(flavors, orderShape) + '</div>';
+        // Flavor list
+        html += '<div style="flex:1;min-width:0;">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><span style="font-size:12px;font-weight:700;color:var(--text);">Custom Pizza Details</span><button onclick="toggleOrderDetail(\''+detailId+'\')" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-light);line-height:1;">&#x2715;</button></div>';
+      html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:6px;">Flavor sections</div>';
+        flavors.forEach((f, fi) => {
+          const col = ORDER_FLAVOR_COLORS[f] || '#999';
+          html += '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;">';
+          html += '<div style="width:10px;height:10px;border-radius:50%;background:' + col + ';flex-shrink:0;"></div>';
+          html += '<span style="color:var(--text-light);font-size:10px;font-weight:600;min-width:16px;">S' + (fi+1) + '</span>';
+          html += '<span style="font-weight:500;color:var(--text);">' + f + '</span>';
+          html += '</div>';
+        });
+        if (note) html += '<div style="font-size:11px;color:var(--text-mid);margin-top:6px;padding-top:6px;border-top:1px solid #C8E6C9;">Note: ' + note + '</div>';
+        html += '</div>';
+        html += '</div>';
+      } else {
+        html += '<div style="font-size:12px;color:var(--text-mid);text-align:center;padding:12px 0;">No flavor details saved for this order</div>';
+      }
+      html += '</div>';
+    } else if (hasRegularDetail) {
+      html += ' <button data-detail="' + detailId + '" onclick="toggleOrderDetail(this.dataset.detail)" style="background:none;border:1px solid var(--border);border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600;cursor:pointer;color:var(--text-mid);font-family:Inter,sans-serif;">Details</button>';
+      html += '<div id="' + detailId + '" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:white;border:1px solid var(--border);border-radius:10px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.25);width:320px;max-width:90vw;">';
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">';
+      html += '<span style="font-size:13px;font-weight:700;color:var(--text);">Item Details</span>';
+      html += '<button onclick="toggleOrderDetail(\''+detailId+'\')" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-light);line-height:1;">&#x2715;</button>';
+      html += '</div>';
+      html += '<div style="font-size:12px;color:var(--text);line-height:1.9;">';
+      html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);"><span style="color:var(--text-light);">Item</span><span style="font-weight:600;">' + item.name + '</span></div>';
+      if (item.size) html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);"><span style="color:var(--text-light);">Size</span><span>' + item.size + '</span></div>';
+      html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);"><span style="color:var(--text-light);">Qty</span><span>' + item.qty + '</span></div>';
+      if (item.price != null) html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);"><span style="color:var(--text-light);">Unit Price</span><span>₱' + Number(item.price).toFixed(2) + '</span></div>';
+      if (item.price != null) html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);"><span style="color:var(--text-light);">Subtotal</span><span style="font-weight:700;color:var(--green);">₱' + (Number(item.price)*Number(item.qty||1)).toFixed(2) + '</span></div>';
+      if (item.note) html += '<div style="padding:6px 0;margin-top:2px;"><span style="color:var(--text-light);">Note</span><div style="margin-top:3px;padding:6px 8px;background:#FEF9E7;border-left:3px solid var(--gold);border-radius:0 3px 3px 0;color:var(--text-mid);">' + item.note + '</div></div>';
+      html += '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }).join('') + (o.notes ? `<div style="margin-top:6px;padding:6px 8px;background:#FEF9E7;border-left:3px solid var(--gold);border-radius:0 3px 3px 0;font-size:11px;color:var(--text-mid);line-height:1.45;"><span style="font-weight:700;color:var(--text);letter-spacing:0.02em;">Note: </span>${o.notes}</div>` : '');
+}
+
+document.getElementById('btn-logout').onclick=async()=>{await api('/auth/logout','POST');window.location.replace('/login');};
+
+// ══════════════════════════════════════════════════════════════
+// NOTIFICATION SYSTEM
+// ══════════════════════════════════════════════════════════════
+let _notifs = [];           // cached notification list
+let _notifOpen = false;     // panel open?
+let _notifSeenIds = new Set(JSON.parse(sessionStorage.getItem('_notifSeen') || '[]'));
+let _notifPollTimer = null;
+let _notifAudioCtx = null;
+
+// ── Audio ─────────────────────────────────────────────────────
+function playNotifSound() {
+  try {
+    if (!_notifAudioCtx) _notifAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _notifAudioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) { /* browser blocked audio — silent */ }
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function notifToast(msg, sub) {
+  const c = document.getElementById('toast-container') || (() => {
+    const d = document.createElement('div'); d.id = 'toast-container'; document.body.appendChild(d); return d;
+  })();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.cssText = 'background:var(--green);flex-direction:column;align-items:flex-start;gap:2px;min-width:220px;';
+  t.innerHTML = `<span style="font-weight:700;font-size:14px;">🔔 ${msg}</span>${sub ? `<span style="font-size:12px;opacity:0.85;">${sub}</span>` : ''}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 5000);
+}
+
+// ── Relative time ─────────────────────────────────────────────
+function relTime(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const s = Math.floor(diff / 1000);
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+// ── Format currency ───────────────────────────────────────────
+function fmtPeso(n) { return '₱' + Number(n).toLocaleString(); }
+
+// ── Render panel ──────────────────────────────────────────────
+function renderNotifPanel() {
+  const list = document.getElementById('notif-list');
+  const badge = document.getElementById('notif-badge');
+  const unread = _notifs.filter(n => !n.read).length;
+
+  // Badge
+  badge.textContent = unread > 99 ? '99+' : unread;
+  badge.classList.toggle('show', unread > 0);
+
+  if (_notifs.length === 0) {
+    list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+    return;
+  }
+
+  list.innerHTML = _notifs.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="openNotifDetail('${n.id}')">
+      <div class="notif-dot ${n.read ? 'read' : ''}"></div>
+      <div class="notif-body">
+        <div class="notif-body-title">New Order #${n.orderShortId}</div>
+        <div class="notif-body-sub">${n.customerName} — ${n.itemSummary}</div>
+        <div class="notif-body-time">${relTime(n.createdAt)} · ${fmtPeso(n.total)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Toggle panel ──────────────────────────────────────────────
+function toggleNotifPanel(e) {
+  e.stopPropagation();
+  const panel = document.getElementById('notif-panel');
+  _notifOpen = !_notifOpen;
+  panel.classList.toggle('open', _notifOpen);
+}
+
+// Close on outside click
+document.addEventListener('click', e => {
+  if (_notifOpen && !document.getElementById('notif-btn').contains(e.target)) {
+    _notifOpen = false;
+    document.getElementById('notif-panel').classList.remove('open');
+  }
+});
+
+// ── Mark all read ─────────────────────────────────────────────
+async function markAllRead() {
+  try {
+    await api('/admin/notifications/read-all', 'PATCH');
+    _notifs.forEach(n => n.read = true);
+    renderNotifPanel();
+  } catch(e) { console.error(e); }
+}
+
+// ── Open detail modal ─────────────────────────────────────────
+async function openNotifDetail(id) {
+  const n = _notifs.find(x => x.id === id);
+  if (!n) return;
+
+  // Mark as read
+  if (!n.read) {
+    n.read = true;
+    api(`/admin/notifications/${id}/read`, 'PATCH').catch(()=>{});
+    renderNotifPanel();
+  }
+
+  // Close panel
+  _notifOpen = false;
+  document.getElementById('notif-panel').classList.remove('open');
+
+  // Fill modal
+  document.getElementById('nd-title').textContent = `Order #${n.orderShortId}`;
+  document.getElementById('nd-sub').textContent = new Date(n.createdAt).toLocaleString();
+
+  const itemsHtml = (n.items || []).map(i =>
+    `<div class="notif-detail-row"><span class="notif-detail-label">${i.name}</span><span class="notif-detail-val">${i.qty}× ${fmtPeso(i.price * i.qty)}</span></div>`
+  ).join('');
+
+  document.getElementById('nd-body').innerHTML = `
+    <div class="notif-detail-row"><span class="notif-detail-label">Customer</span><span class="notif-detail-val">${n.customerName}</span></div>
+    <div class="notif-detail-row"><span class="notif-detail-label">Email</span><span class="notif-detail-val" style="font-size:12px;">${n.customerEmail || '—'}</span></div>
+    <div class="notif-detail-row"><span class="notif-detail-label">Address</span><span class="notif-detail-val" style="font-size:12px;">${n.address || '—'}</span></div>
+    <div style="margin:12px 0 6px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);">Items ordered</div>
+    ${itemsHtml}
+    <div class="notif-detail-row" style="margin-top:8px;border-top:2px solid var(--border);padding-top:10px;">
+      <span class="notif-detail-label">Total</span>
+      <span class="notif-detail-val" style="color:var(--green);font-size:16px;">${fmtPeso(n.total)}</span>
+    </div>
+    <div class="notif-detail-row"><span class="notif-detail-label">Payment</span><span class="notif-detail-val">${(n.paymentMethod||'cash').toUpperCase()}</span></div>
+    ${n.notes ? `<div class="notif-detail-row"><span class="notif-detail-label">Notes</span><span class="notif-detail-val">${n.notes}</span></div>` : ''}
+  `;
+
+  // "View in Orders" button
+  document.getElementById('nd-view-btn').onclick = () => {
+    closeNotifDetail();
+    // Switch to Orders panel and search for this order
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const ordersItem = document.querySelector('[data-panel="orders"]');
+    if (ordersItem) ordersItem.classList.add('active');
+    const ordersPanel = document.getElementById('panel-orders');
+    if (ordersPanel) ordersPanel.classList.add('active');
+    loadOrders();
+  };
+
+  document.getElementById('notif-detail-modal').classList.add('open');
+}
+
+function closeNotifDetail() {
+  document.getElementById('notif-detail-modal').classList.remove('open');
+}
+
+// ── Fetch & diff ──────────────────────────────────────────────
+async function fetchNotifications() {
+  try {
+    const data = await api('/admin/notifications');
+    if (!data.success) return;
+
+    const incoming = data.notifications || [];
+    const prevIds = new Set(_notifs.map(n => n.id));
+
+    // Find brand-new notifications not seen in this session
+    const fresh = incoming.filter(n => !prevIds.has(n.id) && !_notifSeenIds.has(n.id) && !n.read);
+
+    if (fresh.length > 0) {
+      fresh.forEach(n => _notifSeenIds.add(n.id));
+      sessionStorage.setItem('_notifSeen', JSON.stringify([..._notifSeenIds]));
+
+      // Alert for each fresh notification
+      fresh.forEach(n => {
+        playNotifSound();
+        notifToast('New Order Received!', `${n.customerName} — ${fmtPeso(n.total)}`);
+      });
+    }
+
+    _notifs = incoming;
+    renderNotifPanel();
+  } catch(e) { /* silent fail — network blip */ }
+}
+
+// ── Poll every 15 seconds ─────────────────────────────────────
+function startNotifPolling() {
+  fetchNotifications(); // immediate on load
+  _notifPollTimer = setInterval(fetchNotifications, 15000);
+}
+
+// Kick off after init
+setTimeout(startNotifPolling, 1500);
+
+// ══════════════════════════════════════════════════════════
+//  CANCELLATION REQUESTS
+// ══════════════════════════════════════════════════════════
+let _cancelRequests = [];
+
+async function loadCancelRequests() {
+  document.getElementById('cr-loading').style.display = '';
+  document.getElementById('cr-table-wrap').style.display = 'none';
+  document.getElementById('cr-empty').style.display = 'none';
+  try {
+    const data = await api('/admin/cancellation-requests');
+    _cancelRequests = data.requests || [];
+    renderCancelRequests();
+    updateCancelBadge();
+  } catch(e) {
+    document.getElementById('cr-loading').textContent = 'Failed to load requests';
+  }
+}
+
+function renderCancelRequests() {
+  const tbody = document.getElementById('cr-tbody');
+  if (!tbody) return;
+  const q = (document.getElementById('cr-search')?.value || '').toLowerCase();
+  const filterVal = document.getElementById('cr-filter')?.value || '';
+  let list = _cancelRequests;
+  if (filterVal) list = list.filter(r => r.status === filterVal);
+  if (q) list = list.filter(r =>
+    (r.orderIdShort||r.orderId||'').toLowerCase().includes(q) ||
+    (r.customerName||'').toLowerCase().includes(q) ||
+    (r.customerEmail||'').toLowerCase().includes(q)
+  );
+  document.getElementById('cr-loading').style.display = 'none';
+  if (!list.length) {
+    document.getElementById('cr-table-wrap').style.display = 'none';
+    document.getElementById('cr-empty').style.display = '';
+    tbody.innerHTML = '';
+    return;
+  }
+  document.getElementById('cr-table-wrap').style.display = '';
+  document.getElementById('cr-empty').style.display = 'none';
+  const crStatusBadge = s => {
+    const map = { pending:'background:#FEF3C7;color:#92400E', approved:'background:#ECFDF5;color:#065F46', rejected:'background:#FEE2E2;color:#991B1B' };
+    const style = map[s] || 'background:#f3f4f6;color:#6b7280';
+    return `<span style="${style};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">${s}</span>`;
+  };
+  tbody.innerHTML = list.map(r => {
+    const items = (r.items||[]).map(i=>`${i.qty}× ${i.name}`).join(', ');
+    const actions = r.status === 'pending'
+      ? `<button class="btn btn-sm" style="background:#ECFDF5;color:#065F46;border:1px solid #6EE7B7;margin-right:4px;" onclick="approveCancelRequest('${r.id}')">Approve</button>
+         <button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5;" onclick="openRejectModal('${r.id}')">Reject</button>`
+      : `<button class="btn btn-sm" style="background:#f3f4f6;color:#374151;border:1px solid #d1d5db;" onclick="viewCancelRequest('${r.id}')">View</button>`;
+    return `<tr>
+      <td style="font-size:11px;font-weight:600;color:var(--text-mid);">#${(r.id||'').slice(0,8).toUpperCase()}</td>
+      <td style="font-size:11px;">#${(r.orderId||'').slice(0,8).toUpperCase()}</td>
+      <td><div style="font-weight:500;font-size:13px;">${r.customerName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${r.customerEmail||''}</div></td>
+      <td style="font-size:12px;max-width:200px;">${items||'—'}<br><strong>${formatCurrency(r.orderTotal||0)}</strong></td>
+      <td style="font-size:12px;">${r.paymentMethod==='gcash'?`<span style="background:#ECFDF5;color:#065F46;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600;">GCash</span>`:'COD'}<br><span style="font-size:11px;color:var(--text-mid);">${r.paymentStatus||'—'}</span></td>
+      <td style="font-size:12px;max-width:160px;color:var(--text-mid);">${r.reason||'No reason given'}</td>
+      <td>${crStatusBadge(r.status||'pending')}</td>
+      <td style="font-size:11px;color:var(--text-mid);">${formatDate(r.createdAt)}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateCancelBadge() {
+  try {
+    const data = await api('/admin/cancellation-requests/count');
+    const count = data.count || 0;
+    const badge = document.getElementById('cancel-req-badge');
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+  } catch(e) {}
+}
+
+document.getElementById('cr-search')?.addEventListener('input', renderCancelRequests);
+document.getElementById('cr-filter')?.addEventListener('change', renderCancelRequests);
+
+async function approveCancelRequest(id) {
+  const req = _cancelRequests.find(r => r.id === id);
+  if (!req) return;
+  const ok = await confirmModal(
+    'Approve Cancellation',
+    `Approve cancellation for order #${(req.orderId||'').slice(0,8).toUpperCase()}? This will cancel the order and trigger a refund review if applicable.`
+  );
+  if (!ok) return;
+  try {
+    await api(`/admin/cancellation-requests/${id}/approve`, 'PATCH');
+    toast('Cancellation request approved', 'success');
+    loadCancelRequests();
+    loadOrders();
+    loadRefunds();
+  } catch(e) {
+    toast(e.message || 'Failed to approve request', 'error');
+  }
+}
+
+let _rejectTargetId = null;
+function openRejectModal(id) {
+  _rejectTargetId = id;
+  document.getElementById('reject-reason-input').value = '';
+  document.getElementById('reject-modal').classList.add('open');
+}
+function closeRejectModal() {
+  document.getElementById('reject-modal').classList.remove('open');
+  _rejectTargetId = null;
+}
+document.getElementById('reject-cancel-btn')?.addEventListener('click', closeRejectModal);
+document.getElementById('reject-confirm-btn')?.addEventListener('click', async () => {
+  const reason = document.getElementById('reject-reason-input').value.trim();
+  if (!reason) { toast('Please provide a rejection reason', 'error'); return; }
+  const btn = document.getElementById('reject-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Rejecting…';
+  try {
+    await api(`/admin/cancellation-requests/${_rejectTargetId}/reject`, 'PATCH', { reason });
+    toast('Cancellation request rejected', 'success');
+    closeRejectModal();
+    loadCancelRequests();
+  } catch(e) {
+    toast(e.message || 'Failed to reject request', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Reject Request';
+  }
+});
+
+function viewCancelRequest(id) {
+  const req = _cancelRequests.find(r => r.id === id);
+  if (!req) return;
+  const items = (req.items||[]).map(i=>`${i.qty}× ${i.name}`).join('\n');
+  alert(`Cancellation Request\n\nOrder: #${(req.orderId||'').slice(0,8).toUpperCase()}\nCustomer: ${req.customerName||'—'}\nStatus: ${req.status}\nReason: ${req.reason||'—'}\nItems:\n${items}\nTotal: ${formatCurrency(req.orderTotal||0)}\nRequested: ${formatDate(req.createdAt)}${req.adminNote?'\nAdmin Note: '+req.adminNote:''}`);
+}
+
+// Poll badge every 30s
+setInterval(updateCancelBadge, 30000);
+
+// ══════════════════════════════════════════════════════════
+//  REFUND MANAGEMENT
+// ══════════════════════════════════════════════════════════
+let _refunds = [];
+
+const REFUND_STATUS_LABELS = {
+  not_applicable: 'N/A',
+  pending_review: 'Pending Review',
+  approved: 'Approved',
+  processing: 'Processing',
+  refunded: 'Refunded',
+  rejected: 'Rejected'
+};
+const REFUND_STATUS_COLORS = {
+  not_applicable: 'background:#f3f4f6;color:#6b7280',
+  pending_review: 'background:#FEF3C7;color:#92400E',
+  approved: 'background:#DBEAFE;color:#1E40AF',
+  processing: 'background:#EDE9FE;color:#5B21B6',
+  refunded: 'background:#ECFDF5;color:#065F46',
+  rejected: 'background:#FEE2E2;color:#991B1B'
+};
+
+async function loadRefunds() {
+  document.getElementById('rf-loading').style.display = '';
+  document.getElementById('rf-table-wrap').style.display = 'none';
+  document.getElementById('rf-empty').style.display = 'none';
+  try {
+    const data = await api('/admin/refunds');
+    _refunds = data.refunds || [];
+    renderRefunds();
+  } catch(e) {
+    document.getElementById('rf-loading').textContent = 'Failed to load refunds';
+  }
+}
+
+function renderRefunds() {
+  const tbody = document.getElementById('rf-tbody');
+  if (!tbody) return;
+  const q = (document.getElementById('rf-search')?.value || '').toLowerCase();
+  const filterVal = document.getElementById('rf-filter')?.value || '';
+  let list = _refunds;
+  if (filterVal) list = list.filter(r => r.refundStatus === filterVal);
+  if (q) list = list.filter(r =>
+    (r.orderId||'').toLowerCase().includes(q) ||
+    (r.customerName||'').toLowerCase().includes(q) ||
+    (r.customerEmail||'').toLowerCase().includes(q)
+  );
+  document.getElementById('rf-loading').style.display = 'none';
+  if (!list.length) {
+    document.getElementById('rf-table-wrap').style.display = 'none';
+    document.getElementById('rf-empty').style.display = '';
+    tbody.innerHTML = '';
+    return;
+  }
+  document.getElementById('rf-table-wrap').style.display = '';
+  document.getElementById('rf-empty').style.display = 'none';
+  tbody.innerHTML = list.map(r => {
+    const statusStyle = REFUND_STATUS_COLORS[r.refundStatus] || REFUND_STATUS_COLORS.pending_review;
+    const statusLabel = REFUND_STATUS_LABELS[r.refundStatus] || r.refundStatus;
+    const canUpdate = !['not_applicable','refunded'].includes(r.refundStatus);
+    return `<tr>
+      <td style="font-size:11px;font-weight:600;color:var(--text-mid);">#${(r.orderId||'').slice(0,8).toUpperCase()}</td>
+      <td><div style="font-weight:500;font-size:13px;">${r.customerName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${r.customerEmail||''}</div></td>
+      <td style="font-weight:700;color:var(--red);">${formatCurrency(r.amount||0)}</td>
+      <td style="font-size:12px;">${r.paymentMethod==='gcash'?'GCash':'COD'}</td>
+      <td style="font-size:11px;color:var(--text-mid);">${r.paymentRef||'—'}</td>
+      <td><span style="${statusStyle};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">${statusLabel}</span></td>
+      <td style="font-size:11px;color:var(--text-mid);">${r.refundDate?formatDate(r.refundDate):'—'}</td>
+      <td>${canUpdate
+        ? `<button class="btn btn-sm" style="background:var(--red);color:#fff;border:none;" onclick="openRefundStatusModal('${r.id}')">Update Status</button>`
+        : `<span style="font-size:11px;color:var(--text-light);">${r.refundStatus==='refunded'?'Complete':'N/A'}</span>`
+      }</td>
+    </tr>`;
+  }).join('');
+}
+
+document.getElementById('rf-search')?.addEventListener('input', renderRefunds);
+document.getElementById('rf-filter')?.addEventListener('change', renderRefunds);
+
+let _refundTargetId = null;
+function openRefundStatusModal(id) {
+  const ref = _refunds.find(r => r.id === id);
+  if (!ref) return;
+  _refundTargetId = id;
+  // populate modal
+  document.getElementById('rsu-order-id').textContent = '#' + (ref.orderId||'').slice(0,8).toUpperCase();
+  document.getElementById('rsu-customer').textContent = ref.customerName || '—';
+  document.getElementById('rsu-amount').textContent = formatCurrency(ref.amount||0);
+  document.getElementById('rsu-current-status').textContent = REFUND_STATUS_LABELS[ref.refundStatus] || ref.refundStatus;
+  document.getElementById('rsu-status-select').value = ref.refundStatus || 'pending_review';
+  document.getElementById('rsu-notes').value = '';
+  document.getElementById('rsu-ref').value = ref.paymentRef || '';
+  document.getElementById('refund-status-modal').classList.add('open');
+}
+function closeRefundStatusModal() {
+  document.getElementById('refund-status-modal').classList.remove('open');
+  _refundTargetId = null;
+}
+document.getElementById('rsu-cancel-btn')?.addEventListener('click', closeRefundStatusModal);
+document.getElementById('rsu-confirm-btn')?.addEventListener('click', async () => {
+  const newStatus = document.getElementById('rsu-status-select').value;
+  const notes = document.getElementById('rsu-notes').value.trim();
+  const refundRef = document.getElementById('rsu-ref').value.trim();
+  if (newStatus === 'refunded' && !refundRef) {
+    toast('Please enter the GCash refund reference before marking as Refunded', 'error');
+    return;
+  }
+  const ok = await confirmModal('Update Refund Status', `Set refund status to "${REFUND_STATUS_LABELS[newStatus]}"?`);
+  if (!ok) return;
+  const btn = document.getElementById('rsu-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+  try {
+    await api(`/admin/refunds/${_refundTargetId}/status`, 'PATCH', { status: newStatus, notes, refundRef });
+    toast('Refund status updated', 'success');
+    closeRefundStatusModal();
+    loadRefunds();
+  } catch(e) {
+    toast(e.message || 'Failed to update refund status', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Update Status';
+  }
+});
+
+init();
+</script>
+</body>
+</html>

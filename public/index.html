@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Fold Pizza — Fresh and Delicious</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--red:#B71C1C;--gold:#F9A825;--cream:#FDFAF5;--warm:#F5F0E8;--border:#E8E2D9;--text:#1A1714;--text-mid:#6B6560;--text-light:#9B9490;--white:#FFFFFF;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;color:var(--text);background:var(--white);line-height:1.6;}
+a{text-decoration:none;color:inherit;}
+img{display:block;max-width:100%;}
+.nav{background:var(--green);height:72px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.nav-left{display:flex;align-items:center;gap:14px;}
+.nav-logo{width:46px;height:46px;border-radius:50%;object-fit:contain;}
+.nav-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;line-height:1.1;}
+.nav-tagline{font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;margin-top:1px;}
+.nav-center{display:flex;gap:2px;}
+.nav-link{color:rgba(255,255,255,0.75);font-size:14px;font-weight:500;padding:8px 16px;border-radius:6px;transition:all 0.15s;}
+.nav-link:hover{color:white;background:rgba(255,255,255,0.1);}
+.nav-right{display:flex;gap:8px;align-items:center;}
+.btn-ghost{color:white;border:1px solid rgba(255,255,255,0.35);padding:8px 18px;border-radius:4px;font-size:13px;font-weight:500;transition:all 0.15s;}
+.btn-ghost:hover{background:rgba(255,255,255,0.1);}
+.btn-primary{background:var(--gold);color:var(--green);padding:9px 22px;border-radius:4px;font-size:13px;font-weight:600;transition:all 0.15s;}
+.btn-primary:hover{background:#ffb300;transform:translateY(-1px);}
+.hero{position:relative;height:580px;overflow:hidden;display:flex;align-items:center;}
+.hero-bg{position:absolute;inset:0;background:url('/images/hero-bg.png') center center/cover no-repeat;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,20,8,0.82) 0%,rgba(10,20,8,0.55) 55%,rgba(10,20,8,0.15) 100%);}
+.hero-content{position:relative;z-index:1;padding:0 80px;max-width:640px;}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--gold);}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(40px,5vw,64px);font-weight:900;color:white;line-height:1.08;margin-bottom:20px;}
+.hero-title em{color:var(--gold);font-style:normal;}
+.hero-sub{font-size:16px;color:rgba(255,255,255,0.72);margin-bottom:36px;line-height:1.65;font-weight:300;max-width:480px;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-hero{padding:14px 32px;border-radius:4px;font-size:14px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;transition:all 0.2s;}
+.btn-hero-gold{background:var(--gold);color:var(--green);}
+.btn-hero-gold:hover{background:#ffb300;transform:translateY(-2px);box-shadow:0 6px 24px rgba(249,168,37,0.4);}
+.btn-hero-outline{border:1.5px solid rgba(255,255,255,0.5);color:white;}
+.btn-hero-outline:hover{border-color:white;background:rgba(255,255,255,0.08);}
+.ticker{background:var(--green);padding:12px 0;overflow:hidden;}
+.ticker-track{display:flex;gap:64px;animation:ticker 30s linear infinite;white-space:nowrap;}
+.ticker-item{font-size:12px;font-weight:500;color:rgba(255,255,255,0.8);letter-spacing:0.06em;text-transform:uppercase;display:flex;align-items:center;gap:12px;}
+.ticker-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.section{padding:96px 48px;}
+.section-warm{background:var(--warm);}
+.container{max-width:1200px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--green);margin-bottom:14px;}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(32px,3.5vw,48px);font-weight:700;color:var(--text);line-height:1.12;margin-bottom:16px;}
+.section-sub{font-size:16px;color:var(--text-mid);max-width:520px;font-weight:300;line-height:1.7;}
+.section-header{margin-bottom:56px;}
+.section-header.center{text-align:center;}
+.section-header.center .section-sub{margin:0 auto;}
+.menu-tabs{display:flex;gap:4px;margin-bottom:40px;border-bottom:1px solid var(--border);}
+.menu-tab{padding:12px 20px;font-size:13px;font-weight:500;color:var(--text-mid);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;letter-spacing:0.02em;background:none;border-top:none;border-left:none;border-right:none;}
+.menu-tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;}
+.menu-card{background:white;border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:all 0.2s;}
+.menu-card:hover{border-color:#388E3C;box-shadow:0 8px 32px rgba(27,94,32,0.1);transform:translateY(-3px);}
+.menu-card-img{height:160px;background:linear-gradient(160deg,#0a2010,#1B5E20);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:52px;}
+.menu-card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.menu-card-tag{position:absolute;top:12px;left:12px;background:var(--green);color:white;font-size:10px;font-weight:600;padding:4px 10px;border-radius:2px;letter-spacing:0.08em;text-transform:uppercase;}
+.menu-card-body{padding:18px 20px;}
+.menu-card-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.25;}
+.menu-card-desc{font-size:13px;color:var(--text-mid);line-height:1.55;margin-bottom:16px;font-weight:300;}
+.menu-card-footer{display:flex;align-items:center;justify-content:space-between;}
+.menu-card-price{font-size:18px;font-weight:700;color:var(--red);}
+.btn-add{background:var(--green);color:white;border:none;padding:8px 16px;border-radius:3px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;text-decoration:none;}
+.btn-add:hover{background:var(--green-mid,#2E7D32);}
+.promos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.promo-card{border-radius:6px;overflow:hidden;cursor:pointer;position:relative;aspect-ratio:3/4;}
+.promo-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease;}
+.promo-card:hover img{transform:scale(1.03);}
+.promo-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(to top,rgba(0,0,0,0.75),transparent);}
+.promo-card-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+.happyhour{
+  background:var(--green);
+  padding:96px 48px;
+  position:relative;
+  overflow:hidden;
+}
+.happyhour::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url('/images/hero-bg.png') center center/cover no-repeat;
+  opacity:0.18;
+  z-index:0;
+}
+.happyhour .hh-inner{position:relative;z-index:1;}
+.hh-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.hh-label{font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.hh-title{font-family:'Playfair Display',serif;font-size:clamp(36px,4vw,52px);font-weight:700;color:white;line-height:1.08;margin-bottom:16px;}
+.hh-title em{color:var(--gold);font-style:normal;}
+.hh-sub{font-size:16px;color:rgba(255,255,255,0.65);line-height:1.65;margin-bottom:32px;font-weight:300;}
+.hh-note{font-size:12px;color:rgba(255,255,255,0.35);margin-top:16px;}
+.hh-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.hh-card{border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:28px 24px;}
+.hh-pct{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:var(--gold);line-height:1;}
+.hh-off{font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px;}
+.hh-size{font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;}
+.btn-gold-outline{display:inline-block;border:1.5px solid var(--gold);color:var(--gold);padding:13px 30px;border-radius:4px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;}
+.btn-gold-outline:hover{background:var(--gold);color:var(--green);}
+.deals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.deal-card{border-radius:6px;padding:28px 24px;}
+.deal-card.combo{background:var(--green);}
+.deal-card.party{background:#0a2010;}
+.deal-card.heart{background:#4a0a0a;}
+.deal-tag{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:12px;}
+.deal-price{font-family:'Playfair Display',serif;font-size:42px;font-weight:700;color:var(--gold);line-height:1;margin-bottom:10px;}
+.deal-name{font-size:16px;font-weight:600;color:white;margin-bottom:8px;}
+.deal-desc{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.55;font-weight:300;}
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;}
+.why-item{padding:28px 0;border-top:2px solid var(--border);}
+.why-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--green);opacity:0.3;line-height:1;margin-bottom:14px;}
+.why-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.why-desc{font-size:13px;color:var(--text-mid);line-height:1.6;font-weight:300;}
+.contact-bar{background:#1A1714;padding:48px;}
+.contact-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px;}
+.contact-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;}
+.contact-val{font-size:15px;font-weight:500;color:white;}
+footer{background:#1A1714;border-top:1px solid rgba(255,255,255,0.06);padding:24px 48px;text-align:center;}
+footer p{font-size:12px;color:rgba(255,255,255,0.3);letter-spacing:0.04em;}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;align-items:center;justify-content:center;padding:24px;}
+.modal.open{display:flex;}
+.modal img{max-width:88vw;max-height:88vh;border-radius:4px;}
+.modal-close{position:fixed;top:20px;right:24px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.spinner{width:36px;height:36px;border:2px solid rgba(27,94,32,0.15);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:48px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:1024px){.why-grid{grid-template-columns:1fr 1fr;}.deals-grid{grid-template-columns:1fr 1fr;}.hh-inner{grid-template-columns:1fr;gap:48px;}}
+@media(max-width:768px){
+  .nav{padding:0 16px;}
+  .nav-center{display:none;}
+  .nav-name{font-size:14px;}
+  .nav-tagline{display:none;}
+  .btn-ghost{padding:6px 12px;font-size:12px;}
+  .btn-primary{padding:7px 14px;font-size:12px;}
+  .section{padding:48px 16px;}
+  .hero-content{padding:0 20px;}
+  .hero-title{font-size:36px;}
+  .hero-sub{font-size:15px;}
+  .deals-grid{grid-template-columns:1fr;}
+  .happyhour{padding:48px 20px;}
+  .contact-bar{padding:24px 16px;}
+  .contact-inner{flex-direction:column;gap:12px;}
+  .why-grid{grid-template-columns:1fr;}
+  .promos-grid{grid-template-columns:1fr;}
+  .menu-grid{grid-template-columns:1fr 1fr;gap:12px;}
+  .menu-tabs{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;}
+  .menu-tab{white-space:nowrap;padding:8px 14px;font-size:12px;}
+  .menu-card-name{font-size:13px;}
+  .menu-card-price{font-size:14px;}
+}
+@media(max-width:400px){
+  .menu-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-left">
+    <img src="/images/thefold_logo.png" alt="The Fold Pizza" class="nav-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="nav-name">The Fold Pizza</div>
+      <div class="nav-tagline">Fresh and Delicious</div>
+    </div>
+  </div>
+  <div class="nav-center">
+    <a href="#menu" class="nav-link">Menu</a>
+    <a href="#promos" class="nav-link">Promos</a>
+    <a href="#deals" class="nav-link">Deals</a>
+    <a href="#contact" class="nav-link">Contact</a>
+  </div>
+  <div class="nav-right">
+    <a href="/login" class="btn-ghost">Sign in</a>
+    <a href="/login?tab=signup" class="btn-primary">Order now</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">The Fold Pizza</div>
+    <h1 class="hero-title">Pizza made fresh,<br>delivered <em>hot</em></h1>
+    <p class="hero-sub">Handcrafted in 11 flavors, sized from personal to party. Custom messages on every celebration order.</p>
+    <div class="hero-actions">
+      <a href="/login?tab=signup" class="btn-hero btn-hero-gold">Order online</a>
+      <a href="#menu" class="btn-hero btn-hero-outline">Browse menu</a>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="ticker-dot"></span>Happy Hour 1PM–5PM — Up to 50% off</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Free delivery + 15% off — Double Delight promo</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>11 flavors — 30"×30" and 36"×36" party sizes</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Free custom message on all celebration deals</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Globe: 0916 617 4325 — Smart: 0919 098 2667</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Happy Hour 1PM–5PM — Up to 50% off</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Free delivery + 15% off — Double Delight promo</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>11 flavors — 30"×30" and 36"×36" party sizes</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Free custom message on all celebration deals</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Globe: 0916 617 4325 — Smart: 0919 098 2667</span>
+  </div>
+</div>
+
+<section class="section" id="menu">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-label">What we offer</div>
+      <h2 class="section-title">Our menu</h2>
+      <p class="section-sub">Browse freely — sign in to place an order and track your delivery.</p>
+    </div>
+    <div class="menu-tabs">
+      <button class="menu-tab active" data-cat="all">All items</button>
+      <button class="menu-tab" data-cat="pizza">Pizza</button>
+      <button class="menu-tab" data-cat="sides">Sides</button>
+      <button class="menu-tab" data-cat="drinks">Drinks</button>
+      <button class="menu-tab" data-cat="desserts">Desserts</button>
+    </div>
+    <div id="menu-loading"><div class="spinner"></div></div>
+    <div class="menu-grid" id="menu-grid" style="display:none;"></div>
+    <div style="text-align:center;margin-top:48px;">
+      <a href="/login?tab=signup" class="btn-hero btn-hero-gold">Create an account to order</a>
+    </div>
+  </div>
+</section>
+
+<div class="happyhour">
+  <div class="hh-inner">
+    <div>
+      <div class="hh-label">Valid daily</div>
+      <h2 class="hh-title">Happy Hour<br><em>every day</em></h2>
+      <p class="hh-sub">Dine-in, pick-up, or book a rider via Lalamove or Grab. Delivery fee applies for pick-up + rider.</p>
+      <a href="/login?tab=signup" class="btn-gold-outline">Order during happy hour</a>
+      <p class="hh-note">Not valid on holidays or special occasions. Cannot be combined with other promos.</p>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:16px;">1:00 PM — 5:00 PM</div>
+      <div class="hh-cards">
+        <div class="hh-card"><div class="hh-pct">50%</div><div class="hh-off">Off</div><div class="hh-size">10", 12", 16", 20"</div></div>
+        <div class="hh-card"><div class="hh-pct">30%</div><div class="hh-off">Off</div><div class="hh-size">30", 36"</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section" id="promos">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Special offers</div>
+      <h2 class="section-title">Current promos</h2>
+      <p class="section-sub">Click any promo to view the full details.</p>
+    </div>
+    <div class="promos-grid">
+      <div class="promo-card" onclick="openModal('/images/promo4.png')"><img src="/images/promo4.png" alt="11 Flavors" loading="lazy"><div class="promo-card-overlay"><div class="promo-card-label">11 Flavors Pizza</div></div></div>
+      <div class="promo-card" onclick="openModal('/images/promo1.png')"><img src="/images/promo1.png" alt="Celebration Deals" loading="lazy"><div class="promo-card-overlay"><div class="promo-card-label">Celebration Deals</div></div></div>
+      <div class="promo-card" onclick="openModal('/images/promo5.png')"><img src="/images/promo5.png" alt="Double Delight" loading="lazy"><div class="promo-card-overlay"><div class="promo-card-label">Double Delight Promo</div></div></div>
+      <div class="promo-card" onclick="openModal('/images/promo2.png')"><img src="/images/promo2.png" alt="Heart Deals" loading="lazy"><div class="promo-card-overlay"><div class="promo-card-label">Heart Deals</div></div></div>
+      <div class="promo-card" onclick="openModal('/images/promo3.png')"><img src="/images/promo3.png" alt="Happy Hour" loading="lazy"><div class="promo-card-overlay"><div class="promo-card-label">Happy Hour</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-warm" id="deals">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-label">Celebrate with us</div>
+      <h2 class="section-title">Celebration deals</h2>
+      <p class="section-sub">Perfect for birthdays, anniversaries and any occasion. Free custom message on all deals.</p>
+    </div>
+    <div class="deals-grid">
+      <div class="deal-card combo"><div class="deal-tag">Combo A</div><div class="deal-price">₱640</div><div class="deal-name">12" Pizza</div><div class="deal-desc">Choose 1 flavor. 2 pcs chicken. 2 single baked macaroni.</div></div>
+      <div class="deal-card combo"><div class="deal-tag">Combo B</div><div class="deal-price">₱990</div><div class="deal-name">16" Pizza</div><div class="deal-desc">Choose 1 flavor. 4 pcs chicken. 2 single baked macaroni. Free custom message.</div></div>
+      <div class="deal-card combo"><div class="deal-tag">Combo C</div><div class="deal-price">₱1,700</div><div class="deal-name">20" Pizza</div><div class="deal-desc">Choose 1 flavor. 6 pcs chicken. 4 single baked macaroni. Free custom message.</div></div>
+      <div class="deal-card party"><div class="deal-tag">Party A</div><div class="deal-price">₱3,300</div><div class="deal-name">30" 9 Flavors</div><div class="deal-desc">12 pcs chicken. 1 family-sized baked macaroni. Free custom message.</div></div>
+      <div class="deal-card party"><div class="deal-tag">Party B</div><div class="deal-price">₱4,300</div><div class="deal-name">30" 9 Flavors</div><div class="deal-desc">12 pcs chicken. Family-sized macaroni. 1 slab BBQ spareribs. Free custom message.</div></div>
+      <div class="deal-card heart"><div class="deal-tag">Heart A</div><div class="deal-price">₱1,700</div><div class="deal-name">20" Heart-Shaped</div><div class="deal-desc">Choose 1–2 flavors. 6 pcs chicken. 4 single baked macaroni. Free custom message.</div></div>
+    </div>
+    <div style="text-align:center;margin-top:48px;"><a href="/login?tab=signup" class="btn-hero btn-hero-gold">Order a celebration deal</a></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Why The Fold</div>
+      <h2 class="section-title">What makes us different</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-item"><div class="why-num">11</div><div class="why-title">Flavors to choose from</div><div class="why-desc">BBQ Chicken, Hawaiian, Veggies, Jalapeño, All Meat, Pepperoni, Four Cheese, Shrimp, Spinach, Fold Special and Luau Chicken.</div></div>
+      <div class="why-item"><div class="why-num">6</div><div class="why-title">Sizes for every group</div><div class="why-desc">From 10" personal to massive 36"×36" party pizzas good for 25–30 people.</div></div>
+      <div class="why-item"><div class="why-num">Free</div><div class="why-title">Custom message</div><div class="why-desc">Personalize your pizza with a birthday greeting, anniversary note, or any message you want.</div></div>
+      <div class="why-item"><div class="why-num">50%</div><div class="why-title">Happy hour savings</div><div class="why-desc">Get up to 50% off smaller sizes every day from 1–5 PM. No code needed.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="contact-bar" id="contact">
+  <div class="contact-inner">
+    <div><div class="contact-label">Facebook</div><div class="contact-val">The Fold Pizza</div></div>
+    <div><div class="contact-label">Globe</div><div class="contact-val">0916 617 4325</div></div>
+    <div><div class="contact-label">Smart</div><div class="contact-val">0919 098 2667</div></div>
+    <div><div class="contact-label">Landline</div><div class="contact-val">(02) 8706 2514</div></div>
+    <a href="/login?tab=signup" class="btn-primary" style="padding:12px 28px;font-size:14px;">Order now</a>
+  </div>
+</div>
+<footer><p>The Fold Pizza — Fresh and Delicious &nbsp;·&nbsp; All rights reserved 2024</p></footer>
+
+<div class="modal" id="promo-modal">
+  <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+  <img src="" id="modal-img" alt="Promo">
+</div>
+
+<script>
+async function loadMenu() {
+  try {
+    const res = await fetch('/api/menu');
+    const data = await res.json();
+    if (!data.success) return;
+    window._menu = data.items;
+    renderMenu(data.items, 'all');
+    document.getElementById('menu-loading').style.display = 'none';
+    document.getElementById('menu-grid').style.display = 'grid';
+  } catch(e) {
+    document.getElementById('menu-loading').innerHTML = '<p style="text-align:center;color:#888;padding:40px;">Unable to load menu right now.</p>';
+  }
+}
+function renderMenu(items, cat) {
+  const filtered = cat === 'all' ? items : items.filter(i => i.category === cat);
+  const catColors = {pizza:'linear-gradient(160deg,#0a2010,#1B5E20)',sides:'linear-gradient(160deg,#0d2e0a,#2E7D32)',drinks:'linear-gradient(160deg,#0a1020,#1565C0)',desserts:'linear-gradient(160deg,#2a0a10,#880E4F)'};
+  document.getElementById('menu-grid').innerHTML = filtered.map(item => {
+    const isPhoto = item.image && item.image.startsWith('/');
+    return `<div class="menu-card">
+      <div class="menu-card-img" style="background:${catColors[item.category]||catColors.pizza};">
+        ${isPhoto?`<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">`:`<span>${item.image||'🍕'}</span>`}
+        <span class="menu-card-tag">${item.category}</span>
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">${item.name}</div>
+        <div class="menu-card-desc">${item.description}</div>
+        <div class="menu-card-footer">
+          <div class="menu-card-price">₱${Number(item.price).toLocaleString('en-PH')}</div>
+          <a href="/login?tab=signup" class="btn-add">Order</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.querySelectorAll('.menu-tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    if (window._menu) renderMenu(window._menu, tab.dataset.cat);
+  };
+});
+function openModal(src) {
+  document.getElementById('modal-img').src = src;
+  document.getElementById('promo-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('promo-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('promo-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.onclick = e => { e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'}); };
+});
+loadMenu();
+</script>
+</body>
+</html>

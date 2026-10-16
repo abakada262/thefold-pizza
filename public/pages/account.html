@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account — The Fold Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="/js/app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--red:#B71C1C;--gold:#F9A825;--border:#E8E2D9;--text:#1A1714;--text-mid:#6B6560;--text-light:#9B9490;--bg:#F8F5F0;--white:#fff;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+.nav{background:var(--green);height:64px;display:flex;align-items:center;padding:0 28px;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:38px;height:38px;border-radius:50%;object-fit:contain;}
+.nav-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;}
+.nav-tagline{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.08em;text-transform:uppercase;}
+.nav-center{display:flex;gap:2px;}
+.nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;padding:7px 14px;border-radius:5px;transition:all 0.15s;}
+.nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.12);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--green);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.btn-signout{background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.8);font-size:12px;font-weight:500;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.btn-signout:hover{border-color:rgba(255,255,255,0.5);color:white;}
+.layout{display:flex;max-width:1000px;margin:0 auto;padding:32px 28px;gap:28px;}
+.sidebar{width:220px;flex-shrink:0;}
+.sidebar-nav{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-mid);border-left:2px solid transparent;transition:all 0.15s;}
+.sidebar-item:hover{background:#F5F0E8;color:var(--text);}
+.sidebar-item.active{color:var(--green);border-left-color:var(--green);font-weight:600;background:#F0F7F0;}
+.sidebar-item:not(:last-child){border-bottom:1px solid var(--border);}
+.main{flex:1;min-width:0;}
+.panel{display:none;} .panel.active{display:block;}
+.page-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text-mid);margin-bottom:24px;font-weight:300;}
+.card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);}
+.card-title{font-size:14px;font-weight:600;color:var(--text);}
+.card-body{padding:20px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:6px;}
+.form-input{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:white;transition:border-color 0.15s;}
+.form-input:focus{outline:none;border-color:var(--green);}
+.form-input::placeholder{color:#C0BAB3;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.btn{display:inline-flex;align-items:center;padding:9px 20px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:0.01em;}
+.btn-primary{background:var(--green);color:white;}
+.btn-primary:hover{background:var(--green-mid);}
+.btn-danger{background:transparent;border:1px solid #FCA5A5;color:var(--red);}
+.btn-danger:hover{background:#FEF2F2;}
+.btn:disabled{opacity:0.6;cursor:not-allowed;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:0;}
+.stat-box{text-align:center;padding:20px 12px;}
+.stat-box:not(:last-child){border-right:1px solid var(--border);}
+.stat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--green);line-height:1;margin-bottom:4px;}
+.stat-lbl{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);}
+.info-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.info-row:last-child{border-bottom:none;}
+.info-label{color:var(--text-mid);font-weight:400;}
+.info-value{font-weight:500;color:var(--text);}
+.legal-section{margin-bottom:28px;}
+.legal-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:12px;}
+.legal-body{font-size:13px;color:var(--text-mid);line-height:1.8;font-weight:300;}
+.legal-body h4{font-size:13px;font-weight:600;color:var(--text);margin:16px 0 6px;}
+.spinner{width:32px;height:32px;border:2px solid rgba(27,94,32,0.12);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:48px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--green);color:white;padding:12px 18px;border-radius:5px;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);animation:slideIn 0.2s ease;}
+.toast-error{background:var(--red);}.toast-info{background:#1565C0;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@media(max-width:768px){.nav-center{display:none;}}
+
+@media(max-width:768px){.layout{flex-direction:column;padding:16px;padding-bottom:80px;gap:16px;}.sidebar{width:100%;}.stat-row{grid-template-columns:1fr 1fr;}.grid-2{grid-template-columns:1fr;}}
+
+/* MOBILE BOTTOM NAV */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:white;border-top:1px solid var(--border);
+  z-index:300;padding:8px 0;
+  padding-bottom:max(8px, env(safe-area-inset-bottom));
+}
+.bottom-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:4px;text-decoration:none;
+  color:#9B9490;font-size:10px;font-weight:600;letter-spacing:0.02em;
+  font-family:'Inter',sans-serif;
+}
+.bottom-nav-item.active{color:var(--green);}
+.bottom-nav-item svg{width:22px;height:22px;stroke-width:1.8;}
+@media(max-width:900px){
+  .nav-center{display:none !important;}
+  .bottom-nav{display:flex !important;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <img src="/images/thefold_logo.png" alt="The Fold Pizza" class="nav-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="nav-name">The Fold Pizza</div>
+      <div class="nav-tagline">Fresh and Delicious</div>
+    </div>
+  </div>
+  <div class="nav-center">
+    <a href="/dashboard" class="nav-link">Order</a>
+    <a href="/orders" class="nav-link">My orders</a>
+    <a href="/account" class="nav-link active">Account</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-avatar" id="user-avatar">?</div>
+    <button class="btn-signout" id="btn-logout">Sign out</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-nav">
+      <div class="sidebar-item active" data-panel="profile">Profile</div>
+      <div class="sidebar-item" data-panel="security">Security</div>
+      <div class="sidebar-item" data-panel="summary">Order Summary</div>
+      <div class="sidebar-item" data-panel="terms">Terms of Service</div>
+      <div class="sidebar-item" data-panel="privacy">Privacy Policy</div>
+      <div class="sidebar-item" data-panel="about">About Us</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- PROFILE -->
+    <div class="panel active" id="panel-profile">
+      <div class="page-title">Profile</div>
+      <div class="page-sub">Manage your personal information</div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="stat-row" id="stats-row">
+          <div class="stat-box"><div class="stat-num" id="stat-orders">—</div><div class="stat-lbl">Orders</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-member">—</div><div class="stat-lbl">Member since</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-spent">—</div><div class="stat-lbl">Total spent</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Personal information</div></div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Full name</label><input type="text" class="form-input" id="edit-name" placeholder="Your full name"></div>
+            <div class="form-group"><label class="form-label">Phone number</label><input type="text" class="form-input" id="edit-phone" placeholder="09xxxxxxxxx"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Default delivery address</label><input type="text" class="form-input" id="edit-address" placeholder="Your full delivery address"></div>
+          <div class="form-group"><label class="form-label">Email address</label><input type="email" class="form-input" id="edit-email" disabled style="background:#FDFAF5;color:var(--text-mid);"></div>
+          <button class="btn btn-primary" id="btn-save-profile">Save changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="panel" id="panel-security">
+      <div class="page-title">Security</div>
+      <div class="page-sub">Change your password</div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Change password</div></div>
+        <div class="card-body">
+          <div class="form-group"><label class="form-label">Current password</label><input type="password" class="form-input" id="cur-pwd" placeholder="Your current password"></div>
+          <div class="form-group"><label class="form-label">New password</label><input type="password" class="form-input" id="new-pwd" placeholder="Minimum 6 characters"></div>
+          <div class="form-group"><label class="form-label">Confirm new password</label><input type="password" class="form-input" id="confirm-pwd" placeholder="Repeat new password"></div>
+          <button class="btn btn-primary" id="btn-change-pwd">Update password</button>
+        </div>
+      </div>
+      <div class="card" style="border-color:#FCA5A5;">
+        <div class="card-head" style="background:#FEF2F2;"><div class="card-title" style="color:var(--red);">Danger zone</div></div>
+        <div class="card-body">
+          <div style="font-size:13px;color:var(--text-mid);margin-bottom:14px;font-weight:300;">Signing out will end your current session. You can sign back in at any time.</div>
+          <button class="btn btn-danger" id="btn-logout2">Sign out of account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="panel" id="panel-summary">
+      <div class="page-title">Order Summary</div>
+      <div class="page-sub">Your complete order history</div>
+      <div id="summary-loading"><div class="spinner"></div></div>
+      <div id="summary-content"></div>
+    </div>
+
+    <!-- TERMS -->
+    <div class="panel" id="panel-terms">
+      <div class="page-title">Terms of Service</div>
+      <div class="page-sub">Last updated: January 2024</div>
+      <div class="card"><div class="card-body">
+        <div class="legal-body">
+          <div class="legal-title">Terms of Service</div>
+          <h4>1. Acceptance of Terms</h4>
+          <p>By accessing and using The Fold Pizza's online ordering platform, you accept and agree to be bound by the terms and provision of this agreement.</p>
+          <h4>2. Orders & Payment</h4>
+          <p>All orders placed through our platform are subject to availability and confirmation. Payment must be made in full at the time of ordering or upon delivery for cash on delivery orders. GCash payments are processed securely through PayMongo.</p>
+          <h4>3. Delivery Policy</h4>
+          <p>Delivery times are estimates and may vary due to traffic, weather, or other conditions. The Fold Pizza is not responsible for delays outside our control. Delivery fees apply for rider bookings via Lalamove or Grab.</p>
+          <h4>4. Refunds & Cancellations</h4>
+          <p>Cancellations must be made before the order is confirmed for preparation. Once an order is being prepared, cancellation may not be possible. Refunds for valid cancellations will be processed within 5–7 business days.</p>
+          <h4>5. Changes to Terms</h4>
+          <p>The Fold Pizza reserves the right to modify these terms at any time. Continued use of our services constitutes acceptance of any changes.</p>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- PRIVACY -->
+    <div class="panel" id="panel-privacy">
+      <div class="page-title">Privacy Policy</div>
+      <div class="page-sub">Last updated: January 2024</div>
+      <div class="card"><div class="card-body">
+        <div class="legal-body">
+          <div class="legal-title">Privacy Policy</div>
+          <h4>Information We Collect</h4>
+          <p>We collect information you provide when creating an account (name, email, phone number, delivery address) and information generated when you place orders (items ordered, payment method, delivery history).</p>
+          <h4>How We Use Your Information</h4>
+          <p>Your information is used to process orders, communicate order updates, improve our service, and comply with legal obligations. We do not sell your personal information to third parties.</p>
+          <h4>Payment Security</h4>
+          <p>GCash payments are processed through PayMongo, a BSP-licensed payment gateway. We do not store your payment credentials. All transactions are encrypted and secure.</p>
+          <h4>Data Retention</h4>
+          <p>We retain your account information for as long as your account is active. Order history is retained for accounting and legal compliance purposes.</p>
+          <h4>Contact Us</h4>
+          <p>For privacy concerns, contact us via Facebook at "The Fold Pizza" or call us at 0916 617 4325.</p>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="panel" id="panel-about">
+      <div class="page-title">About Us</div>
+      <div class="page-sub">The story behind The Fold Pizza</div>
+      <div class="card"><div class="card-body">
+        <div class="legal-body">
+          <div class="legal-title">The Fold Pizza</div>
+          <p>The Fold Pizza is a Filipino pizza brand built on the belief that great pizza should be fresh, affordable, and made with love. We offer 11 hand-crafted flavors in sizes from personal 10-inch to massive 36-inch party pizzas.</p>
+          <h4>Our Menu</h4>
+          <p>BBQ Chicken, Hawaiian, Veggies, Jalapeño, All Meat, Pepperoni, Four Cheese, Shrimp, Spinach, Fold Special and Luau Chicken. Available in 10", 12", 16", 20", 30" and 36" sizes.</p>
+          <h4>Celebration Deals</h4>
+          <p>We specialize in celebration pizzas with free custom messages. Perfect for birthdays, anniversaries, graduations, and any special occasion. Combos start from ₱640.</p>
+          <h4>Happy Hour</h4>
+          <p>Every day from 1:00 PM to 5:00 PM, enjoy up to 50% off on 10", 12", 16", and 20" pizzas, and 30% off on 30" and 36" sizes. Dine-in, pick-up, or rider booking via Lalamove or Grab.</p>
+          <h4>Contact</h4>
+          <p>Globe: 0916 617 4325 &nbsp;|&nbsp; Smart: 0919 098 2667 &nbsp;|&nbsp; Landline: (02) 8706 2514 &nbsp;|&nbsp; Facebook: The Fold Pizza</p>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+<div id="toast-container"></div>
+
+<nav class="bottom-nav">
+  <a href="/dashboard" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Order
+  </a>
+  <a href="/orders" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    My Orders
+  </a>
+  <a href="/account" class="bottom-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Account
+  </a>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyAsXZxD59Igs9oYOC5VR566lfE9VHhbszM",authDomain:"thefold-pizza.firebaseapp.com",projectId:"thefold-pizza",storageBucket:"thefold-pizza.firebasestorage.app",messagingSenderId:"75022777499",appId:"1:75022777499:web:e08d59f9e51d6dcaf05a3e"});
+const auth=firebase.auth();
+
+async function init(){
+  const user=await requireLogin();if(!user)return;
+  document.getElementById('user-avatar').textContent=(user.name||'?').charAt(0).toUpperCase();
+  document.getElementById('edit-name').value=user.name||'';
+  document.getElementById('edit-phone').value=user.phone||'';
+  document.getElementById('edit-address').value=user.address||'';
+  document.getElementById('edit-email').value=user.email||'';
+  document.getElementById('stat-member').textContent=new Date(user.createdAt||Date.now()).getFullYear();
+  document.getElementById('stat-orders').textContent=user.totalOrders||0;
+  loadSummary();
+}
+
+document.querySelectorAll('.sidebar-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+item.dataset.panel)?.classList.add('active');
+  });
+});
+
+document.getElementById('btn-save-profile').onclick=async()=>{
+  const name=document.getElementById('edit-name').value.trim();
+  const phone=document.getElementById('edit-phone').value.trim();
+  const address=document.getElementById('edit-address').value.trim();
+  const btn=document.getElementById('btn-save-profile');
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    await api('/auth/update-profile','PATCH',{name,phone,address});
+    toast('Profile updated','success');
+  }catch(e){toast(e.message,'error');}
+  finally{btn.disabled=false;btn.textContent='Save changes';}
+};
+
+document.getElementById('btn-change-pwd').onclick=async()=>{
+  const cur=document.getElementById('cur-pwd').value;
+  const nw=document.getElementById('new-pwd').value;
+  const conf=document.getElementById('confirm-pwd').value;
+  if(!cur||!nw||!conf)return toast('Please fill in all fields','error');
+  if(nw!==conf)return toast('Passwords do not match','error');
+  if(nw.length<6)return toast('Password must be at least 6 characters','error');
+  const btn=document.getElementById('btn-change-pwd');
+  btn.disabled=true;btn.textContent='Updating...';
+  try{
+    const user=auth.currentUser;
+    const{EmailAuthProvider,reauthenticateWithCredential}=firebase.auth;
+    const cred=EmailAuthProvider.credential(user.email,cur);
+    await reauthenticateWithCredential(user,cred);
+    await user.updatePassword(nw);
+    toast('Password updated','success');
+    ['cur-pwd','new-pwd','confirm-pwd'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){
+    if(e.code==='auth/wrong-password')toast('Current password is incorrect','error');
+    else toast(e.message,'error');
+  }
+  finally{btn.disabled=false;btn.textContent='Update password';}
+};
+
+async function loadSummary(){
+  try{
+    const data=await api('/orders/my');const orders=data.orders||[];
+    const total=orders.reduce((s,o)=>s+(o.total||0),0);
+    document.getElementById('stat-spent').textContent='₱'+Math.round(total/1000)+'k';
+    document.getElementById('summary-loading').style.display='none';
+    if(!orders.length){document.getElementById('summary-content').innerHTML='<div style="text-align:center;padding:48px;color:var(--text-mid);">No orders yet</div>';return;}
+    document.getElementById('summary-content').innerHTML=`
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);">
+          <div style="padding:20px;text-align:center;border-right:1px solid var(--border);"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--green);">${orders.length}</div><div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-top:4px;">Total orders</div></div>
+          <div style="padding:20px;text-align:center;border-right:1px solid var(--border);"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--green);">${formatCurrency(total)}</div><div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-top:4px;">Total spent</div></div>
+          <div style="padding:20px;text-align:center;"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--green);">${orders.filter(o=>o.status==='delivered').length}</div><div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-top:4px;">Delivered</div></div>
+        </div>
+      </div>
+      ${orders.slice(0,10).map(o=>`
+        <div class="card" style="margin-bottom:10px;">
+          <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+            <div><div style="font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:2px;">#${o.id.slice(0,8).toUpperCase()} &nbsp;·&nbsp; <span style="font-weight:400;">${formatDate(o.createdAt)}</span></div><div style="font-size:13px;color:var(--text);">${(o.items||[]).map(i=>`${i.qty}× ${i.name}`).join(', ')}</div></div>
+            <div style="text-align:right;flex-shrink:0;margin-left:16px;"><div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--red);">${formatCurrency(o.total)}</div><div style="font-size:11px;color:var(--text-light);text-transform:capitalize;">${o.status}</div></div>
+          </div>
+        </div>`).join('')}`;
+  }catch(e){document.getElementById('summary-loading').innerHTML='<p style="text-align:center;color:var(--text-mid);">Failed to load orders</p>';}
+}
+
+const signout=async()=>{await api('/auth/logout','POST');await auth.signOut();window.location.replace('/login');};
+document.getElementById('btn-logout').onclick=signout;
+document.getElementById('btn-logout2').onclick=signout;
+init();
+</script>
+</body>
+</html>

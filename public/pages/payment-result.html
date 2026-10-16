@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Result — The Fold Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--gold:#F9A825;--red:#B71C1C;--orange:#F97316;--border:#E5E7EB;--text:#1A1A1A;--mid:#6B7280;--success-bg:#ECFDF5;--success-border:#6EE7B7;--success-text:#065F46;--warning-bg:#FFFBEB;--warning-border:#FCD34D;--warning-text:#92400E;--danger-bg:#FEF2F2;--danger-border:#FCA5A5;--danger-text:#991B1B;}
+body{font-family:'Open Sans',sans-serif;background:#F5F5F5;min-height:100vh;display:flex;flex-direction:column;}
+.nav{background:var(--green);padding:0 28px;height:68px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
+.nav img{width:44px;height:44px;object-fit:contain;border-radius:50%;}
+.nav-brand{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:900;color:white;}
+.nav-brand span{color:var(--gold);}
+.page{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 20px;}
+.card{background:white;border-radius:20px;padding:44px 36px;text-align:center;max-width:440px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,0.08);border:1px solid var(--border);}
+.icon-ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:48px;}
+.icon-ring.success{background:var(--success-bg);border:2px solid var(--success-border);}
+.icon-ring.pending{background:var(--warning-bg);border:2px solid var(--warning-border);}
+.icon-ring.failed{background:var(--danger-bg);border:2px solid var(--danger-border);}
+h1{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;margin-bottom:10px;}
+h1.success{color:var(--green);}
+h1.pending{color:var(--warning-text);}
+h1.failed{color:var(--red);}
+p.sub{font-size:14px;color:var(--mid);line-height:1.7;margin-bottom:24px;}
+.order-info{background:#F9FAFB;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;margin-bottom:20px;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:14px;}
+.info-row:not(:last-child){border-bottom:1px solid var(--border);}
+.info-label{color:var(--mid);}
+.info-value{font-weight:600;color:var(--text);}
+.alert{border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;text-align:left;font-size:13px;line-height:1.5;}
+.alert.warning{background:var(--warning-bg);border:1px solid var(--warning-border);color:var(--warning-text);}
+.btn{display:block;width:100%;padding:14px;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;cursor:pointer;border:none;text-decoration:none;margin-bottom:10px;text-align:center;transition:all 0.15s;}
+.btn:last-child{margin-bottom:0;}
+.btn-green{background:var(--green);color:white;}
+.btn-green:hover{background:var(--green-mid);}
+.btn-warning{background:#F59E0B;color:white;}
+.btn-warning:hover{background:#D97706;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--mid);}
+.btn-outline:hover{border-color:var(--green);color:var(--green);}
+.btn:disabled{opacity:0.6;cursor:not-allowed;}
+.spinner-wrap{padding:48px 0;}
+.spinner{width:52px;height:52px;border:4px solid rgba(27,94,32,0.12);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-text{font-size:14px;color:var(--mid);}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <img src="/images/thefold_logo.png" alt="Logo" onerror="this.style.display='none'">
+  <div class="nav-brand">THE <span>FOLD</span> PIZZA</div>
+</nav>
+
+<div class="page">
+  <div class="card" id="card">
+    <div class="spinner-wrap">
+      <div class="spinner"></div>
+      <div class="spin-text">Verifying your payment...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function api(path) {
+  const res = await fetch('/api' + path, { credentials: 'include' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed');
+  return data;
+}
+
+function fmt(n) {
+  return '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+}
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('orderId') || localStorage.getItem('lastOrderId');
+  const status = params.get('status');
+
+  if (status === 'failed' || !orderId) { showFailed(orderId, null); return; }
+
+  let paid = false;
+  for (let i = 0; i < 6; i++) {
+    try {
+      const d = await api('/payments/check/' + orderId);
+      if (d.paymentStatus === 'paid') { paid = true; break; }
+    } catch(e) {}
+    if (i < 5) await new Promise(r => setTimeout(r, 1500));
+  }
+
+  let order = null;
+  try { const d = await api('/orders/' + orderId); order = d.order; } catch(e) {}
+
+  if (paid) {
+    localStorage.removeItem('gcashPending');
+    localStorage.removeItem('lastOrderId');
+    showSuccess(orderId, order);
+  } else {
+    showPending(orderId, order);
+  }
+}
+
+function showSuccess(orderId, order) {
+  document.getElementById('card').innerHTML = `
+    <div class="icon-ring success">✅</div>
+    <h1 class="success">Payment confirmed!</h1>
+    <p class="sub">Your GCash payment was received.<br>Your pizza is being prepared now. 🍕</p>
+    ${order ? `<div class="order-info">
+      <div class="info-row"><span class="info-label">Order ID</span><span class="info-value">#${orderId.slice(0,8).toUpperCase()}</span></div>
+      <div class="info-row"><span class="info-label">Amount paid</span><span class="info-value" style="color:var(--red);">${fmt(order.total)}</span></div>
+      <div class="info-row"><span class="info-label">Payment</span><span class="info-value" style="color:var(--success-text);">✅ GCash paid</span></div>
+      <div class="info-row"><span class="info-label">Status</span><span class="info-value" style="color:#1E40AF;">Confirmed</span></div>
+    </div>` : ''}
+    <a href="/orders" class="btn btn-green">📋 Track my order</a>
+    <a href="/dashboard" class="btn btn-outline">🍕 Order more</a>`;
+}
+
+function showPending(orderId, order) {
+  document.getElementById('card').innerHTML = `
+    <div class="icon-ring pending">⏳</div>
+    <h1 class="pending">Payment pending</h1>
+    <p class="sub">We haven't received your GCash payment yet.<br>If you already paid, tap Check below.</p>
+    <div class="alert warning">
+      <span style="font-size:18px;flex-shrink:0;">ℹ️</span>
+      <span>GCash payments can take up to 30 seconds to confirm. Your order is saved and waiting for payment.</span>
+    </div>
+    ${orderId ? `<div class="order-info">
+      <div class="info-row"><span class="info-label">Order ID</span><span class="info-value">#${orderId.slice(0,8).toUpperCase()}</span></div>
+      <div class="info-row"><span class="info-label">Payment status</span><span class="info-value" style="color:var(--warning-text);">⏳ Awaiting GCash</span></div>
+    </div>` : ''}
+    <button class="btn btn-warning" id="recheck-btn" onclick="recheck('${orderId}')">↻ Check payment status</button>
+    <a href="/orders" class="btn btn-outline">View my orders</a>`;
+}
+
+function showFailed(orderId, order) {
+  document.getElementById('card').innerHTML = `
+    <div class="icon-ring failed">❌</div>
+    <h1 class="failed">Payment not found</h1>
+    <p class="sub">We couldn't verify your payment. Check your GCash app or contact us if you were charged.</p>
+    <a href="/orders" class="btn btn-green">View my orders</a>
+    <a href="/dashboard" class="btn btn-outline">Try again</a>`;
+}
+
+async function recheck(orderId) {
+  const btn = document.getElementById('recheck-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  try {
+    const d = await api('/payments/check/' + orderId);
+    if (d.paymentStatus === 'paid') {
+      localStorage.removeItem('gcashPending');
+      localStorage.removeItem('lastOrderId');
+      let order = null;
+      try { const od = await api('/orders/' + orderId); order = od.order; } catch(e) {}
+      showSuccess(orderId, order);
+    } else {
+      btn.textContent = '↻ Check payment status';
+      btn.disabled = false;
+      btn.style.background = '#EF4444';
+      setTimeout(() => { btn.style.background = ''; }, 2000);
+    }
+  } catch(e) {
+    btn.textContent = '↻ Check payment status';
+    btn.disabled = false;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

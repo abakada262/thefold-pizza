@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order — The Fold Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="/js/app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--red:#B71C1C;--red-mid:#C62828;--gold:#F9A825;--border:#E8E2D9;--text:#1A1714;--text-mid:#6B6560;--text-light:#9B9490;--bg:#F8F5F0;--white:#fff;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+
+/* NAV */
+.nav{background:var(--green);height:64px;display:flex;align-items:center;padding:0 28px;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:38px;height:38px;border-radius:50%;object-fit:contain;}
+.nav-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;}
+.nav-tagline{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.08em;text-transform:uppercase;}
+.nav-center{display:flex;gap:2px;}
+.nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;padding:7px 14px;border-radius:5px;transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+.nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.12);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--green);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;}
+.nav-username{font-size:13px;color:rgba(255,255,255,0.8);}
+.btn-signout{background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.8);font-size:12px;font-weight:500;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.btn-signout:hover{border-color:rgba(255,255,255,0.5);color:white;}
+
+/* CART BUTTON */
+.cart-btn{position:relative;background:var(--gold);color:var(--green);border:none;padding:8px 16px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;}
+.cart-btn:hover{background:#ffb300;}
+.cart-count{position:absolute;top:-6px;right:-6px;background:var(--red);color:white;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;display:none;}
+
+/* BANNER SLIDER */
+.banner{position:relative;height:220px;overflow:hidden;background:var(--green);}
+.banner-slide{position:absolute;inset:0;opacity:0;transition:opacity 0.6s ease;display:flex;align-items:center;}
+.banner-slide.active{opacity:1;}
+.banner-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.banner-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,20,8,0.75) 0%,rgba(10,20,8,0.3) 60%,transparent 100%);}
+.banner-content{position:relative;z-index:1;padding:0 40px;max-width:500px;}
+.banner-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.banner-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:white;line-height:1.15;margin-bottom:8px;}
+.banner-sub{font-size:13px;color:rgba(255,255,255,0.7);font-weight:300;}
+.banner-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2;}
+.banner-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.2s;}
+.banner-dot.active{background:var(--gold);width:18px;border-radius:3px;}
+
+/* CATEGORY BAR */
+.cat-bar{background:white;border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.cat-bar::-webkit-scrollbar{display:none;}
+.cat-btn{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text-mid);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.15s;letter-spacing:0.01em;}
+.cat-btn.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
+.cat-btn:hover{color:var(--text);}
+
+/* MAIN LAYOUT */
+.layout{display:flex;gap:0;max-width:1200px;margin:0 auto;padding:28px;}
+.menu-col{flex:1;min-width:0;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:16px;}
+
+/* MENU GRID */
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:32px;}
+.menu-card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:all 0.2s;}
+.menu-card:hover{border-color:var(--green-mid);box-shadow:0 4px 20px rgba(27,94,32,0.1);transform:translateY(-2px);}
+.menu-card-img{height:140px;background:linear-gradient(160deg,#0a2010,#1B5E20);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:44px;}
+.menu-card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.menu-card-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.55);color:white;font-size:10px;font-weight:600;padding:3px 8px;border-radius:2px;letter-spacing:0.06em;text-transform:uppercase;backdrop-filter:blur(4px);}
+.menu-card-body{padding:14px 16px;}
+.menu-card-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.menu-card-desc{font-size:12px;color:var(--text-mid);line-height:1.5;margin-bottom:12px;font-weight:300;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-clamp:2;overflow:hidden;}
+.menu-card-footer{display:flex;align-items:center;justify-content:space-between;}
+.menu-card-price{font-size:16px;font-weight:700;color:var(--red);}
+.btn-add{background:var(--green);color:white;border:none;padding:7px 14px;border-radius:3px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
+.btn-add:hover{background:var(--green-mid);}
+.menu-unavailable{opacity:0.5;pointer-events:none;}
+
+/* SIZE PICKER MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:860;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:white;width:calc(100% - 32px);max-width:520px;border-radius:16px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;}
+.modal-hero{position:relative;width:100%;height:160px;overflow:hidden;border-radius:16px 16px 0 0;flex-shrink:0;background:#111;}
+@media(max-width:480px){.modal-hero{height:150px;}}
+.modal-hero-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity 0.35s ease;}
+.modal-hero-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;}
+.modal-hero-gradient{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.55) 100%);}
+.modal-hero-info{position:absolute;bottom:0;left:0;right:0;padding:16px 20px 14px;}
+.modal-hero-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white;line-height:1.2;text-shadow:0 1px 6px rgba(0,0,0,0.4);}
+.modal-hero-price{font-size:13px;color:rgba(255,255,255,0.85);font-weight:600;margin-top:3px;}
+.modal-hero-close{position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.45);border:none;color:white;width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;backdrop-filter:blur(4px);}
+.modal-hero-close:hover{background:rgba(0,0,0,0.65);}
+.modal-header{display:none;}
+.modal-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);line-height:1.2;}
+.modal-price{font-size:14px;color:var(--red);font-weight:700;margin-top:3px;}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);padding:0;line-height:1;}
+.modal-body{padding:16px 24px 12px;overflow-y:auto;flex:1;min-height:0;}
+.modal-footer{flex-shrink:0;padding:12px 24px 20px;background:white;border-top:1px solid #f0ede8;border-radius:0 0 16px 16px;}
+.pick-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:8px;}
+.size-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px;}
+.size-btn{padding:10px 8px;border:1.5px solid var(--border);border-radius:5px;cursor:pointer;background:white;text-align:center;transition:all 0.15s;}
+.size-btn:hover{border-color:var(--green);}
+.size-btn.selected{border-color:var(--green);background:#F0F7F0;}
+.size-btn-label{font-size:12px;font-weight:600;color:var(--text);display:block;margin-bottom:2px;}
+.size-btn-price{font-size:12px;color:var(--red);font-weight:700;}
+.addon-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.addon-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1.5px solid var(--border);border-radius:5px;cursor:pointer;transition:all 0.15s;}
+.addon-item.selected{border-color:var(--green);background:#F0F7F0;}
+.addon-name{font-size:13px;font-weight:500;color:var(--text);}
+.addon-price{font-size:13px;font-weight:700;color:var(--red);}
+.addon-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.addon-item.selected .addon-check{background:var(--green);border-color:var(--green);}
+.qty-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.qty-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--text);transition:all 0.15s;}
+.qty-btn:hover{border-color:var(--green);color:var(--green);}
+.qty-num{font-size:16px;font-weight:600;min-width:24px;text-align:center;}
+.btn-atc-row{display:flex;flex-direction:column;gap:8px;width:100%;}
+.btn-atc{width:100%;padding:14px;background:var(--green);color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;letter-spacing:0.02em;}
+.btn-atc:hover{background:var(--green-mid);}
+.btn-buy-now{width:100%;padding:14px;background:var(--red);color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;letter-spacing:0.02em;}
+.btn-buy-now:hover{background:var(--red-mid);}
+
+/* CART DRAWER */
+.cart-drawer{position:fixed;right:0;top:0;bottom:0;width:380px;background:white;border-left:1px solid var(--border);z-index:970;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.1);}
+.cart-drawer.open{transform:translateX(0);}
+.cart-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cart-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);}
+.cart-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);}
+.cart-body{flex:1;overflow-y:auto;padding:16px 24px;}
+.cart-empty{text-align:center;padding:60px 0;color:var(--text-mid);}
+.cart-empty-title{font-size:15px;font-weight:500;margin-bottom:6px;}
+.cart-empty-sub{font-size:13px;font-weight:300;}
+.cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);}
+.cart-item-img{width:52px;height:52px;border-radius:4px;background:linear-gradient(160deg,#0a2010,#1B5E20);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.cart-item-img img{width:100%;height:100%;object-fit:cover;}
+.cart-item-info{flex:1;min-width:0;}
+.cart-item-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cart-item-size{font-size:11px;color:var(--text-mid);margin-bottom:6px;}
+.cart-item-row{display:flex;align-items:center;justify-content:space-between;}
+.cart-item-price{font-size:13px;font-weight:700;color:var(--red);}
+.cart-qty-row{display:flex;align-items:center;gap:8px;}
+.cq-btn{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:white;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--text);transition:all 0.15s;}
+.cq-btn:hover{border-color:var(--green);color:var(--green);}
+.cq-num{font-size:13px;font-weight:600;min-width:16px;text-align:center;}
+.cart-footer{padding:16px 24px;border-top:1px solid var(--border);background:white;}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.cart-total-label{font-size:13px;color:var(--text-mid);}
+.cart-total-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--red);}
+.form-group{margin-bottom:12px;}
+.form-label{display:block;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:5px;}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:white;transition:border-color 0.15s;}
+.form-input:focus{outline:none;border-color:var(--green);}
+.form-input::placeholder{color:#C0BAB3;}
+.btn-order{width:100%;padding:13px;background:var(--green);color:white;border:none;border-radius:4px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;letter-spacing:0.02em;}
+.btn-order:hover{background:var(--green-mid);}
+.btn-order:disabled{opacity:0.6;cursor:not-allowed;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:960;}
+.overlay.open{display:block;}
+.spinner{width:32px;height:32px;border:2px solid rgba(27,94,32,0.12);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:48px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--green);color:white;padding:12px 18px;border-radius:5px;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);animation:slideIn 0.2s ease;}
+.toast-error{background:var(--red);}.toast-info{background:#1565C0;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.promo-strip-card{flex-shrink:0;width:140px;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid var(--border);transition:all 0.2s;background:white;}
+.promo-strip-card:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.1);}
+.promo-strip-card img{width:100%;height:90px;object-fit:cover;display:block;}
+.promo-strip-label{font-size:11px;font-weight:600;color:var(--text-mid);padding:6px 10px;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* CUSTOMIZER */
+.customizer-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:950;align-items:flex-end;justify-content:center;}
+.customizer-bg.open{display:flex;}
+.customizer{background:white;width:100%;max-width:700px;border-radius:16px 16px 0 0;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;}
+.customizer-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
+.customizer-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);}
+.customizer-sub{font-size:13px;color:var(--text-mid);margin-top:3px;font-weight:300;}
+.customizer-body{display:flex;gap:0;flex:1;overflow:hidden;}
+.customizer-left{width:300px;flex-shrink:0;padding:20px 24px;overflow-y:auto;border-right:1px solid var(--border);}
+.customizer-right{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;align-items:center;}
+.cust-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:10px;}
+.size-pick{display:flex;gap:8px;margin-bottom:20px;}
+.size-pick-btn{flex:1;padding:10px 8px;border:1.5px solid var(--border);border-radius:5px;cursor:pointer;background:white;text-align:center;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.size-pick-btn.sel{border-color:var(--green);background:#F0F7F0;}
+.size-pick-btn .sp-size{font-size:13px;font-weight:600;color:var(--text);display:block;}
+.size-pick-btn .sp-price{font-size:12px;color:var(--red);font-weight:700;margin-top:2px;}
+.size-pick-btn .sp-cap{font-size:10px;color:var(--text-light);margin-top:1px;}
+.cust-section{margin-bottom:20px;}
+.flavor-info{font-size:12px;color:var(--text-mid);margin-bottom:10px;font-weight:300;line-height:1.5;}
+.slots-grid{display:flex;flex-direction:column;gap:8px;}
+.slot-row{display:flex;align-items:center;gap:8px;}
+.slot-num{width:22px;height:22px;border-radius:50%;background:var(--green);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.slot-select{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:white;cursor:pointer;}
+.slot-select:focus{outline:none;border-color:var(--green);}
+.slot-color{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+
+/* PIZZA PREVIEW */
+.pizza-preview-wrap{width:100%;max-width:280px;margin-bottom:16px;}
+.pizza-canvas{width:100%;aspect-ratio:1;position:relative;}
+.pizza-svg{width:100%;height:100%;}
+.preview-legend{width:100%;max-width:280px;}
+.legend-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;color:var(--text-mid);border-bottom:1px solid var(--border);}
+.legend-item:last-child{border-bottom:none;}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.legend-name{font-weight:500;color:var(--text);flex:1;}
+.legend-slot{font-size:11px;color:var(--text-light);}
+
+.cust-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:white;}
+.cust-total{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--red);}
+.cust-total-label{font-size:11px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.06em;}
+.btn-cust-add{background:var(--green);color:white;border:none;padding:12px 28px;border-radius:4px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.btn-cust-add:hover{background:var(--green-mid);}
+.btn-cust-add:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* CUSTOMIZER */
+.customizer-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:950;align-items:flex-end;justify-content:center;}
+.customizer-bg.open{display:flex;}
+.customizer{background:white;width:100%;max-width:700px;border-radius:16px 16px 0 0;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;}
+.customizer-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
+.customizer-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);}
+.customizer-sub{font-size:13px;color:var(--text-mid);margin-top:3px;font-weight:300;}
+.customizer-body{display:flex;gap:0;flex:1;overflow:hidden;}
+.customizer-left{width:300px;flex-shrink:0;padding:20px 24px;overflow-y:auto;border-right:1px solid var(--border);}
+.customizer-right{flex:1;padding:20px 24px;overflow-y:auto;display:flex;flex-direction:column;align-items:center;}
+.cust-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:10px;}
+.size-pick{display:flex;gap:8px;margin-bottom:20px;}
+.size-pick-btn{flex:1;padding:10px 8px;border:1.5px solid var(--border);border-radius:5px;cursor:pointer;background:white;text-align:center;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.size-pick-btn.sel{border-color:var(--green);background:#F0F7F0;}
+.size-pick-btn .sp-size{font-size:13px;font-weight:600;color:var(--text);display:block;}
+.size-pick-btn .sp-price{font-size:12px;color:var(--red);font-weight:700;margin-top:2px;}
+.size-pick-btn .sp-cap{font-size:10px;color:var(--text-light);margin-top:1px;}
+.cust-section{margin-bottom:20px;}
+.flavor-info{font-size:12px;color:var(--text-mid);margin-bottom:10px;font-weight:300;line-height:1.5;}
+.slots-grid{display:flex;flex-direction:column;gap:8px;}
+.slot-row{display:flex;align-items:center;gap:8px;}
+.slot-num{width:22px;height:22px;border-radius:50%;background:var(--green);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.slot-select{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:white;cursor:pointer;}
+.slot-select:focus{outline:none;border-color:var(--green);}
+.slot-color{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+
+/* PIZZA PREVIEW */
+.pizza-preview-wrap{width:100%;max-width:280px;margin-bottom:16px;}
+.pizza-canvas{width:100%;aspect-ratio:1;position:relative;}
+.pizza-svg{width:100%;height:100%;}
+.preview-legend{width:100%;max-width:280px;}
+.legend-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;color:var(--text-mid);border-bottom:1px solid var(--border);}
+.legend-item:last-child{border-bottom:none;}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.legend-name{font-weight:500;color:var(--text);flex:1;}
+.legend-slot{font-size:11px;color:var(--text-light);}
+
+.cust-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:white;}
+.cust-total{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--red);}
+.cust-total-label{font-size:11px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.06em;}
+.btn-cust-add{background:var(--green);color:white;border:none;padding:12px 28px;border-radius:4px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.btn-cust-add:hover{background:var(--green-mid);}
+.btn-cust-add:disabled{opacity:0.5;cursor:not-allowed;}
+
+.preset-btn{width:100%;text-align:left;padding:11px 14px;border:1.5px solid var(--border);border-radius:5px;cursor:pointer;background:white;font-family:'Inter',sans-serif;transition:all 0.15s;display:flex;align-items:flex-start;gap:10px;}
+.preset-btn:hover{border-color:var(--green);background:#F0F7F0;}
+.preset-btn.sel{border-color:var(--green);background:#F0F7F0;}
+.preset-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border);margin-top:3px;flex-shrink:0;transition:all 0.15s;}
+.preset-btn.sel .preset-dot{background:var(--green);border-color:var(--green);}
+.preset-name{font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:2px;}
+.preset-desc{font-size:11px;color:var(--text-mid);font-weight:300;line-height:1.4;}
+@media(max-width:768px){.nav-center{display:none;}}
+
+@media(max-width:768px){.layout{padding:16px;padding-bottom:80px;}.cart-drawer{width:100%;}.banner-content{padding:0 24px;}.banner-title{font-size:22px;}.size-grid{grid-template-columns:1fr 1fr;}}
+
+/* MOBILE BOTTOM NAV */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:white;border-top:1px solid var(--border);
+  z-index:300;padding:8px 0;
+  padding-bottom:max(8px, env(safe-area-inset-bottom));
+}
+.bottom-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:4px;text-decoration:none;
+  color:#9B9490;font-size:10px;font-weight:600;letter-spacing:0.02em;
+  font-family:'Inter',sans-serif;
+}
+.bottom-nav-item.active{color:var(--green);}
+.bottom-nav-item svg{width:22px;height:22px;stroke-width:1.8;}
+@media(max-width:900px){
+  .nav-center{display:none !important;}
+  .bottom-nav{display:flex !important;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <img src="/images/thefold_logo.png" alt="The Fold Pizza" class="nav-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="nav-name">The Fold Pizza</div>
+      <div class="nav-tagline">Fresh and Delicious</div>
+    </div>
+  </div>
+  <div class="nav-center">
+    <a href="/dashboard" class="nav-link active">Order</a>
+    <a href="/orders" class="nav-link">My orders</a>
+    <a href="/account" class="nav-link">Account</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-avatar" id="user-avatar">?</div>
+    <span class="nav-username" id="user-name"></span>
+    <button class="cart-btn" id="cart-toggle-btn">
+      Cart
+      <span class="cart-count" id="cart-count">0</span>
+    </button>
+    <button class="btn-signout" id="btn-logout">Sign out</button>
+  </div>
+</nav>
+
+<!-- BANNER -->
+<div class="banner" id="banner">
+  <div class="banner-slide active" id="slide-0">
+    <img src="/images/promo1.png" alt="Promo" onerror="this.style.display='none'">
+    <div class="banner-overlay"></div>
+    <div class="banner-content">
+      <div class="banner-eyebrow">Limited time</div>
+      <div class="banner-title">Celebration deals from ₱640</div>
+      <div class="banner-sub">Free custom message on all celebration orders</div>
+    </div>
+  </div>
+  <div class="banner-slide" id="slide-1">
+    <img src="/images/promo3.png" alt="Happy Hour" onerror="this.style.display='none'">
+    <div class="banner-overlay"></div>
+    <div class="banner-content">
+      <div class="banner-eyebrow">Every day 1–5 PM</div>
+      <div class="banner-title">Happy Hour — up to 50% off</div>
+      <div class="banner-sub">10", 12", 16", 20" pizzas at half price daily</div>
+    </div>
+  </div>
+  <div class="banner-slide" id="slide-2">
+    <img src="/images/promo5.png" alt="Double Delight" onerror="this.style.display='none'">
+    <div class="banner-overlay"></div>
+    <div class="banner-content">
+      <div class="banner-eyebrow">Double Delight</div>
+      <div class="banner-title">Free delivery + 15% off</div>
+      <div class="banner-sub">On qualifying orders. See promo details.</div>
+    </div>
+  </div>
+  <div class="banner-dots" id="banner-dots"></div>
+</div>
+
+<!-- CATEGORY BAR -->
+<div class="cat-bar">
+  <button class="cat-btn active" data-cat="all">All items</button>
+  <button class="cat-btn" data-cat="pizza">Pizza</button>
+  <button class="cat-btn" data-cat="sides">Sides</button>
+  <button class="cat-btn" data-cat="drinks">Drinks</button>
+  <button class="cat-btn" data-cat="desserts">Desserts</button>
+</div>
+<!-- CUSTOMIZE BUTTON - separate from category filter -->
+<div style="background:white;border-bottom:1px solid var(--border);padding:8px 28px;display:flex;align-items:center;justify-content:flex-end;">
+  <button onclick="openCustomizer()" style="background:var(--green);color:white;border:none;padding:9px 20px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='#2E7D32'" onmouseout="this.style.background='#1B5E20'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    Build a Custom Pizza
+  </button>
+</div>
+
+<!-- PROMOS STRIP -->
+<div style="background:white;border-bottom:1px solid var(--border);padding:16px 28px;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;">Current promotions</div>
+    <div style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;" id="promos-strip">
+      <div class="promo-strip-card" onclick="openPromoModal('/images/promo3.png')">
+        <img src="/images/promo3.png" alt="Happy Hour">
+        <div class="promo-strip-label">Happy Hour</div>
+      </div>
+      <div class="promo-strip-card" onclick="openPromoModal('/images/promo1.png')">
+        <img src="/images/promo1.png" alt="Celebration Deals">
+        <div class="promo-strip-label">Celebration Deals</div>
+      </div>
+      <div class="promo-strip-card" onclick="openPromoModal('/images/promo5.png')">
+        <img src="/images/promo5.png" alt="Double Delight">
+        <div class="promo-strip-label">Double Delight</div>
+      </div>
+      <div class="promo-strip-card" onclick="openPromoModal('/images/promo2.png')">
+        <img src="/images/promo2.png" alt="Heart Deals">
+        <div class="promo-strip-label">Heart Deals</div>
+      </div>
+      <div class="promo-strip-card" onclick="openPromoModal('/images/promo4.png')">
+        <img src="/images/promo4.png" alt="11 Flavors">
+        <div class="promo-strip-label">11 Flavors</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROMO VIEWER MODAL -->
+<div id="promo-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;padding:24px;">
+  <div style="position:relative;max-width:600px;width:100%;">
+    <button onclick="closePromoModal()" style="position:absolute;top:-40px;right:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
+    <img id="promo-modal-img" src="" alt="Promo" style="width:100%;border-radius:8px;display:block;">
+  </div>
+</div>
+
+<div class="layout">
+  <div class="menu-col">
+    <div id="menu-loading"><div class="spinner"></div></div>
+    <div id="menu-sections" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- SIZE PICKER MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="size-modal">
+    <!-- Hero image -->
+    <div class="modal-hero" id="modal-hero">
+      <img class="modal-hero-img" id="modal-hero-img" src="" alt="" onerror="this.style.display='none';document.getElementById('modal-hero-fallback').style.display='flex';">
+      <div class="modal-hero-fallback" id="modal-hero-fallback" style="display:none;background:linear-gradient(160deg,#0a2010,#1B5E20);">🍕</div>
+      <div class="modal-hero-gradient"></div>
+      <div class="modal-hero-info">
+        <div class="modal-hero-name" id="modal-item-name">Item name</div>
+        <div class="modal-hero-price" id="modal-base-price"></div>
+      </div>
+      <button class="modal-hero-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <!-- Hidden header (kept for JS compatibility) -->
+    <div class="modal-header" style="display:none;">
+      <div>
+        <div class="modal-title" id="modal-item-name-dup"></div>
+        <div class="modal-price" id="modal-base-price-dup"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div id="size-section">
+        <div class="pick-label" id="size-label">Choose a size</div>
+        <div class="size-grid" id="size-grid"></div>
+      </div>
+      <div id="addon-section" style="display:none;">
+        <div class="pick-label">Add-ons (optional)</div>
+        <div class="addon-list" id="addon-list"></div>
+      </div>
+      <div>
+        <div class="pick-label">Quantity</div>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(-1)">&#x2212;</button>
+          <span class="qty-num" id="modal-qty">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+          <span style="font-size:13px;color:var(--text-mid);">× <span id="modal-unit-price" style="font-weight:600;color:var(--red);"></span></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="btn-atc-row">
+        <button class="btn-atc" id="btn-atc" onclick="addToCart()">Add to cart — <span id="atc-price"></span></button>
+        <button class="btn-buy-now" id="btn-buy-now" onclick="buyNow()">Buy now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-header">
+    <div class="cart-title">Your cart</div>
+    <button class="cart-close" onclick="toggleCart()">&#x2715;</button>
+  </div>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty">
+      <div class="cart-empty-title">Your cart is empty</div>
+      <div class="cart-empty-sub">Add items from the menu to get started</div>
+    </div>
+  </div>
+  <div class="cart-footer" id="cart-footer" style="display:none;">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-val" id="cart-total">₱0</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Delivery address</label>
+      <input type="text" class="form-input" id="order-address" placeholder="Your full delivery address">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment method</label>
+      <select class="form-input" id="order-payment">
+        <option value="cash">Cash on delivery</option>
+        <option value="gcash">GCash (PayMongo)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Special instructions (optional)</label>
+      <input type="text" class="form-input" id="order-notes" placeholder="e.g. Extra napkins, ring the doorbell">
+    </div>
+    <button class="btn-order" id="btn-place-order">Place order</button>
+  </div>
+</div>
+
+<!-- BUY NOW MODAL -->
+<div id="buy-now-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:900;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:16px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.25);">
+    <div style="background:var(--red);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;">Buy Now</div>
+        <div id="bn-item-label" style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:2px;"></div>
+      </div>
+      <button onclick="closeBuyNow()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1;">✕</button>
+    </div>
+    <div style="padding:20px 22px;display:flex;flex-direction:column;gap:14px;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Delivery address <span style="color:var(--red);">*</span></label>
+        <input type="text" class="form-input" id="bn-address" placeholder="Your full delivery address">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Payment method</label>
+        <select class="form-input" id="bn-payment">
+          <option value="cash">Cash on delivery</option>
+          <option value="gcash">GCash (PayMongo)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Special instructions (optional)</label>
+        <input type="text" class="form-input" id="bn-notes" placeholder="e.g. Extra napkins, ring the doorbell">
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#FFF5F5;border-radius:6px;border:1px solid #FFCDD2;">
+        <span style="font-size:13px;color:var(--text-mid);font-weight:500;">Total</span>
+        <span id="bn-total" style="font-size:16px;font-weight:700;color:var(--red);"></span>
+      </div>
+      <button id="btn-buy-now-place" onclick="placeBuyNow()" style="width:100%;padding:14px;background:var(--red);color:white;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:background 0.15s;letter-spacing:0.02em;">Place order now</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIZZA CUSTOMIZER -->
+<div class="customizer-bg" id="customizer-bg">
+  <div class="customizer">
+    <div class="customizer-head">
+      <div>
+        <div class="customizer-title">Build Your Pizza</div>
+        <div class="customizer-sub">Choose your size and assign flavors to each slice section</div>
+      </div>
+      <button onclick="closeCustomizer()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);padding:0;line-height:1;">&#x2715;</button>
+    </div>
+    <div class="customizer-body">
+      <!-- LEFT: Controls -->
+      <div class="customizer-left">
+        <div class="cust-label">Choose size</div>
+        <div class="size-pick">
+          <div class="size-pick-btn sel" id="cust-size-30" onclick="setCustSize(30)">
+            <span class="sp-size">30"</span>
+            <span class="sp-price">₱830</span>
+            <span class="sp-cap">Up to 9 flavors</span>
+          </div>
+          <div class="size-pick-btn" id="cust-size-36" onclick="setCustSize(36)">
+            <span class="sp-size">36"</span>
+            <span class="sp-price">₱1,100</span>
+            <span class="sp-cap">Up to 11 flavors</span>
+          </div>
+        </div>
+
+        <div class="cust-section">
+          <div class="cust-label">Choose shape</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0;">
+            <div class="size-pick-btn sel" id="shape-circle" onclick="setCustShape('circle')" style="text-align:center;padding:10px 6px;">
+              <span style="font-size:22px;display:block;margin-bottom:4px;">⬤</span>
+              <span class="sp-size" style="font-size:12px;">Round</span>
+            </div>
+            <div class="size-pick-btn" id="shape-square" onclick="setCustShape('square')" style="text-align:center;padding:10px 6px;">
+              <span style="font-size:22px;display:block;margin-bottom:4px;">⬛</span>
+              <span class="sp-size" style="font-size:12px;">Square</span>
+            </div>
+            <div class="size-pick-btn" id="shape-heart" onclick="setCustShape('heart')" style="text-align:center;padding:10px 6px;">
+              <span style="font-size:22px;display:block;margin-bottom:4px;">♥</span>
+              <span class="sp-size" style="font-size:12px;">Heart</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cust-section" id="flavor-preset-section">
+          <div class="cust-label">Flavor package</div>
+          <div id="flavor-presets" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+        </div>
+
+        <div class="cust-section">
+          <div class="cust-label">Assign flavors to sections</div>
+          <div class="flavor-info" id="flavor-info">Choose a package above then assign your flavors below.</div>
+          <div class="slots-grid" id="slots-grid"></div>
+        </div>
+
+        <div class="cust-section">
+          <div class="cust-label">Special instructions</div>
+          <input type="text" class="slot-select" id="cust-notes" placeholder="e.g. Extra cheese on section 2" style="width:100%;margin-top:0;">
+        </div>
+      </div>
+
+      <!-- RIGHT: Preview -->
+      <div class="customizer-right">
+        <div class="cust-label" style="align-self:flex-start;">Pizza preview</div>
+        <div class="pizza-preview-wrap">
+          <div class="pizza-canvas">
+            <svg class="pizza-svg" id="pizza-svg" viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+              <!-- Built dynamically by JS -->
+            </svg>
+          </div>
+        </div>
+        <div class="preview-legend" id="preview-legend"></div>
+      </div>
+    </div>
+    <div class="cust-footer">
+      <div>
+        <div class="cust-total-label">Total</div>
+        <div class="cust-total" id="cust-price">₱830</div>
+      </div>
+      <button class="btn-cust-add" id="btn-cust-add" onclick="addCustomPizzaToCart()">Add to cart</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<nav class="bottom-nav">
+  <a href="/dashboard" class="bottom-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Order
+  </a>
+  <a href="/orders" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    My Orders
+  </a>
+  <a href="/account" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Account
+  </a>
+</nav>
+
+<script>
+let allItems=[], cart={}, currentItem=null, selectedSize=null, selectedAddons={}, modalQty=1, currentCat='all';
+let _editingCartKey=null; // tracks which cart key is being edited
+
+// ── localStorage persistence ──────────────────────────────────
+const CART_KEY='thefold_cart';
+function saveCart(){
+  try{ localStorage.setItem(CART_KEY,JSON.stringify(cart)); }catch(e){}
+}
+function loadCart(){
+  try{
+    const raw=localStorage.getItem(CART_KEY);
+    if(raw){ const parsed=JSON.parse(raw); if(parsed&&typeof parsed==='object') cart=parsed; }
+  }catch(e){ cart={}; }
+}
+
+async function init(){
+  const user=await requireLogin();if(!user)return;
+  document.getElementById('user-avatar').textContent=(user.name||'?').charAt(0).toUpperCase();
+  document.getElementById('user-name').textContent=user.name||'';
+  loadCart();
+  loadMenu();
+  initBanner();
+}
+
+async function loadMenu(){
+  try{
+    const{items}=await api('/menu');
+    allItems=items;
+    document.getElementById('menu-loading').style.display='none';
+    document.getElementById('menu-sections').style.display='block';
+    renderMenu('all');
+    renderCart(); // re-render now that allItems is loaded (resolves images after refresh)
+    try { syncPricesFromMenu(); } catch(e) { console.warn("syncPrices failed:", e); }
+  }catch(e){
+    console.error('loadMenu error:', e);
+    document.getElementById('menu-loading').innerHTML='<p style="text-align:center;color:var(--text-mid);padding:48px;">Unable to load menu. Please refresh.<br><small style=\'font-size:11px;color:#aaa;\'>' + e.message + '</small></p>';
+  }
+}
+
+function renderMenu(cat){
+  currentCat=cat;
+  const filtered=cat==='all'?allItems:allItems.filter(i=>i.category===cat);
+  const catColors={pizza:'linear-gradient(160deg,#0a2010,#1B5E20)',sides:'linear-gradient(160deg,#0d2e0a,#2E7D32)',drinks:'linear-gradient(160deg,#0a1020,#1565C0)',desserts:'linear-gradient(160deg,#2a0a10,#880E4F)'};
+  const available=filtered.filter(i=>i.available!==false);
+  const unavailable=filtered.filter(i=>i.available===false);
+  const cards=(items,faded)=>items.map(item=>{
+    const isPhoto=item.image&&item.image.startsWith('/');
+    return `<div class="menu-card ${faded?'menu-unavailable':''}" onclick="${faded?'':'openModal(\''+item.id+'\')'}">
+      <div class="menu-card-img" style="background:${catColors[item.category]||catColors.pizza};">
+        ${isPhoto?`<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">`:`<span>${item.image||''}</span>`}
+        <span class="menu-card-tag">${item.category}</span>
+        ${faded?'<div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;"><span style="color:white;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;background:rgba(0,0,0,0.5);padding:4px 12px;border-radius:2px;">Unavailable</span></div>':''}
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-card-name">${item.name}</div>
+        <div class="menu-card-desc">${item.description||''}</div>
+        <div class="menu-card-footer">
+          <div class="menu-card-price">₱${Number(item.price).toLocaleString('en-PH')}</div>
+          ${!faded?`<button class="btn-add" onclick="event.stopPropagation();openModal('${item.id}')">Add</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('menu-sections').innerHTML=`
+    ${available.length?`<div class="section-label">${cat==='all'?'All items':cat.charAt(0).toUpperCase()+cat.slice(1)} (${available.length})</div><div class="menu-grid">${cards(available,false)}</div>`:''}
+    ${unavailable.length?`<div class="section-label" style="margin-top:24px;opacity:0.5;">Currently unavailable</div><div class="menu-grid">${cards(unavailable,true)}</div>`:''}
+    ${!available.length&&!unavailable.length?'<p style="color:var(--text-mid);text-align:center;padding:48px;">No items in this category.</p>':''}`;
+}
+
+document.querySelectorAll('.cat-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');renderMenu(btn.dataset.cat);
+  };
+});
+
+// MODAL
+let _cartWasOpen=false;
+function openModal(id){
+  currentItem=allItems.find(i=>i.id===id);if(!currentItem)return;
+  selectedSize=null;selectedAddons={};modalQty=1;_editingCartKey=null;
+  // Temporarily hide cart overlay so it doesn't block modal clicks
+  _cartWasOpen=document.getElementById('cart-drawer').classList.contains('open');
+  if(_cartWasOpen) document.getElementById('cart-overlay').classList.remove('open');
+  // Reset buttons
+  const _btn=document.getElementById('btn-atc');
+  if(_btn)_btn.innerHTML='Add to cart — <span id="atc-price"></span>';
+  const _btnBN=document.getElementById('btn-buy-now');
+  if(_btnBN){_btnBN.style.display='';_btnBN.style.visibility='';_btnBN.style.opacity='';}
+  document.getElementById('modal-item-name').textContent=currentItem.name;
+  document.getElementById('modal-base-price').textContent='From ₱'+Number(currentItem.price).toLocaleString('en-PH');
+  // Set hero image dynamically
+  const heroImg=document.getElementById('modal-hero-img');
+  const heroFallback=document.getElementById('modal-hero-fallback');
+  const catBg={pizza:'linear-gradient(160deg,#0a2010,#1B5E20)',sides:'linear-gradient(160deg,#0d2e0a,#2E7D32)',drinks:'linear-gradient(160deg,#0a1020,#1565C0)',desserts:'linear-gradient(160deg,#2a0a10,#880E4F)'};
+  if(currentItem.image&&currentItem.image.startsWith('/')){
+    heroImg.style.opacity='0';
+    heroImg.src=currentItem.image;
+    heroImg.alt=currentItem.name;
+    heroImg.style.display='block';
+    heroFallback.style.display='none';
+    heroImg.onload=()=>{heroImg.style.opacity='1';};
+    heroImg.onerror=()=>{heroImg.style.display='none';heroFallback.style.background=catBg[currentItem.category]||catBg.pizza;heroFallback.style.display='flex';};
+  } else {
+    heroImg.style.display='none';
+    heroFallback.style.display='flex';
+    heroFallback.style.background=catBg[currentItem.category]||catBg.pizza;
+    heroFallback.textContent=currentItem.image||'🍕';
+  }
+  document.getElementById('modal-qty').textContent=1;
+  const sizes=currentItem.sizes||{};const sizeKeys=Object.keys(sizes);
+  if(sizeKeys.length){
+    document.getElementById('size-section').style.display='';
+    const labels={10:'10" Small',12:'12" Medium',16:'16" Large',20:'20" XL',30:'30" Party',36:'36" Fiesta',single:'Single',family:'Family',sm:'Small',md:'Medium',lg:'Large',regular:'Regular'};
+    document.getElementById('size-grid').innerHTML=sizeKeys.map(k=>`
+      <button class="size-btn" onclick="selectSize('${k}')" id="size-${k}">
+        <span class="size-btn-label">${sizes[k].label||labels[k]||k}</span>
+        <span class="size-btn-price">₱${Number(sizes[k].price).toLocaleString('en-PH')}</span>
+      </button>`).join('');
+    if(sizeKeys.length===1){selectSize(sizeKeys[0]);}
+  } else {
+    document.getElementById('size-section').style.display='none';
+    selectedSize={key:'regular',label:'Regular',price:currentItem.price};
+    updateAtcPrice();
+  }
+  const addons=currentItem.addons||{};const addonKeys=Object.keys(addons);
+  if(addonKeys.length){
+    document.getElementById('addon-section').style.display='';
+    document.getElementById('addon-list').innerHTML=addonKeys.map(k=>`
+      <div class="addon-item" id="addon-${k}" onclick="toggleAddon('${k}')">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="addon-check" id="check-${k}"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <span class="addon-name">${addons[k].label||k}</span>
+        </div>
+        <span class="addon-price">+₱${Number(addons[k].price).toLocaleString('en-PH')}</span>
+      </div>`).join('');
+  } else {document.getElementById('addon-section').style.display='none';}
+  document.getElementById('modal-bg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function selectSize(key){
+  const sizes=currentItem.sizes||{};
+  selectedSize={key,...sizes[key]};
+  document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('size-'+key)?.classList.add('selected');
+  updateAtcPrice();
+}
+
+function toggleAddon(key){
+  const addons=currentItem.addons||{};
+  if(selectedAddons[key])delete selectedAddons[key];
+  else selectedAddons[key]={...addons[key]};
+  document.getElementById('addon-'+key)?.classList.toggle('selected',!!selectedAddons[key]);
+  updateAtcPrice();
+}
+
+function updateAtcPrice(){
+  if(!selectedSize){document.getElementById('atc-price').textContent='Select size';document.getElementById('modal-unit-price').textContent='';return;}
+  const addonTotal=Object.values(selectedAddons).reduce((s,a)=>s+(a.price||0),0);
+  const unit=selectedSize.price+addonTotal;
+  const total=unit*modalQty;
+  document.getElementById('modal-unit-price').textContent='₱'+Number(unit).toLocaleString('en-PH');
+  document.getElementById('atc-price').textContent='₱'+Number(total).toLocaleString('en-PH');
+}
+
+function changeQty(delta){
+  modalQty=Math.max(1,modalQty+delta);
+  document.getElementById('modal-qty').textContent=modalQty;
+  updateAtcPrice();
+}
+
+function closeModal(){
+  _editingCartKey=null;
+  // Reset button label in case we were editing
+  const btn=document.getElementById('btn-atc');
+  if(btn) btn.innerHTML='Add to cart — <span id="atc-price"></span>';
+  const btnBN=document.getElementById('btn-buy-now');
+  if(btnBN) btnBN.style.display='';
+  document.getElementById('modal-bg').classList.remove('open');
+  document.body.style.overflow='';
+  // Restore cart overlay if cart was open before modal
+  if(_cartWasOpen){
+    document.getElementById('cart-overlay').classList.add('open');
+    _cartWasOpen=false;
+  }
+}
+
+function addToCart(){
+  if(!currentItem)return;
+  if(Object.keys(currentItem.sizes||{}).length>0&&!selectedSize)return toast('Please select a size','error');
+  const addonTotal=Object.values(selectedAddons).reduce((s,a)=>s+(a.price||0),0);
+  const price=(selectedSize?.price||currentItem.price)+addonTotal;
+  const sizeName=selectedSize?.label||'';
+  const addonNames=Object.values(selectedAddons).map(a=>a.label).join(', ');
+  const newKey=currentItem.id+(selectedSize?.key||'')+(Object.keys(selectedAddons).sort().join(','));
+
+  if(_editingCartKey){
+    // Editing existing cart item — remove old key, set new key
+    delete cart[_editingCartKey];
+    _editingCartKey=null;
+    document.getElementById('btn-atc').textContent='';
+    document.getElementById('btn-atc').innerHTML='Add to cart — <span id="atc-price"></span>';
+    cart[newKey]={id:currentItem.id,name:currentItem.name,image:currentItem.image,sizeName,addonNames,price,qty:modalQty,sizeKey:selectedSize?.key||''};
+    toast(`${currentItem.name} updated in cart`,'success');
+  } else {
+    if(cart[newKey]){cart[newKey].qty+=modalQty;}
+    else{cart[newKey]={id:currentItem.id,name:currentItem.name,image:currentItem.image,sizeName,addonNames,price,qty:modalQty,sizeKey:selectedSize?.key||''};}
+    toast(`${currentItem.name}${sizeName?' ('+sizeName+')':''} added`,'success');
+  }
+  saveCart();
+  closeModal();renderCart();
+}
+
+let _buyNowItem=null;
+function buyNow(){
+  if(!currentItem)return;
+  if(Object.keys(currentItem.sizes||{}).length>0&&!selectedSize)return toast('Please select a size','error');
+  // Store item details for Buy Now
+  const addonTotal=Object.values(selectedAddons).reduce((s,a)=>s+(a.price||0),0);
+  const price=(selectedSize?.price||currentItem.price)+addonTotal;
+  const sizeName=selectedSize?.label||'';
+  const addonNames=Object.values(selectedAddons).map(a=>a.label).join(', ');
+  _buyNowItem={id:currentItem.id,name:currentItem.name,image:currentItem.image,sizeName,addonNames,price,qty:modalQty,sizeKey:selectedSize?.key||''};
+  // Show buy now modal
+  const label=currentItem.name+(sizeName?' ('+sizeName+')':'')+(modalQty>1?' × '+modalQty:'');
+  document.getElementById('bn-item-label').textContent=label;
+  document.getElementById('bn-total').textContent='₱'+(price*modalQty).toLocaleString('en-PH',{minimumFractionDigits:2});
+  document.getElementById('bn-address').value='';
+  document.getElementById('bn-notes').value='';
+  document.getElementById('btn-buy-now-place').disabled=false;
+  document.getElementById('btn-buy-now-place').textContent='Place order now';
+  document.getElementById('buy-now-modal').style.display='flex';
+  closeModal();
+}
+function closeBuyNow(){
+  document.getElementById('buy-now-modal').style.display='none';
+  _buyNowItem=null;
+}
+async function placeBuyNow(){
+  if(!_buyNowItem)return;
+  const address=document.getElementById('bn-address').value.trim();
+  if(!address)return toast('Please enter your delivery address','error');
+  const paymentMethod=document.getElementById('bn-payment').value;
+  const notes=document.getElementById('bn-notes').value;
+  const btn=document.getElementById('btn-buy-now-place');
+  btn.disabled=true;btn.textContent='Placing order...';
+  try{
+    const total=_buyNowItem.price*_buyNowItem.qty;
+    const orderData=await api('/orders','POST',{
+      items:[{id:_buyNowItem.id,name:_buyNowItem.name+(_buyNowItem.sizeName?' ('+_buyNowItem.sizeName+')':''),price:_buyNowItem.price,qty:_buyNowItem.qty,addonNames:_buyNowItem.addonNames||'',isCustom:false}],
+      address,paymentMethod,notes,
+    });
+    closeBuyNow();
+    if(paymentMethod==='gcash'&&orderData.orderId){
+      btn.textContent='Connecting to GCash...';
+      try{
+        const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
+        if(payment.checkoutUrl){
+          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
+          window.open(payment.checkoutUrl,'_blank');
+          toast('GCash payment opened in new tab.','info');
+          setTimeout(()=>window.location.href='/orders',2000);return;
+        }
+      }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
+    }
+    toast('Order placed! Redirecting...','success');
+    setTimeout(()=>window.location.href='/orders',1800);
+  }catch(e){toast(e.message,'error');btn.disabled=false;btn.textContent='Place order now';}
+}
+
+// CART
+function toggleCart(){
+  // Don't close cart while pizza modal is open
+  if(document.getElementById('modal-bg').classList.contains('open')) return;
+  document.getElementById('cart-drawer').classList.toggle('open');
+  document.getElementById('cart-overlay').classList.toggle('open');
+}
+
+document.getElementById('cart-toggle-btn').onclick=toggleCart;
+
+function renderCart(){
+  const items=Object.entries(cart);
+  const count=items.reduce((s,[,i])=>s+i.qty,0);
+  const total=items.reduce((s,[,i])=>s+i.price*i.qty,0);
+  const countEl=document.getElementById('cart-count');
+  countEl.textContent=count;countEl.style.display=count?'flex':'none';
+  if(!items.length){
+    document.getElementById('cart-body').innerHTML='<div class="cart-empty"><div class="cart-empty-title">Your cart is empty</div><div class="cart-empty-sub">Add items from the menu to get started</div></div>';
+    document.getElementById('cart-footer').style.display='none';return;
+  }
+  const catColors={pizza:'linear-gradient(160deg,#0a2010,#1B5E20)',sides:'linear-gradient(160deg,#0d2e0a,#2E7D32)',drinks:'linear-gradient(160deg,#0a1020,#1565C0)',desserts:'linear-gradient(160deg,#2a0a10,#880E4F)'};
+  document.getElementById('cart-body').innerHTML=items.map(([key,item])=>{
+    const isPhoto=item.image&&item.image.startsWith('/');
+    const menuItem=allItems.find(i=>i.id===item.id);
+    const bg=catColors[menuItem?.category]||catColors.pizza;
+    return `<div class="cart-item">
+      <div class="cart-item-img" style="background:${bg};">${isPhoto?`<img src="${item.image}" alt="">`:(item.image||'')}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}${item.sizeName?' ('+item.sizeName+')':''}</div>
+        ${item.addonNames?`<div class="cart-item-size">${item.addonNames}</div>`:''}
+        <div class="cart-item-row">
+          <span class="cart-item-price">₱${Number(item.price*item.qty).toLocaleString('en-PH')}</span>
+          <div class="cart-qty-row">
+            <button class="cq-btn" onclick="updateCartQty('${key}',-1)">&#x2212;</button>
+            <span class="cq-num">${item.qty}</span>
+            <button class="cq-btn" onclick="updateCartQty('${key}',1)">+</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:7px;">
+          <button onclick="editCartItem('${key}')" style="flex:1;padding:5px 0;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;background:white;color:var(--green);border:1px solid var(--green);border-radius:4px;cursor:pointer;">✎ Edit</button>
+          <button onclick="removeCartItem('${key}')" style="flex:1;padding:5px 0;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;background:white;color:#EF4444;border:1px solid #EF4444;border-radius:4px;cursor:pointer;">✕ Remove</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('cart-total').textContent='₱'+Number(total).toLocaleString('en-PH',{minimumFractionDigits:2});
+  document.getElementById('cart-footer').style.display='block';
+}
+
+function updateCartQty(key,delta){
+  if(!cart[key])return;
+  cart[key].qty+=delta;
+  if(cart[key].qty<=0)delete cart[key];
+  saveCart();renderCart();
+}
+
+function removeCartItem(key){
+  const name=cart[key]?.name||'Item';
+  const backup={...cart[key]};
+  delete cart[key];
+  saveCart();
+  renderCart();
+  toast('Removed from cart','info');
+}
+
+function editCartItem(key){
+  const item=cart[key];
+  if(!item)return;
+  const menuItem=allItems.find(i=>i.id===item.id);
+  if(!menuItem)return toast('Cannot edit this item — menu not loaded yet','warning');
+
+  // Open the pizza modal fresh (this resets _editingCartKey to null inside)
+  openModal(item.id);
+
+  // After openModal has run, restore edit state
+  setTimeout(()=>{
+    _editingCartKey=key; // set AFTER openModal so it isn't overwritten
+
+    // Pre-select size
+    if(item.sizeKey) selectSize(item.sizeKey);
+
+    // Pre-select add-ons
+    const currentAddonLabels=item.addonNames?item.addonNames.split(',').map(a=>a.trim().toLowerCase()):[];
+    const addons=menuItem.addons||{};
+    Object.keys(addons).forEach(k=>{
+      if(currentAddonLabels.includes((addons[k].label||k).toLowerCase())){
+        selectedAddons[k]={...addons[k]};
+        document.getElementById('addon-'+k)?.classList.add('selected');
+      }
+    });
+    updateAtcPrice();
+
+    // Pre-fill quantity
+    modalQty=item.qty;
+    document.getElementById('modal-qty').textContent=modalQty;
+    updateAtcPrice();
+
+    // Change button to "Update cart" and hide Buy Now
+    const btn=document.getElementById('btn-atc');
+    if(btn){ btn.innerHTML='Update cart — <span id="atc-price"></span>'; updateAtcPrice(); }
+    const btnBN=document.getElementById('btn-buy-now');
+    if(btnBN) btnBN.style.display='none';
+  }, 30);
+}
+
+document.getElementById('btn-place-order').onclick=async()=>{
+  const items=Object.values(cart);
+  if(!items.length)return toast('Your cart is empty','error');
+  const address=document.getElementById('order-address').value.trim();
+  if(!address)return toast('Please enter your delivery address','error');
+  const paymentMethod=document.getElementById('order-payment').value;
+  const btn=document.getElementById('btn-place-order');btn.disabled=true;btn.textContent='Placing order...';
+  try{
+    const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+    const orderData=await api('/orders','POST',{
+      items:items.map(i=>({id:i.id,name:i.name+(i.sizeName?' ('+i.sizeName+')':''),price:i.price,qty:i.qty,addonNames:i.addonNames||'',isCustom:i.isCustom||false})),
+      address,paymentMethod,notes:document.getElementById('order-notes').value,
+    });
+    cart={};saveCart();renderCart();
+    document.getElementById('order-address').value='';document.getElementById('order-notes').value='';
+    if(paymentMethod==='gcash'&&orderData.orderId){
+      btn.textContent='Connecting to GCash...';
+      try{
+        const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
+        if(payment.checkoutUrl){
+          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
+          window.open(payment.checkoutUrl,'_blank');
+          toast('GCash payment opened in new tab. Come back here after paying.','info');
+          setTimeout(()=>window.location.href='/orders',2000);return;
+        }
+      }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
+    }
+    toast('Order placed! Redirecting to tracking...','success');
+    setTimeout(()=>window.location.href='/orders',1800);
+  }catch(e){toast(e.message,'error');btn.disabled=false;btn.innerHTML='Place order';}
+};
+
+document.getElementById('btn-logout').onclick=async()=>{
+  if(!confirm('Sign out of your account?'))return;
+  await api('/auth/logout','POST');
+  localStorage.removeItem('thefold_cart');
+  window.location.replace('/login');
+};
+
+// ===== PIZZA CUSTOMIZER =====
+const FLAVORS = [
+  'BBQ Chicken','Hawaiian','Veggies','Jalapeño','All Meat',
+  'Pepperoni','Four Cheese','Shrimp','Spinach','Fold Special','Luau Chicken'
+];
+const FLAVORS_NO_PORK = [
+  'BBQ Chicken','Hawaiian','Veggies','Jalapeño',
+  'Four Cheese','Shrimp','Spinach','Fold Special','Luau Chicken'
+];
+const FLAVOR_COLORS = [
+  '#C62828','#1565C0','#2E7D32','#E65100','#4A148C',
+  '#00695C','#F57F17','#880E4F','#33691E','#BF360C','#0D47A1'
+];
+const flavorColorMap = {};
+FLAVORS.forEach((f,i) => flavorColorMap[f] = FLAVOR_COLORS[i]);
+
+// PRESETS per size
+const PRESETS = {
+  30: [
+    { id:'combo', name:'Combination (2–4 Flavors)', desc:'Mix 2 to 4 different flavors. Perfect for small groups.', slots:4, flavors:FLAVORS },
+    { id:'nopork', name:'No Pork (5 Flavors)', desc:'5 pork-free flavor sections. Halal-friendly options.', slots:5, flavors:FLAVORS_NO_PORK },
+    { id:'nine', name:'9 Flavors', desc:'All 9 sections filled — one flavor per section.', slots:9, flavors:FLAVORS },
+  ],
+  36: [
+    { id:'combo', name:'Combination (2–4 Flavors)', desc:'Mix 2 to 4 different flavors. Perfect for small groups.', slots:4, flavors:FLAVORS },
+    { id:'nopork', name:'No Pork (5 Flavors)', desc:'5 pork-free flavor sections. Halal-friendly options.', slots:5, flavors:FLAVORS_NO_PORK },
+    { id:'nine', name:'9 Flavors', desc:'9 sections — great variety for a big party.', slots:9, flavors:FLAVORS },
+    { id:'eleven', name:'11 Flavors', desc:'All 11 flavor sections — the full experience!', slots:11, flavors:FLAVORS },
+  ]
+};
+
+let custSize = 30;
+let custSlots = [];
+let custPreset = null;
+let custShape = 'circle';
+let activeFlavorList = FLAVORS;
+
+// Package prices — loaded dynamically from Firestore
+const PACKAGE_PRICES = {
+  '30_combo':  830,
+  '30_nopork': 880,
+  '30_nine':   950,
+  '36_combo':  1100,
+  '36_nopork': 1150,
+  '36_nine':   1200,
+  '36_eleven': 1300,
+};
+
+const SIZE_CONFIG = {
+  30: { maxFlavors: 9, label: '30"' },
+  36: { maxFlavors: 11, label: '36"' }
+};
+
+function getPackagePrice(size, presetId) {
+  const key = size + '_' + presetId;
+  return PACKAGE_PRICES[key] || PACKAGE_PRICES[size + '_combo'] || 830;
+}
+
+async function syncPricesFromMenu() {
+  try {
+    const data = await api('/admin/custom-prices');
+    if (data.prices) {
+      Object.keys(PACKAGE_PRICES).forEach(k => {
+        if (data.prices[k]) PACKAGE_PRICES[k] = data.prices[k];
+      });
+    }
+  } catch(e) {}
+  updateCustPrice();
+}
+
+function updateCustPrice() {
+  const price = custPreset ? getPackagePrice(custSize, custPreset) : getPackagePrice(custSize, 'combo');
+  document.getElementById('cust-price').textContent = '₱' + price.toLocaleString('en-PH');
+}
+
+window.openCustomizer = () => {
+  custSize = 30;
+  custPreset = null;
+  custShape = 'circle';
+  ['circle','square','heart'].forEach(s=>document.getElementById('shape-'+s)?.classList.toggle('sel',s==='circle'));
+  syncPricesFromMenu(); // Always sync latest prices before opening
+  document.getElementById('cust-size-30').classList.add('sel');
+  document.getElementById('cust-size-36').classList.remove('sel');
+  updateCustPrice();
+  renderPresets();
+  document.getElementById('slots-grid').innerHTML = '';
+  document.getElementById('flavor-info').textContent = 'Choose a package above then assign your flavors below.';
+  renderPizzaPreview();
+  document.getElementById('customizer-bg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeCustomizer = () => {
+  document.getElementById('customizer-bg').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.setCustSize = (size) => {
+  custSize = size;
+  custPreset = null;
+  custSlots = [];
+  document.getElementById('cust-size-30').classList.toggle('sel', size === 30);
+  document.getElementById('cust-size-36').classList.toggle('sel', size === 36);
+  updateCustPrice();
+  renderPresets();
+  document.getElementById('slots-grid').innerHTML = '';
+  document.getElementById('flavor-info').textContent = 'Choose a package above then assign your flavors below.';
+  renderPizzaPreview();
+};
+
+window.setCustShape = (shape) => {
+  custShape = shape;
+  ['circle','square','heart'].forEach(s => {
+    document.getElementById('shape-'+s)?.classList.toggle('sel', s === shape);
+  });
+  renderPizzaPreview();
+};
+
+function renderPresets() {
+  const presets = PRESETS[custSize];
+  document.getElementById('flavor-presets').innerHTML = presets.map(p => {
+    const price = getPackagePrice(custSize, p.id);
+    return `<button class="preset-btn ${custPreset===p.id?'sel':''}" onclick="selectPreset('${p.id}')">
+      <div class="preset-dot"></div>
+      <div style="flex:1;">
+        <span class="preset-name">${p.name}</span>
+        <span class="preset-desc">${p.desc}</span>
+      </div>
+      <span style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--red);flex-shrink:0;margin-left:8px;">₱${price.toLocaleString('en-PH')}</span>
+    </button>`;
+  }).join('');
+}
+
+window.selectPreset = (id) => {
+  custPreset = id;
+  const preset = PRESETS[custSize].find(p => p.id === id);
+  if (!preset) return;
+  activeFlavorList = preset.flavors;
+  custSlots = Array(preset.slots).fill('');
+  renderPresets(); // FIX: renderPresets already sets .sel via custPreset — removed redundant manual loops
+  updateCustPrice();
+  document.getElementById('flavor-info').textContent =
+    `Assign up to ${preset.slots} flavor sections for your ${SIZE_CONFIG[custSize].label} pizza.`;
+  renderSlots();
+  renderPizzaPreview();
+};
+
+function initSlots() {
+  const cfg = SIZE_CONFIG[custSize];
+  custSlots = Array(cfg.maxFlavors).fill('');
+  renderSlots();
+  renderPizzaPreview();
+}
+
+function renderSlots() {
+  const n = custSlots.length;
+  if (!n) { document.getElementById('slots-grid').innerHTML = '<p style="font-size:12px;color:var(--text-light);">Select a flavor package above first.</p>'; return; }
+  document.getElementById('slots-grid').innerHTML = Array.from({length: n}, (_, i) => `
+    <div class="slot-row">
+      <div class="slot-num">${i + 1}</div>
+      <select class="slot-select" id="slot-${i}" onchange="onSlotChange(${i}, this.value)">
+        <option value="">— Choose flavor —</option>
+        ${activeFlavorList.map(f => `<option value="${f}" ${custSlots[i]===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+      <div class="slot-color" id="slot-color-${i}" style="background:${custSlots[i] ? flavorColorMap[custSlots[i]] : 'var(--border)'};"></div>
+    </div>`).join('');
+}
+
+function onSlotChange(i, val) {
+  custSlots[i] = val;
+  const dot = document.getElementById('slot-color-' + i);
+  if (dot) dot.style.background = val ? flavorColorMap[val] : 'var(--border)';
+  renderPizzaPreview();
+}
+
+function getPizzaShapePath(shape, size) {
+  const s = size;
+  if (shape === 'square') {
+    const r = s * 0.12;
+    return 'M ' + (-s+r).toFixed(1) + ',' + (-s).toFixed(1) +
+      ' H ' + (s-r).toFixed(1) +
+      ' Q ' + s.toFixed(1) + ',' + (-s).toFixed(1) + ' ' + s.toFixed(1) + ',' + (-s+r).toFixed(1) +
+      ' V ' + (s-r).toFixed(1) +
+      ' Q ' + s.toFixed(1) + ',' + s.toFixed(1) + ' ' + (s-r).toFixed(1) + ',' + s.toFixed(1) +
+      ' H ' + (-s+r).toFixed(1) +
+      ' Q ' + (-s).toFixed(1) + ',' + s.toFixed(1) + ' ' + (-s).toFixed(1) + ',' + (s-r).toFixed(1) +
+      ' V ' + (-s+r).toFixed(1) +
+      ' Q ' + (-s).toFixed(1) + ',' + (-s).toFixed(1) + ' ' + (-s+r).toFixed(1) + ',' + (-s).toFixed(1) + ' Z';
+  }
+  if (shape === 'heart') {
+    // Heart with sharp bottom point using L line to tip
+    return 'M 0,' + (s*0.556).toFixed(1) +
+      ' L ' + (-s*0.744).toFixed(1) + ',' + (s*0.133).toFixed(1) +
+      ' C ' + (-s).toFixed(1) + ',' + (-s*0.133).toFixed(1) +
+           ' ' + (-s).toFixed(1) + ',' + (-s*0.5).toFixed(1) +
+           ' ' + (-s*0.744).toFixed(1) + ',' + (-s*0.689).toFixed(1) +
+      ' C ' + (-s*0.5).toFixed(1) + ',' + (-s*0.889).toFixed(1) +
+           ' ' + (-s*0.2).toFixed(1) + ',' + (-s*0.8).toFixed(1) +
+           ' 0,' + (-s*0.578).toFixed(1) +
+      ' C ' + (s*0.2).toFixed(1) + ',' + (-s*0.8).toFixed(1) +
+           ' ' + (s*0.5).toFixed(1) + ',' + (-s*0.889).toFixed(1) +
+           ' ' + (s*0.744).toFixed(1) + ',' + (-s*0.689).toFixed(1) +
+      ' C ' + s.toFixed(1) + ',' + (-s*0.5).toFixed(1) +
+           ' ' + s.toFixed(1) + ',' + (-s*0.133).toFixed(1) +
+           ' ' + (s*0.744).toFixed(1) + ',' + (s*0.133).toFixed(1) + ' Z';
+  }
+  return null; // circle
+}
+
+function renderPizzaPreview() {
+  const filledSlots = custSlots.filter(sl => sl !== '');
+  const n = filledSlots.length;
+  const R = 100, IR = 88;
+  const shape = custShape || 'circle';
+  const clipId = 'pclip';
+
+  let s = '';
+
+  // --- SQUARE: grid slices ---
+  if (shape === 'square') {
+    const shapePath = getPizzaShapePath('square', IR);
+    const crustPath = getPizzaShapePath('square', R);
+
+    s += '<defs><clipPath id="' + clipId + '"><path d="' + shapePath + '"/></clipPath></defs>';
+    // Shadow
+    s += '<path d="' + crustPath + '" fill="rgba(0,0,0,0.08)" transform="translate(2,4)"/>';
+    // Crust
+    s += '<path d="' + crustPath + '" fill="#D4A017"/>';
+
+    if (n === 0) {
+      s += '<path d="' + shapePath + '" fill="#F5C842" opacity="0.85"/>';
+      s += '<text x="0" y="6" text-anchor="middle" font-size="13" fill="rgba(180,130,0,0.7)" font-family="Inter,sans-serif" font-weight="500">Assign flavors</text>';
+    } else {
+      // Calculate grid dimensions
+      const cols = Math.ceil(Math.sqrt(n));
+      const rows = Math.ceil(n / cols);
+      const cellW = (IR * 2) / cols;
+      const cellH = (IR * 2) / rows;
+
+      s += '<g clip-path="url(#' + clipId + ')">';
+      for (let idx2 = 0; idx2 < n; idx2++) {
+        const row = Math.floor(idx2 / cols);
+        const col = idx2 % cols;
+        // Last row: if fewer items, make cells wider
+        const itemsInRow = (row === rows - 1) ? (n - row * cols) : cols;
+        const cellWRow = (IR * 2) / itemsInRow;
+        const colInRow = idx2 - row * cols;
+
+        const x = -IR + colInRow * cellWRow;
+        const y = -IR + row * cellH;
+        const col2 = flavorColorMap[filledSlots[idx2]] || '#999';
+
+        s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) +
+             '" width="' + cellWRow.toFixed(1) + '" height="' + cellH.toFixed(1) +
+             '" fill="' + col2 + '" opacity="0.85"/>';
+
+        // Grid lines
+        if (colInRow > 0) {
+          s += '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) +
+               '" x2="' + x.toFixed(1) + '" y2="' + (y + cellH).toFixed(1) +
+               '" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>';
+        }
+        if (row > 0) {
+          s += '<line x1="' + (-IR) + '" y1="' + y.toFixed(1) +
+               '" x2="' + IR + '" y2="' + y.toFixed(1) +
+               '" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>';
+        }
+
+        // Section label
+        const lx = (x + cellWRow / 2).toFixed(1);
+        const ly = (y + cellH / 2 + 4).toFixed(1);
+        s += '<text x="' + lx + '" y="' + ly +
+             '" text-anchor="middle" font-size="13" font-weight="700"' +
+             ' fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif">' + (idx2 + 1) + '</text>';
+      }
+      // Cheese overlay
+      s += '<path d="' + shapePath + '" fill="#F5C842" opacity="0.08"/>';
+      s += '</g>';
+    }
+
+    s += '<circle cx="0" cy="0" r="7" fill="#A52020" opacity="0.7"/>';
+
+  } else {
+    // --- CIRCLE / HEART: radial pie slices ---
+    const clipPath = shape === 'circle'
+      ? '<circle cx="0" cy="0" r="' + IR + '"/>'
+      : '<path d="' + getPizzaShapePath(shape, IR) + '"/>';
+
+    s += '<defs><clipPath id="' + clipId + '">' + clipPath + '</clipPath></defs>';
+
+    // Shadow
+    if (shape === 'circle') s += '<ellipse cx="2" cy="4" rx="102" ry="102" fill="rgba(0,0,0,0.08)"/>';
+    else s += '<path d="' + getPizzaShapePath(shape, R+2) + '" fill="rgba(0,0,0,0.08)" transform="translate(2,4)"/>';
+
+    // Crust
+    if (shape === 'circle') s += '<circle cx="0" cy="0" r="' + R + '" fill="#D4A017"/>';
+    else s += '<path d="' + getPizzaShapePath(shape, R) + '" fill="#D4A017"/>';
+
+    if (n === 0) {
+      if (shape === 'circle') s += '<circle cx="0" cy="0" r="' + IR + '" fill="#F5C842" opacity="0.85"/>';
+      else s += '<path d="' + getPizzaShapePath(shape, IR) + '" fill="#F5C842" opacity="0.85"/>';
+      s += '<text x="0" y="6" text-anchor="middle" font-size="13" fill="rgba(180,130,0,0.7)" font-family="Inter,sans-serif" font-weight="500">Assign flavors</text>';
+    } else if (n === 1) {
+      const col = flavorColorMap[filledSlots[0]] || '#C62828';
+      if (shape === 'circle') s += '<circle cx="0" cy="0" r="' + IR + '" fill="' + col + '" opacity="0.85"/>';
+      else s += '<path d="' + getPizzaShapePath(shape, IR) + '" fill="' + col + '" opacity="0.85"/>';
+    } else {
+      const sa = (2 * Math.PI) / n;
+      s += '<g clip-path="url(#' + clipId + ')">';
+      for (let idx2 = 0; idx2 < n; idx2++) {
+        const a = idx2 * sa - Math.PI / 2;
+        const e = a + sa;
+        const bigR = 220;
+        const x1 = (bigR * Math.cos(a)).toFixed(2);
+        const y1 = (bigR * Math.sin(a)).toFixed(2);
+        const x2 = (bigR * Math.cos(e)).toFixed(2);
+        const y2 = (bigR * Math.sin(e)).toFixed(2);
+        const la = sa > Math.PI ? 1 : 0;
+        const col = flavorColorMap[filledSlots[idx2]] || '#999';
+        s += '<path d="M 0 0 L ' + x1 + ' ' + y1 + ' A ' + bigR + ' ' + bigR + ' 0 ' + la + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + col + '" opacity="0.85"/>';
+        s += '<line x1="0" y1="0" x2="' + (bigR*Math.cos(a)).toFixed(2) + '" y2="' + (bigR*Math.sin(a)).toFixed(2) + '" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>';
+      }
+      s += '<rect x="-220" y="-220" width="440" height="440" fill="#F5C842" opacity="0.08"/>';
+      s += '</g>';
+      // Slice number labels
+      for (let idx2 = 0; idx2 < n; idx2++) {
+        const m = idx2 * sa - Math.PI / 2 + sa / 2;
+        const lr = shape === 'circle' ? IR * 0.62 : IR * 0.52;
+        s += '<text x="' + (lr*Math.cos(m)).toFixed(1) + '" y="' + (lr*Math.sin(m)+4).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="700" fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif">' + (idx2+1) + '</text>';
+      }
+    }
+    s += '<circle cx="0" cy="0" r="8" fill="#A52020" opacity="0.7"/>';
+  }
+
+  document.getElementById('pizza-svg').innerHTML = s;
+
+  // Legend
+  const usedFlavors = [...new Set(filledSlots)];
+  document.getElementById('preview-legend').innerHTML = usedFlavors.length ?
+    usedFlavors.map(f => {
+      const sliceNums = custSlots.map((sl,i) => sl===f ? i+1 : null).filter(Boolean);
+      return '<div class="legend-item">' +
+        '<div class="legend-dot" style="background:' + (flavorColorMap[f]||'#999') + ';"></div>' +
+        '<span class="legend-name">' + f + '</span>' +
+        '<span class="legend-slot">Sections ' + sliceNums.join(', ') + '</span>' +
+        '</div>';
+    }).join('') :
+    '<div style="font-size:12px;color:var(--text-light);text-align:center;padding:12px 0;">Assign flavors to see your pizza</div>';
+
+  document.getElementById('btn-cust-add').disabled = filledSlots.length === 0;
+}
+
+window.addCustomPizzaToCart = () => {
+  if (!custPreset) return toast('Please select a flavor package first','error');
+  const filledSlots = custSlots.filter(s => s !== '');
+  if (!filledSlots.length) return toast('Assign at least one flavor','error');
+  const cfg = SIZE_CONFIG[custSize];
+  const uniqueFlavors = [...new Set(filledSlots)];
+  const preset = PRESETS[custSize].find(p => p.id === custPreset);
+  const shapeLabel = custShape === 'square' ? ' Square' : custShape === 'heart' ? ' Heart' : '';
+  const name = `Custom${shapeLabel} ${cfg.label} Pizza`;
+  const desc = uniqueFlavors.join(' / ');
+  const notes = document.getElementById('cust-notes').value;
+  const key = 'custom_' + custSize + '_' + Date.now();
+  const price = getPackagePrice(custSize, custPreset);
+  cart[key] = {
+    id: 'custom_pizza_' + custSize,
+    name,
+    image: '🍕',
+    sizeName: cfg.label + (preset ? ' · ' + preset.name.split('(')[0].trim() : ''),
+    addonNames: desc + (notes ? ' · ' + notes : ''),
+    price,
+    qty: 1,
+    sizeKey: custSize + 'in',
+    isCustom: true,
+    customFlavors: custSlots.filter(s => s),
+  };
+  saveCart(); // FIX: persist custom pizza to localStorage
+  renderCart();
+  closeCustomizer();
+  toast(`Custom ${cfg.label} pizza added to cart!`, 'success');
+};
+
+document.getElementById('customizer-bg').addEventListener('click', function(e) {
+  if (e.target === this) closeCustomizer();
+});
+document.getElementById('modal-bg').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// Promo modal
+window.openPromoModal=(src)=>{
+  document.getElementById('promo-modal-img').src=src;
+  document.getElementById('promo-modal-bg').style.display='flex';
+  document.body.style.overflow='hidden';
+};
+window.closePromoModal=()=>{
+  document.getElementById('promo-modal-bg').style.display='none';
+  document.body.style.overflow='';
+};
+document.getElementById('promo-modal-bg').addEventListener('click',function(e){if(e.target===this)closePromoModal();});
+
+// BANNER
+function initBanner(){
+  const slides=document.querySelectorAll('.banner-slide');
+  const dots=document.getElementById('banner-dots');
+  slides.forEach((_,i)=>{const d=document.createElement('div');d.className='banner-dot'+(i===0?' active':'');d.onclick=()=>goSlide(i);dots.appendChild(d);});
+  let cur=0,timer=setInterval(()=>goSlide((cur+1)%slides.length),4000);
+  function goSlide(i){cur=i;slides.forEach((s,j)=>s.classList.toggle('active',j===i));document.querySelectorAll('.banner-dot').forEach((d,j)=>d.classList.toggle('active',j===i));}
+}
+
+init();
+</script>
+</body>
+</html>

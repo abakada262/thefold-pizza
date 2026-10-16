@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — The Fold Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="/js/app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--red:#B71C1C;--gold:#F9A825;--border:#E8E2D9;--text:#1A1714;--text-mid:#6B6560;--text-light:#9B9490;--warm:#F5F0E8;}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;color:var(--text);}
+.left{width:480px;flex-shrink:0;background:var(--green);display:flex;flex-direction:column;justify-content:space-between;padding:52px 48px;position:relative;overflow:hidden;}
+.left::before{content:'';position:absolute;bottom:-80px;right:-80px;width:320px;height:320px;border-radius:50%;border:60px solid rgba(255,255,255,0.04);}
+.left::after{content:'';position:absolute;top:-60px;left:-60px;width:200px;height:200px;border-radius:50%;border:40px solid rgba(255,255,255,0.04);}
+.left-top{position:relative;z-index:1;}
+.left-logo-wrap{display:flex;align-items:center;gap:12px;margin-bottom:52px;}
+.left-logo{width:44px;height:44px;border-radius:50%;object-fit:contain;}
+.left-brand{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;letter-spacing:0.01em;}
+.left-tagline{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;}
+.left-headline{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:white;line-height:1.12;margin-bottom:20px;letter-spacing:-0.01em;}
+.left-headline em{color:var(--gold);font-style:normal;}
+.left-sub{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;font-weight:300;margin-bottom:40px;}
+.left-features{list-style:none;display:flex;flex-direction:column;gap:14px;}
+.left-feature{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;}
+.left-feature-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:5px;flex-shrink:0;}
+.left-bottom{position:relative;z-index:1;}
+.left-contact{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.9;}
+.left-contact span{color:rgba(255,255,255,0.65);font-weight:500;}
+.right{flex:1;display:flex;align-items:center;justify-content:center;padding:48px;background:#FDFAF5;}
+.form-box{width:100%;max-width:400px;}
+.form-box-header{margin-bottom:36px;}
+.form-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.form-sub{font-size:14px;color:var(--text-mid);font-weight:300;}
+.tab-row{display:flex;gap:0;background:#EEEAE3;border-radius:6px;padding:3px;margin-bottom:32px;}
+.tab-btn{flex:1;padding:9px;border:none;background:transparent;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:var(--text-mid);cursor:pointer;transition:all 0.15s;letter-spacing:0.01em;}
+.tab-btn.active{background:white;color:var(--green);font-weight:600;box-shadow:0 1px 6px rgba(0,0,0,0.08);}
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:7px;}
+.form-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:white;transition:border-color 0.15s;}
+.form-input:focus{outline:none;border-color:var(--green);}
+.form-input::placeholder{color:#C0BAB3;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.btn-submit{width:100%;padding:13px;background:var(--green);color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;letter-spacing:0.02em;}
+.btn-submit:hover{background:var(--green-mid);transform:translateY(-1px);}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.divider{display:flex;align-items:center;gap:14px;margin:24px 0;color:var(--text-light);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.admin-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all 0.15s;background:white;}
+.admin-card:hover{border-color:var(--green);background:#F5FAF5;}
+.admin-icon{width:38px;height:38px;background:var(--green);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.admin-icon svg{width:18px;height:18px;fill:none;stroke:white;stroke-width:2;}
+.admin-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.admin-desc{font-size:12px;color:var(--text-mid);}
+.admin-arrow{margin-left:auto;color:var(--text-light);font-size:18px;}
+.admin-banner{background:var(--green);border-radius:6px;padding:12px 16px;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.admin-banner-text{font-size:13px;color:white;font-weight:500;}
+.back-btn{background:none;border:none;font-family:'Inter',sans-serif;font-size:13px;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;gap:6px;margin-top:14px;padding:0;}
+.back-btn:hover{color:var(--green);}
+.home-link{display:block;text-align:center;margin-top:20px;font-size:13px;color:var(--text-mid);}
+.home-link:hover{color:var(--green);}
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.toast{pointer-events:all;display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:10px;font-size:13px;font-weight:500;color:white;box-shadow:0 6px 24px rgba(0,0,0,0.18);animation:toastIn 0.28s cubic-bezier(.21,1.02,.73,1) forwards;min-width:260px;max-width:340px;position:relative;}
+.toast.hide{animation:toastOut 0.22s ease forwards;}
+.toast-icon{font-size:16px;flex-shrink:0;}
+.toast-msg{flex:1;line-height:1.4;}
+.toast-close{background:none;border:none;color:rgba(255,255,255,0.75);font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;}
+.toast-close:hover{color:white;}
+.toast-success{background:linear-gradient(135deg,#1B5E20,#2E7D32);}
+.toast-error{background:linear-gradient(135deg,#B71C1C,#C62828);}
+.toast-warning{background:linear-gradient(135deg,#E65100,#F57C00);}
+.toast-info{background:linear-gradient(135deg,#1565C0,#1976D2);}
+@keyframes toastIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(110%);opacity:0}}
+@media(max-width:480px){#toast-container{bottom:16px;right:12px;left:12px;}.toast{max-width:100%;min-width:unset;}}
+@media(max-width:768px){body{flex-direction:column;}.left{width:100%;padding:32px 24px;min-height:auto;}.left::before,.left::after{display:none;}.left-features{display:none;}.left-bottom{display:none;}.left-headline{font-size:28px;}.right{padding:32px 24px;}}
+</style>
+</head>
+<body>
+<div class="left">
+  <div class="left-top">
+    <div class="left-logo-wrap">
+      <img src="/images/thefold_logo.png" alt="The Fold Pizza" class="left-logo" onerror="this.style.display='none'">
+      <div>
+        <div class="left-brand">The Fold Pizza</div>
+        <div class="left-tagline">Fresh and Delicious</div>
+      </div>
+    </div>
+    <h1 class="left-headline">Pizza worth<br>coming back <em>for</em></h1>
+    <p class="left-sub">Sign in to place your order, track delivery, and manage your account.</p>
+    <ul class="left-features">
+      <li class="left-feature"><span class="left-feature-dot"></span><span>11 flavors — from BBQ Chicken to our signature Fold Special</span></li>
+      <li class="left-feature"><span class="left-feature-dot"></span><span>Sizes from 10" personal to 36"×36" party pizzas</span></li>
+      <li class="left-feature"><span class="left-feature-dot"></span><span>Free custom message on all celebration deals</span></li>
+      <li class="left-feature"><span class="left-feature-dot"></span><span>Happy Hour daily 1–5 PM, up to 50% off</span></li>
+      <li class="left-feature"><span class="left-feature-dot"></span><span>Real-time order tracking after you place your order</span></li>
+    </ul>
+  </div>
+  <div class="left-bottom">
+    <div class="left-contact">
+      Globe <span>0916 617 4325</span><br>
+      Smart <span>0919 098 2667</span><br>
+      Landline <span>(02) 8706 2514</span>
+    </div>
+  </div>
+</div>
+
+<div class="right">
+  <div class="form-box">
+
+    <!-- SIGN IN -->
+    <div id="form-signin">
+      <div class="form-box-header">
+        <div class="form-title">Welcome back</div>
+        <div class="form-sub">Sign in to your account to order</div>
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-signin">Sign in</button>
+        <button class="tab-btn" id="tab-signup-btn">Create account</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input type="email" class="form-input" id="si-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="si-password" placeholder="Your password" autocomplete="current-password">
+      </div>
+      <button class="btn-submit" id="btn-signin">Sign in</button>
+      <div class="divider">or</div>
+      <div class="admin-card" id="admin-link">
+        <div class="admin-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div>
+          <div class="admin-label">Admin portal</div>
+          <div class="admin-desc">Access the management dashboard</div>
+        </div>
+        <span class="admin-arrow">›</span>
+      </div>
+      <a href="/" class="home-link">Back to home</a>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="form-signup" style="display:none;">
+      <div class="form-box-header">
+        <div class="form-title">Create account</div>
+        <div class="form-sub">Join us and start ordering today</div>
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn" id="tab-signin-btn">Sign in</button>
+        <button class="tab-btn active" id="tab-signup2">Create account</button>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">First name</label>
+          <input type="text" class="form-input" id="su-fname" placeholder="Juan">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last name</label>
+          <input type="text" class="form-input" id="su-lname" placeholder="dela Cruz">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input type="email" class="form-input" id="su-email" placeholder="you@example.com"
+          oninput="
+            const emailVal=this.value.trim();
+            const emailHint=document.getElementById('email-hint');
+            const emailRegex=/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,6}$/;
+            if(emailVal.length===0){
+              emailHint.style.display='none';this.style.borderColor='';
+            } else if(!emailRegex.test(emailVal)){
+              emailHint.textContent='Enter a valid email (e.g. yourname@gmail.com).';
+              emailHint.style.color='#B71C1C';emailHint.style.display='block';
+              this.style.borderColor='#B71C1C';
+            } else {
+              emailHint.textContent='✓ Valid email address';
+              emailHint.style.color='#2E7D32';emailHint.style.display='block';
+              this.style.borderColor='#2E7D32';
+            }">
+        <div id="email-hint" style="display:none;font-size:11px;margin-top:5px;font-family:'Inter',sans-serif;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone number</label>
+        <input type="tel" class="form-input" id="su-phone" placeholder="09xxxxxxxxx" maxlength="13"
+          oninput="
+            const phoneVal=this.value.trim();
+            const phoneHint=document.getElementById('phone-hint');
+            const startsPlus=phoneVal.startsWith('+639');
+            const starts09=phoneVal.startsWith('09');
+            const maxLen=startsPlus?13:11;
+            if(phoneVal.length>maxLen){
+              this.value=phoneVal.slice(0,maxLen);
+            }
+            const cur=this.value.trim().length;
+            if(cur>0&&!this.value.trim().startsWith('09')&&!this.value.trim().startsWith('+639')){
+              phoneHint.textContent='Must start with 09 or +639.';phoneHint.style.color='#B71C1C';phoneHint.style.display='block';
+              this.style.borderColor='#B71C1C';
+            } else if(cur>0&&cur<(startsPlus?13:11)){
+              phoneHint.textContent='Phone number is incomplete.';phoneHint.style.color='#B71C1C';phoneHint.style.display='block';
+              this.style.borderColor='#E65100';
+            } else if(cur===(startsPlus?13:starts09?11:0)&&cur>0){
+              phoneHint.textContent='✓ Valid phone number';phoneHint.style.color='#2E7D32';phoneHint.style.display='block';
+              this.style.borderColor='#2E7D32';
+            } else {
+              phoneHint.style.display='none';this.style.borderColor='';
+            }">
+        <div id="phone-hint" style="display:none;font-size:11px;margin-top:5px;font-family:'Inter',sans-serif;"></div>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <label class="form-label" style="margin-bottom:0;">Password</label>
+          <span id="pw-counter" style="font-size:11px;color:#9B9490;font-family:'Inter',sans-serif;">0 / 36</span>
+        </div>
+        <input type="password" class="form-input" id="su-password" placeholder="Min 6 chars, 1 uppercase" maxlength="36"
+          oninput="
+            const len=this.value.length;
+            const val=this.value;
+            const counter=document.getElementById('pw-counter');
+            counter.textContent=len+' / 36';
+            const pwHint=document.getElementById('pw-hint');
+            if(len===0){
+              pwHint.style.display='none';this.style.borderColor='';
+              counter.style.color='#9B9490';counter.style.fontWeight='400';
+            } else if(len>=36){
+              counter.style.color='#B71C1C';counter.style.fontWeight='600';
+              pwHint.textContent='Maximum 36 characters reached.';pwHint.style.color='#B71C1C';pwHint.style.display='block';
+              this.style.borderColor='#B71C1C';
+            } else if(len<6){
+              pwHint.textContent='Password must be at least 6 characters.';pwHint.style.color='#B71C1C';pwHint.style.display='block';
+              this.style.borderColor='#B71C1C';
+              counter.style.color='#9B9490';counter.style.fontWeight='400';
+            } else if(!/[A-Z]/.test(val)){
+              pwHint.textContent='Must contain at least 1 uppercase letter (A–Z).';pwHint.style.color='#B71C1C';pwHint.style.display='block';
+              this.style.borderColor='#E65100';
+              counter.style.color='#9B9490';counter.style.fontWeight='400';
+            } else {
+              pwHint.textContent='✓ Password looks good';pwHint.style.color='#2E7D32';pwHint.style.display='block';
+              this.style.borderColor='#2E7D32';
+              counter.style.color='#9B9490';counter.style.fontWeight='400';
+            }
+            // Re-check confirm password field whenever password changes
+            const cpField=document.getElementById('su-confirm-password');
+            const cpHintEl=document.getElementById('confirm-pw-hint');
+            if(cpField.value.length>0){
+              if(cpField.value!==this.value){
+                cpHintEl.textContent='Passwords do not match.';cpHintEl.style.color='#B71C1C';cpHintEl.style.display='block';
+                cpField.style.borderColor='#B71C1C';
+              } else {
+                cpHintEl.textContent='✓ Passwords match';cpHintEl.style.color='#2E7D32';cpHintEl.style.display='block';
+                cpField.style.borderColor='#2E7D32';
+              }
+            }">
+        <div id="pw-hint" style="display:none;font-size:11px;margin-top:5px;font-family:'Inter',sans-serif;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" class="form-input" id="su-confirm-password" placeholder="Re-enter your password" maxlength="36"
+          oninput="
+            const cpHint=document.getElementById('confirm-pw-hint');
+            const pw=document.getElementById('su-password').value;
+            if(this.value.length>0&&this.value!==pw){
+              cpHint.textContent='Passwords do not match.';cpHint.style.color='#B71C1C';cpHint.style.display='block';
+              this.style.borderColor='#B71C1C';
+            } else if(this.value.length>0&&this.value===pw){
+              cpHint.textContent='✓ Passwords match';cpHint.style.color='#2E7D32';cpHint.style.display='block';
+              this.style.borderColor='#2E7D32';
+            } else {
+              cpHint.style.display='none';this.style.borderColor='';
+            }">
+        <div id="confirm-pw-hint" style="display:none;font-size:11px;margin-top:5px;color:#B71C1C;font-family:'Inter',sans-serif;"></div>
+      </div>
+      <!-- Terms & Conditions -->
+      <div style="margin-bottom:16px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="checkbox" id="su-terms" disabled style="margin-top:3px;width:16px;height:16px;accent-color:var(--red);flex-shrink:0;cursor:not-allowed;">
+          <span style="font-size:12px;color:#6B6560;line-height:1.6;">
+            I agree to the
+            <span onclick="openTermsModal()" style="color:var(--red);font-weight:600;cursor:pointer;text-decoration:underline;">Terms of Service</span>
+            and
+            <span onclick="openPrivacyModal()" style="color:var(--red);font-weight:600;cursor:pointer;text-decoration:underline;">Privacy Policy</span>
+            of The Fold Pizza.
+            <span id="terms-hint" style="display:block;color:#EF4444;font-size:11px;margin-top:4px;">📄 Please read both documents above before accepting.</span>
+          </span>
+        </label>
+      </div>
+      <button class="btn-submit" id="btn-signup" style="background:var(--red);">Create account</button>
+      <a href="/" class="home-link">Back to home</a>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="form-admin" style="display:none;">
+      <div class="form-box-header">
+        <div class="form-title">Admin portal</div>
+        <div class="form-sub">Authorized personnel only</div>
+      </div>
+      <div class="admin-banner">
+        <div class="admin-icon" style="width:28px;height:28px;background:rgba(255,255,255,0.15);border-radius:4px;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <span class="admin-banner-text">The Fold Pizza — Management Dashboard</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin email</label>
+        <input type="email" class="form-input" id="ad-email" placeholder="admin@thefoldpizza.com" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="ad-password" placeholder="Your password" autocomplete="off">
+      </div>
+      <button class="btn-submit" id="btn-admin">Access dashboard</button>
+      <div class="divider" style="margin:16px 0 12px;">or</div>
+      <div class="admin-card" id="superadmin-link" style="margin-bottom:8px;">
+        <div class="admin-icon" style="background:#2E7D32;">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:white;stroke-width:2;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg>
+        </div>
+        <div>
+          <div class="admin-label">Super Admin portal</div>
+          <div class="admin-desc">Full system access</div>
+        </div>
+        <span class="admin-arrow">›</span>
+      </div>
+      <button class="back-btn" id="btn-back">← Back to customer login</button>
+    </div>
+
+    <!-- SUPER ADMIN -->
+    <div id="form-superadmin" style="display:none;">
+      <div class="form-box-header">
+        <div class="form-title">Super Admin</div>
+        <div class="form-sub">Restricted to system administrators only</div>
+      </div>
+      <div class="admin-banner" style="background:#2E7D32;">
+        <div class="admin-icon" style="width:28px;height:28px;background:rgba(255,255,255,0.15);border-radius:4px;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:white;stroke-width:2;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg>
+        </div>
+        <span class="admin-banner-text">The Fold Pizza — Super Admin Portal</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Super Admin email</label>
+        <input type="email" class="form-input" id="sa-email" placeholder="superadmin@thefoldpizza.com" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="sa-password" placeholder="Your password" autocomplete="off">
+      </div>
+      <button class="btn-submit" id="btn-superadmin" style="background:#2E7D32;">Access Super Admin Dashboard</button>
+      <button class="back-btn" id="btn-back-superadmin">← Back to Admin portal</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+firebase.initializeApp({apiKey:"AIzaSyAsXZxD59Igs9oYOC5VR566lfE9VHhbszM",authDomain:"thefold-pizza.firebaseapp.com",projectId:"thefold-pizza",storageBucket:"thefold-pizza.firebasestorage.app",messagingSenderId:"75022777499",appId:"1:75022777499:web:e08d59f9e51d6dcaf05a3e"});
+const auth = firebase.auth();
+function showTab(t){['signin','signup','admin','superadmin'].forEach(n=>document.getElementById('form-'+n).style.display=n===t?'':'none');}
+const urlTab=new URLSearchParams(location.search).get('tab');
+showTab(urlTab==='signup'?'signup':urlTab==='admin'?'admin':urlTab==='superadmin'?'superadmin':'signin');
+document.getElementById('tab-signin').onclick=()=>showTab('signin');
+document.getElementById('tab-signup-btn').onclick=()=>showTab('signup');
+document.getElementById('tab-signin-btn').onclick=()=>showTab('signin');
+document.getElementById('tab-signup2').onclick=()=>showTab('signup');
+document.getElementById('admin-link').onclick=()=>showTab('admin');
+document.getElementById('superadmin-link').onclick=()=>showTab('superadmin');
+document.getElementById('btn-back').onclick=()=>showTab('signin');
+document.getElementById('btn-back-superadmin').onclick=()=>showTab('admin');
+// ── Email validation (mirrors backend) ────────────────────────────────────────
+function _isValidEmail(email) {
+  if (!email) return false;
+  const re = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+  if (!re.test(email.trim())) return false;
+  const local = email.trim().split('@')[0];
+  if (local.startsWith('.') || local.endsWith('.')) return false;
+  if (/\.{2,}/.test(email.trim())) return false;
+  return true;
+}
+
+// ── Duplicate-submit guard ─────────────────────────────────────────────────────
+let _submitting = false;
+function _lockBtn(btn, text) {
+  if (_submitting) return false;
+  _submitting = true; btn.disabled = true; btn.textContent = text;
+  return true;
+}
+function _unlockBtn(btn, text) {
+  _submitting = false; btn.disabled = false; btn.textContent = text;
+}
+
+// ── Enter key: sign-in form ────────────────────────────────────────────────────
+['si-email','si-password'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btn-signin').click(); }
+  });
+});
+
+document.getElementById('btn-signin').onclick=async()=>{
+  const emailRaw=document.getElementById('si-email').value.trim().toLowerCase();
+  const password=document.getElementById('si-password').value;
+  if(!emailRaw||!password)return toast('Please fill in all fields','error');
+  if(!_isValidEmail(emailRaw))return toast('Please enter a valid email address (e.g. name@domain.com).','error');
+  const btn=document.getElementById('btn-signin');
+  if(!_lockBtn(btn,'Signing in...'))return;
+  try{
+    const cred=await auth.signInWithEmailAndPassword(emailRaw,password);
+    const idToken=await cred.user.getIdToken();
+    // loginType:'customer' — backend rejects admin/superadmin with a clear message
+    await api('/auth/session','POST',{idToken,loginType:'customer'});
+    // FIX: use Firebase's own emailVerified flag — source of truth for existing accounts
+    if(cred.user.emailVerified){
+      window.location.replace('/dashboard');
+    } else {
+      // Account exists but email not yet verified — send OTP
+      await sendOTPEmail(emailRaw, cred.user.uid);
+      showOTPScreen(emailRaw, cred.user.uid);
+      _unlockBtn(btn,'Sign in');
+    }
+  }catch(e){
+    let msg = 'Incorrect email or password.';
+    if(e.message&&(e.message.includes('not authorized')||e.message.includes('Portal')||e.message.includes('Admin Login'))) msg=e.message;
+    else if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'||e.code==='auth/wrong-password') msg='Incorrect email or password.';
+    else if(e.code==='auth/invalid-email') msg='Please enter a valid email address.';
+    else if(e.code==='auth/too-many-requests') msg='Too many attempts. Please try again later.';
+    else if(e.code==='auth/network-request-failed') msg='Network error. Check your connection.';
+    toast(msg,'error');_unlockBtn(btn,'Sign in');
+  }
+};
+
+// FIX: reset sign-in button when user navigates back (browser restores cached page with button still disabled)
+window.addEventListener('pageshow', () => {
+  _submitting = false;
+  const btn=document.getElementById('btn-signin');
+  if(btn){btn.disabled=false;btn.textContent='Sign in';}
+});
+
+// ── Enter key: sign-up form ────────────────────────────────────────────────────
+['su-fname','su-lname','su-email','su-phone','su-password','su-confirm-password'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btn-signup').click(); }
+  });
+});
+
+document.getElementById('btn-signup').onclick=async()=>{
+  const fname=document.getElementById('su-fname').value.trim();
+  const lname=document.getElementById('su-lname').value.trim();
+  const email=document.getElementById('su-email').value.trim().toLowerCase();
+  const phone=document.getElementById('su-phone').value.trim();
+  const password=document.getElementById('su-password').value;
+  const confirmPassword = document.getElementById('su-confirm-password').value;
+  if(!fname||!lname||!email||!phone||!password||!confirmPassword)return toast('Please fill in all fields','error');
+  // Phone validation - Philippine format
+  const phoneRegex = /^(09|\+639)\d{9}$/;
+  if(!phoneRegex.test(phone))return toast('Enter a valid Philippine phone number (e.g. 09xxxxxxxxx)','error');
+  // Email validation — strict RFC check (mirrors backend isValidEmail)
+  if(!_isValidEmail(email))return toast('Enter a valid email address (e.g. yourname@gmail.com)','error');
+  // Password match
+  if(password !== confirmPassword)return toast('Passwords do not match','error');
+  if(password.length<6)return toast('Password must be at least 6 characters','error');
+  if(password.length>36)return toast('Password cannot exceed 36 characters','error');
+  if(!/[A-Z]/.test(password))return toast('Password must contain at least 1 uppercase letter','error');
+  if(!document.getElementById('su-terms').checked)return toast('Please accept the Terms of Service to continue','error');
+  const btn=document.getElementById('btn-signup');
+  if(!_lockBtn(btn,'Creating account...'))return;
+  try{
+    // Check if phone already registered
+    const phoneCheck = await fetch('/api/auth/check-phone',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})});
+    const phoneData = await phoneCheck.json();
+    if(phoneData.exists)return(_unlockBtn(btn,'Create account'),toast('This phone number is already registered','error'));
+    const cred=await auth.createUserWithEmailAndPassword(email,password);
+    // Backend always assigns role:'customer' — never trusts any client-supplied role
+    await api('/auth/register','POST',{uid:cred.user.uid,email,name:`${fname} ${lname}`,phone});
+    const idToken=await cred.user.getIdToken();
+    await api('/auth/session','POST',{idToken,loginType:'customer'});
+    // Send OTP verification email
+    await sendOTPEmail(email, cred.user.uid);
+    // Show OTP verification screen instead of going to dashboard
+    showOTPScreen(email, cred.user.uid);
+  }catch(e){
+    let msg = 'Could not create account. Please try again.';
+    if(e.code==='auth/email-already-in-use') msg='An account with this email already exists.';
+    else if(e.code==='auth/invalid-email') msg='Please enter a valid email address.';
+    else if(e.code==='auth/weak-password') msg='Password must be at least 6 characters.';
+    else if(e.code==='auth/network-request-failed') msg='Network error. Check your connection.';
+    toast(msg,'error');_unlockBtn(btn,'Create account');
+  }
+};
+// ── Enter key: super admin form ───────────────────────────────────────────────
+['sa-email','sa-password'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btn-superadmin').click(); }
+  });
+});
+
+document.getElementById('btn-superadmin').onclick=async()=>{
+  const emailRaw=document.getElementById('sa-email').value.trim().toLowerCase();
+  const password=document.getElementById('sa-password').value;
+  if(!emailRaw||!password)return toast('Please fill in all fields','error');
+  if(!_isValidEmail(emailRaw))return toast('Please enter a valid email address.','error');
+  const btn=document.getElementById('btn-superadmin');
+  if(!_lockBtn(btn,'Verifying...'))return;
+  try{
+    const cred=await auth.signInWithEmailAndPassword(emailRaw,password);
+    const idToken=await cred.user.getIdToken();
+    // loginType:'superadmin' — backend enforces superadmin-only access
+    await api('/auth/session','POST',{idToken,loginType:'superadmin'});
+    toast('Super Admin access granted','success');
+    setTimeout(()=>window.location.href='/superadmin',800);
+  }catch(e){
+    let msg = 'Incorrect email or password.';
+    if(e.message&&(e.message.includes('Super Admin')||e.message.includes('superadmin')||e.message.includes('access'))) msg=e.message;
+    else if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'||e.code==='auth/wrong-password') msg='Incorrect email or password.';
+    else if(e.code==='auth/invalid-email') msg='Please enter a valid email address.';
+    else if(e.code==='auth/too-many-requests') msg='Too many attempts. Please try again later.';
+    else if(e.code==='auth/network-request-failed') msg='Network error. Check your connection.';
+    toast(msg,'error');_unlockBtn(btn,'Access Super Admin Dashboard');
+  }
+};
+
+// ── Enter key: admin form ──────────────────────────────────────────────────────
+['ad-email','ad-password'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btn-admin').click(); }
+  });
+});
+
+document.getElementById('btn-admin').onclick=async()=>{
+  const emailRaw=document.getElementById('ad-email').value.trim().toLowerCase();
+  const password=document.getElementById('ad-password').value;
+  if(!emailRaw||!password)return toast('Please fill in all fields','error');
+  if(!_isValidEmail(emailRaw))return toast('Please enter a valid email address.','error');
+  const btn=document.getElementById('btn-admin');
+  if(!_lockBtn(btn,'Verifying...'))return;
+  try{
+    const cred=await auth.signInWithEmailAndPassword(emailRaw,password);
+    const idToken=await cred.user.getIdToken();
+    // loginType:'admin' — backend enforces admin-only; rejects customers AND superadmins
+    // Superadmins must use the dedicated /superadmin login page
+    const data=await api('/auth/session','POST',{idToken,loginType:'admin'});
+    toast('Access granted','success');
+    setTimeout(()=>window.location.href='/admin',800);
+  }catch(e){
+    let msg = 'Incorrect email or password.';
+    if(e.message&&(e.message.includes('Super Admin')||e.message.includes('customer')||e.message.includes('not have Admin')||e.message.includes('Portal')||e.message.includes('access'))) msg=e.message;
+    else if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'||e.code==='auth/wrong-password') msg='Incorrect email or password.';
+    else if(e.code==='auth/invalid-email') msg='Please enter a valid email address.';
+    else if(e.code==='auth/too-many-requests') msg='Too many attempts. Please try again later.';
+    else if(e.code==='auth/network-request-failed') msg='Network error. Check your connection.';
+    toast(msg,'error');_unlockBtn(btn,'Access dashboard');
+  }
+};
+</script>
+<!-- TERMS MODAL -->
+<div id="terms-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:10px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid #E8E2D9;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1A1714;">Terms of Service</div>
+      <button onclick="closeTermsModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9B9490;">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;overflow-y:auto;font-size:13px;color:#6B6560;line-height:1.8;">
+      <p style="margin-bottom:12px;"><strong style="color:#1A1714;">Last updated: January 2024</strong></p>
+      <p style="margin-bottom:14px;">By creating an account and using The Fold Pizza's online ordering platform, you accept and agree to be bound by the following terms.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">1. Account Registration</p>
+      <p style="margin-bottom:14px;">You must provide accurate and complete information when creating your account. You are responsible for maintaining the security of your password and account.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">2. Orders & Payment</p>
+      <p style="margin-bottom:14px;">All orders are subject to availability and confirmation. Payment must be completed at the time of ordering or upon delivery for cash orders. GCash payments are processed securely through PayMongo.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">3. Delivery Policy</p>
+      <p style="margin-bottom:14px;">Delivery times are estimates and may vary. The Fold Pizza is not responsible for delays caused by traffic, weather, or other conditions beyond our control.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">4. Cancellations & Refunds</p>
+      <p style="margin-bottom:14px;">Orders may be cancelled before they are confirmed for preparation. Once preparation has begun, cancellation may not be possible. Valid refunds will be processed within 5–7 business days.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">5. User Conduct</p>
+      <p style="margin-bottom:14px;">You agree not to misuse our platform, submit false orders, or engage in any activity that disrupts our service.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">6. Changes to Terms</p>
+      <p>We reserve the right to modify these terms at any time. Continued use of our platform constitutes acceptance of updated terms.</p>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #E8E2D9;">
+      <button onclick="acceptTerms()" style="width:100%;padding:12px;background:#1B5E20;color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">I Accept These Terms</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY MODAL -->
+<div id="privacy-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:10px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid #E8E2D9;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1A1714;">Privacy Policy</div>
+      <button onclick="closePrivacyModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9B9490;">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;overflow-y:auto;font-size:13px;color:#6B6560;line-height:1.8;">
+      <p style="margin-bottom:12px;"><strong style="color:#1A1714;">Last updated: January 2024</strong></p>
+      <p style="margin-bottom:14px;">The Fold Pizza is committed to protecting your personal information. This policy explains how we collect, use, and safeguard your data.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Information We Collect</p>
+      <p style="margin-bottom:14px;">We collect your name, email address, phone number, and delivery address when you register. We also collect order history and payment method preferences.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">How We Use Your Information</p>
+      <p style="margin-bottom:14px;">Your information is used to process orders, send order updates, improve our service, and comply with legal obligations. We do not sell your personal data to third parties.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Payment Security</p>
+      <p style="margin-bottom:14px;">GCash payments are processed through PayMongo, a BSP-licensed payment gateway. We do not store your payment credentials. All transactions are encrypted.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Data Retention</p>
+      <p style="margin-bottom:14px;">We retain your account information as long as your account is active. Order history is retained for accounting and legal compliance.</p>
+      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Your Rights</p>
+      <p>You may request access, correction, or deletion of your personal data by contacting us via Facebook at "The Fold Pizza" or calling 0916 617 4325.</p>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #E8E2D9;">
+      <button onclick="closePrivacyModal()" style="width:100%;padding:12px;background:#1B5E20;color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let _termsRead = false;
+let _privacyRead = false;
+
+function checkBothRead() {
+  if(_termsRead && _privacyRead) {
+    const cb = document.getElementById('su-terms');
+    cb.disabled = false;
+    cb.style.cursor = 'pointer';
+    document.getElementById('terms-hint').textContent = '✅ You may now accept the terms.';
+    document.getElementById('terms-hint').style.color = '#16a34a';
+  }
+}
+
+window.openTermsModal = () => { document.getElementById('terms-modal').style.display = 'flex'; };
+window.closeTermsModal = () => {
+  document.getElementById('terms-modal').style.display = 'none';
+  _termsRead = true;
+  checkBothRead();
+};
+window.openPrivacyModal = () => { document.getElementById('privacy-modal').style.display = 'flex'; };
+window.closePrivacyModal = () => {
+  document.getElementById('privacy-modal').style.display = 'none';
+  _privacyRead = true;
+  checkBothRead();
+};
+window.acceptTerms = () => {
+  // FIX: removed redundant _termsRead = true here — closeTermsModal() already sets it
+  document.getElementById('su-terms').checked = true;
+  closeTermsModal(); // this sets _termsRead = true and calls checkBothRead()
+  toast('Terms accepted!', 'success');
+};
+document.getElementById('terms-modal').addEventListener('click', function(e){ if(e.target===this) closeTermsModal(); });
+document.getElementById('privacy-modal').addEventListener('click', function(e){ if(e.target===this) closePrivacyModal(); });
+</script>
+
+
+<!-- OTP VERIFICATION SCREEN -->
+<div id="otp-screen" style="display:none;position:fixed;inset:0;background:#F9F5EE;z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:12px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);overflow:hidden;">
+    <div style="background:#2D6A4F;padding:28px 28px 24px;">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;">Verify your email</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:6px;">We sent a 6-digit code to <span id="otp-email-display" style="font-weight:600;color:white;"></span></div>
+    </div>
+    <div style="padding:28px;">
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px;font-weight:600;color:#6B6B6B;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:8px;">Enter verification code</label>
+        <input type="text" id="otp-input" maxlength="6" placeholder="------"
+          style="width:100%;padding:16px;font-size:24px;letter-spacing:0.3em;text-align:center;border:2px solid #E5E0D5;border-radius:8px;font-family:'Inter',sans-serif;box-sizing:border-box;outline:none;"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <div id="otp-error" style="color:#EF4444;font-size:12px;margin-top:6px;display:none;"></div>
+      </div>
+      <button id="btn-verify-otp" onclick="verifyOTP()"
+        style="width:100%;padding:14px;background:#2D6A4F;color:white;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px;">
+        Verify Email
+      </button>
+      <button id="btn-resend" onclick="resendOTP()" disabled
+        style="width:100%;padding:12px;background:white;color:#9B9490;border:1px solid #d1d5db;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:not-allowed;margin-bottom:16px;">
+        Resend code in <span id="resend-timer">60</span>s
+      </button>
+      <div style="text-align:center;">
+        <button onclick="cancelOTP()" style="background:none;border:none;color:#6B6B6B;font-size:12px;cursor:pointer;text-decoration:underline;">Cancel and go back to login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// OTP System
+let _otpUID = '';
+let _otpEmail = '';
+let _resendInterval = null;
+
+// FIX: OTP is now generated server-side only. Client never holds or sees the code.
+// Server generates, stores, and emails the OTP when we call /api/auth/send-otp.
+async function sendOTPEmail(email, uid) {
+  _otpUID = uid;
+  _otpEmail = email;
+  try {
+    await fetch('/api/auth/send-otp', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ uid, email }) // no otp field — server generates it
+    });
+  } catch(e) {
+    console.error('OTP send error:', e);
+  }
+}
+
+function startResendTimer() {
+  const btn = document.getElementById('btn-resend');
+  const timerEl = document.getElementById('resend-timer');
+  let seconds = 60;
+  btn.disabled = true;
+  btn.style.cursor = 'not-allowed';
+  btn.style.color = '#9B9490';
+  btn.style.borderColor = '#d1d5db';
+  btn.innerHTML = 'Resend code in <span id="resend-timer">' + seconds + '</span>s';
+  clearInterval(_resendInterval);
+  _resendInterval = setInterval(() => {
+    seconds--;
+    const el = document.getElementById('resend-timer');
+    if(el) el.textContent = seconds;
+    if(seconds <= 0) {
+      clearInterval(_resendInterval);
+      btn.disabled = false;
+      btn.style.cursor = 'pointer';
+      btn.style.color = '#2D6A4F';
+      btn.style.borderColor = '#2D6A4F';
+      btn.innerHTML = 'Resend code';
+    }
+  }, 1000);
+}
+
+function showOTPScreen(email, uid) {
+  _otpUID = uid;
+  _otpEmail = email;
+  document.getElementById('otp-email-display').textContent = email;
+  document.getElementById('otp-screen').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('otp-input').focus(), 300);
+  startResendTimer();
+}
+
+async function verifyOTP() {
+  const entered = document.getElementById('otp-input').value.trim();
+  const errEl = document.getElementById('otp-error');
+  const btn = document.getElementById('btn-verify-otp');
+  errEl.style.display = 'none';
+  if(entered.length !== 6) {
+    errEl.textContent = 'Please enter the 6-digit code';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  try {
+    const res = await fetch('/api/auth/verify-otp', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ uid: _otpUID, otp: entered })
+    });
+    const data = await res.json();
+    if(data.success) {
+      clearInterval(_resendInterval);
+      document.getElementById('otp-screen').style.display = 'none';
+      toast('Email verified! Welcome to The Fold Pizza 🍕', 'success');
+      setTimeout(() => window.location.href = '/dashboard', 1000);
+    } else {
+      errEl.textContent = data.message || 'Invalid code. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Verify Email';
+    }
+  } catch(e) {
+    errEl.textContent = 'Verification failed. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Verify Email';
+  }
+}
+
+async function resendOTP() {
+  if(!_otpEmail || !_otpUID) return;
+  await sendOTPEmail(_otpEmail, _otpUID);
+  toast('New code sent to ' + _otpEmail, 'success');
+  document.getElementById('otp-input').value = '';
+  document.getElementById('otp-error').style.display = 'none';
+  startResendTimer();
+}
+
+function cancelOTP() {
+  clearInterval(_resendInterval);
+  document.getElementById('otp-screen').style.display = 'none';
+  document.body.style.overflow = '';
+  firebase.auth().signOut().catch(()=>{});
+}
+
+// Allow pressing Enter to verify
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && document.getElementById('otp-screen').style.display === 'flex') {
+    verifyOTP();
+  }
+});
+</script>
+</body>
+</html>

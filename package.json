@@ -1,0 +1,26 @@
+{
+  "name": "thefold-pizza",
+  "version": "1.0.0",
+  "description": "The Fold Pizza - Ordering System",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "firebase-admin": "^11.11.0",
+    "grpc-tools": "^1.13.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^10.0.16",
+    "protobufjs": "^7.6.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

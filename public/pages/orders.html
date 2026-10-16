@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders — The Fold Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="/js/app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--red:#B71C1C;--gold:#F9A825;--border:#E8E2D9;--text:#1A1714;--text-mid:#6B6560;--text-light:#9B9490;--bg:#F8F5F0;--white:#fff;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+.nav{background:var(--green);height:64px;display:flex;align-items:center;padding:0 28px;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:38px;height:38px;border-radius:50%;object-fit:contain;}
+.nav-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;}
+.nav-tagline{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.08em;text-transform:uppercase;}
+.nav-center{display:flex;gap:2px;}
+.nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;padding:7px 14px;border-radius:5px;transition:all 0.15s;}
+.nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.12);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--green);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.btn-signout{background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.8);font-size:12px;font-weight:500;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.btn-signout:hover{border-color:rgba(255,255,255,0.5);color:white;}
+
+/* GCASH BANNER */
+.gcash-banner{background:var(--green);padding:16px 28px;display:none;}
+.gcash-banner-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.gcash-banner-text{color:white;}
+.gcash-banner-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+.gcash-banner-sub{font-size:12px;color:rgba(255,255,255,0.65);}
+.gcash-banner-actions{display:flex;gap:8px;flex-shrink:0;}
+.btn-check{background:var(--gold);color:var(--green);border:none;padding:9px 18px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.btn-check:hover{background:#ffb300;}
+.btn-check:disabled{opacity:0.6;cursor:not-allowed;}
+.btn-dismiss{background:transparent;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);padding:8px 14px;border-radius:4px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
+
+/* MAIN */
+.main{max-width:860px;margin:0 auto;padding:32px 28px;}
+.page-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--text-mid);margin-bottom:28px;font-weight:300;}
+.spinner{width:32px;height:32px;border:2px solid rgba(27,94,32,0.12);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:60px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:80px 0;}
+.empty-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-sub{font-size:14px;color:var(--text-mid);margin-bottom:24px;font-weight:300;}
+.btn-order-now{display:inline-block;background:var(--green);color:white;padding:12px 28px;border-radius:4px;font-size:14px;font-weight:600;transition:all 0.15s;}
+.btn-order-now:hover{background:var(--green-mid);}
+
+/* ORDER CARD */
+.order-card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px;transition:all 0.15s;}
+.order-card:hover{box-shadow:0 2px 16px rgba(0,0,0,0.06);}
+.order-head{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.order-id{font-size:12px;font-weight:600;color:var(--text-mid);letter-spacing:0.04em;}
+.order-date{font-size:12px;color:var(--text-light);}
+.order-body{padding:16px 20px;}
+.order-items{font-size:13px;color:var(--text-mid);margin-bottom:12px;line-height:1.6;font-weight:300;}
+.order-address{font-size:12px;color:var(--text-light);margin-bottom:14px;display:flex;align-items:flex-start;gap:6px;}
+.progress-bar{display:flex;align-items:center;gap:0;margin-bottom:0;}
+.progress-step{flex:1;text-align:center;position:relative;}
+.progress-step::before{content:'';position:absolute;top:11px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0;}
+.progress-step:last-child::before{display:none;}
+.progress-step.done::before{background:var(--green);}
+.progress-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:white;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;transition:all 0.2s;}
+.progress-step.done .progress-dot{background:var(--green);border-color:var(--green);}
+.progress-step.active .progress-dot{border-color:var(--green);box-shadow:0 0 0 3px rgba(27,94,32,0.15);}
+.progress-dot svg{width:10px;height:10px;fill:white;display:none;}
+.progress-step.done .progress-dot svg{display:block;}
+.progress-label{font-size:10px;color:var(--text-light);font-weight:500;letter-spacing:0.02em;}
+.progress-step.done .progress-label,.progress-step.active .progress-label{color:var(--green);font-weight:600;}
+.order-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.order-payment{font-size:12px;color:var(--text-mid);}
+.order-total{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--red);}
+.badge-paid{display:inline-block;background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-left:8px;}
+.badge-pending-pay{display:inline-block;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-left:8px;}
+.btn-check-small{background:none;border:1px solid var(--green);color:var(--green);padding:4px 10px;border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-left:8px;transition:all 0.15s;}
+.btn-check-small:hover{background:var(--green);color:white;}
+.btn-cancel-order{padding:7px 14px;background:white;color:#EF4444;border:1px solid #EF4444;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.btn-cancel-order:hover{background:#FEF2F2;}
+.btn-contact-store{padding:7px 14px;background:white;color:var(--text-mid);border:1px solid var(--border);border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* Cancellation status banners */
+.cancel-status{margin-top:10px;padding:8px 12px;border-radius:4px;font-size:12px;font-weight:500;line-height:1.5;}
+.cancel-status.requested{background:#FEF3C7;color:#92400E;border-left:3px solid #F59E0B;}
+.cancel-status.approved{background:#ECFDF5;color:#065F46;border-left:3px solid #10B981;}
+.cancel-status.rejected{background:#FEE2E2;color:#991B1B;border-left:3px solid #EF4444;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:white;border-radius:10px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--text-mid);margin-bottom:20px;line-height:1.5;}
+.modal-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.modal-row:last-of-type{border-bottom:none;}
+.modal-label{color:var(--text-light);font-weight:500;flex-shrink:0;margin-right:12px;}
+.modal-val{color:var(--text);font-weight:500;text-align:right;}
+.modal-notice{margin:16px 0;padding:12px 14px;background:#FEF3C7;border-left:3px solid #F59E0B;border-radius:0 4px 4px 0;font-size:12px;color:#92400E;line-height:1.6;}
+.modal-notice.info{background:#EFF6FF;border-color:#3B82F6;color:#1E40AF;}
+.modal-label-field{font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:6px;margin-top:14px;}
+.modal-textarea{width:100%;border:1px solid var(--border);border-radius:4px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);resize:vertical;min-height:80px;outline:none;transition:border 0.15s;}
+.modal-textarea:focus{border-color:var(--green);}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-btn{flex:1;padding:11px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;}
+.modal-btn.primary{background:var(--red);color:white;}
+.modal-btn.primary:hover{background:#991B1B;}
+.modal-btn.primary:disabled{opacity:0.6;cursor:not-allowed;}
+.modal-btn.secondary{background:white;color:var(--text-mid);border:1px solid var(--border);}
+.modal-btn.secondary:hover{border-color:var(--text-mid);}
+
+/* Toast */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+
+/* MOBILE BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);z-index:300;padding:8px 0;padding-bottom:max(8px, env(safe-area-inset-bottom));}
+.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;text-decoration:none;color:#9B9490;font-size:10px;font-weight:600;letter-spacing:0.02em;font-family:'Inter',sans-serif;}
+.bottom-nav-item.active{color:var(--green);}
+.bottom-nav-item svg{width:22px;height:22px;stroke-width:1.8;}
+@media(max-width:768px){.nav-center{display:none;}.main{padding:16px 14px 80px;}.progress-label{font-size:9px;}.bottom-nav{display:flex;}}
+@media(max-width:900px){.nav-center{display:none !important;}.bottom-nav{display:flex !important;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <img src="/images/thefold_logo.png" alt="The Fold Pizza" class="nav-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="nav-name">The Fold Pizza</div>
+      <div class="nav-tagline">Fresh and Delicious</div>
+    </div>
+  </div>
+  <div class="nav-center">
+    <a href="/dashboard" class="nav-link">Order</a>
+    <a href="/orders" class="nav-link active">My orders</a>
+    <a href="/account" class="nav-link">Account</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-avatar" id="user-avatar">?</div>
+    <button class="btn-signout" id="btn-logout">Sign out</button>
+  </div>
+</nav>
+
+<div class="gcash-banner" id="gcash-banner">
+  <div class="gcash-banner-inner">
+    <div class="gcash-banner-text">
+      <div class="gcash-banner-title">Complete your GCash payment</div>
+      <div class="gcash-banner-sub">After paying in the GCash tab, click the button to confirm your payment</div>
+    </div>
+    <div class="gcash-banner-actions">
+      <button class="btn-check" id="btn-check-gcash" onclick="checkLatestGcash()">Check payment</button>
+      <button class="btn-dismiss" onclick="dismissGcashBanner()">Dismiss</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-title">My orders</div>
+  <div class="page-sub">Track your current and past orders</div>
+  <div id="orders-loading"><div class="spinner"></div></div>
+  <div id="orders-list"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- CANCELLATION MODAL -->
+<div class="modal-overlay" id="cancel-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="cm-title">Cancel Order</div>
+    <div class="modal-sub" id="cm-sub"></div>
+    <div id="cm-details"></div>
+    <div id="cm-notice" class="modal-notice" style="display:none;"></div>
+    <div id="cm-reason-wrap">
+      <div class="modal-label-field">Reason for cancellation <span style="color:var(--red);">*</span></div>
+      <textarea class="modal-textarea" id="cm-reason" placeholder="Please tell us why you want to cancel…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeCancelModal()">Go Back</button>
+      <button class="modal-btn primary" id="cm-confirm-btn" onclick="submitCancellation()">Confirm Cancellation</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="/dashboard" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Order
+  </a>
+  <a href="/orders" class="bottom-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    My Orders
+  </a>
+  <a href="/account" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Account
+  </a>
+</nav>
+
+<script>
+const steps=[
+  {key:'pending',label:'Received'},
+  {key:'confirmed',label:'Confirmed'},
+  {key:'preparing',label:'Preparing'},
+  {key:'out_for_delivery',label:'On the way'},
+  {key:'delivered',label:'Delivered'},
+];
+const stepIndex={pending:0,confirmed:1,preparing:2,out_for_delivery:3,delivered:4};
+const paymentLabels={cash:'Cash on delivery',gcash:'GCash (PayMongo)',card:'Card'};
+
+// ── modal state ────────────────────────────────────────────────
+let _cmOrderId = null;
+let _cmIsPaidGcash = false;
+let _cmIsRequest = false; // true = submit request, false = direct cancel
+
+async function init(){
+  const user=await requireLogin();if(!user)return;
+  document.getElementById('user-avatar').textContent=(user.name||'?').charAt(0).toUpperCase();
+  checkGcashBanner();
+  loadOrders();
+}
+
+async function loadOrders(){
+  try{
+    const data=await api('/orders/my');
+    const orders=data.orders||[];
+    autoCheckGcash(orders);
+    document.getElementById('orders-loading').style.display='none';
+    if(!orders.length){
+      document.getElementById('orders-list').innerHTML=`<div class="empty"><div class="empty-title">No orders yet</div><div class="empty-sub">Your order history will appear here once you place your first order.</div><a href="/dashboard" class="btn-order-now">Browse the menu</a></div>`;
+      return;
+    }
+    document.getElementById('orders-list').innerHTML=orders.map(o=>orderCard(o)).join('');
+  }catch(e){document.getElementById('orders-loading').innerHTML='<p style="text-align:center;color:var(--text-mid);padding:48px;">Failed to load orders. Please refresh.</p>';}
+}
+
+function cancelStatusBanner(o) {
+  const crs = o.cancellationRequestStatus;
+  if (!crs || crs === 'none') return '';
+  if (crs === 'pending') return `<div class="cancel-status requested">⏳ Cancellation requested — awaiting admin review (${formatDate(o.updatedAt)})</div>`;
+  if (crs === 'approved') return `<div class="cancel-status approved">✓ Cancellation approved</div>`;
+  if (crs === 'rejected') return `<div class="cancel-status rejected">✕ Cancellation request rejected${o.cancellationRejectionReason ? ': ' + o.cancellationRejectionReason : ''}</div>`;
+  return '';
+}
+
+function orderCard(o){
+  const curStep=stepIndex[o.status]??0;
+  const isCancelled=o.status==='cancelled';
+  const isPaidGcash = o.paymentMethod==='gcash' && o.paymentStatus==='paid';
+  const hasPendingCancelReq = o.cancellationRequestStatus === 'pending';
+
+  const progressHTML=isCancelled?
+    `<div style="display:inline-flex;align-items:center;gap:6px;background:#FEE2E2;padding:6px 14px;border-radius:3px;font-size:12px;font-weight:600;color:#991B1B;text-transform:uppercase;letter-spacing:0.04em;">Order cancelled${o.cancellationReason?' — '+o.cancellationReason:''}</div>`:
+    `<div class="progress-bar">${steps.map((s,i)=>`
+      <div class="progress-step ${i<curStep?'done':i===curStep?'active':''}">
+        <div class="progress-dot"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="progress-label">${s.label}</div>
+      </div>`).join('')}</div>`;
+
+  let payHTML=`<span>${paymentLabels[o.paymentMethod]||o.paymentMethod||'—'}</span>`;
+  if(o.paymentMethod==='gcash'){
+    if(o.paymentStatus==='paid')payHTML+=`<span class="badge-paid">GCash paid</span>`;
+    else payHTML+=`<span class="badge-pending-pay">GCash pending</span><button class="btn-check-small" onclick="checkPayment('${o.id}',this)">Check</button>`;
+  }
+
+  // Build action button
+  let actionBtn = '';
+  if (!isCancelled && !hasPendingCancelReq) {
+    if (o.status === 'pending' || o.status === 'confirmed') {
+      actionBtn = `<button class="btn-cancel-order" onclick="openCancelModal('${o.id}')">Cancel Order</button>`;
+    } else if (o.status === 'preparing' || o.status === 'out_for_delivery') {
+      actionBtn = `<button class="btn-contact-store" onclick="toast('Please call the store to request a cancellation.','info')">Contact Store</button>`;
+    }
+  }
+
+  return `<div class="order-card">
+    <div class="order-head">
+      <div><div class="order-id">Order #${o.id.slice(0,8).toUpperCase()}</div></div>
+      <div class="order-date">${formatDate(o.createdAt)}</div>
+    </div>
+    <div class="order-body">
+      <div class="order-items">${(o.items||[]).map(i=>`${i.qty}× ${i.name}`).join(' &nbsp;·&nbsp; ')}</div>
+      <div class="order-address"><span style="flex-shrink:0;color:var(--text-light);">Deliver to:</span> ${o.address||'—'}</div>
+      ${progressHTML}
+      ${cancelStatusBanner(o)}
+    </div>
+    <div class="order-footer">
+      <div class="order-payment">${payHTML}</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${actionBtn}
+        <div class="order-total">₱${Number(o.total).toLocaleString('en-PH',{minimumFractionDigits:2})}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Cancellation modal ─────────────────────────────────────────
+let _cmOrder = null;
+
+function openCancelModal(orderId) {
+  // Find order from DOM? We need full order data. Reload from last fetch.
+  // We'll pass the full order object via a stored map.
+  const o = _ordersMap[orderId];
+  if (!o) { toast('Could not load order details', 'error'); return; }
+  _cmOrder = o;
+  _cmOrderId = orderId;
+  const isPaidGcash = o.paymentMethod === 'gcash' && o.paymentStatus === 'paid';
+  const isConfirmed = o.status === 'confirmed';
+  _cmIsPaidGcash = isPaidGcash;
+  _cmIsRequest = isPaidGcash || isConfirmed;
+
+  // Title & subtitle
+  document.getElementById('cm-title').textContent = _cmIsRequest ? 'Request Cancellation' : 'Cancel Order';
+  document.getElementById('cm-sub').textContent = _cmIsRequest
+    ? 'Your cancellation request will be reviewed by the store.'
+    : 'This will cancel your order immediately. This cannot be undone.';
+
+  // Order details
+  const itemsText = (o.items||[]).map(i=>`${i.qty}× ${i.name}`).join('<br>');
+  const payStatus = isPaidGcash ? '<span class="badge-paid">GCash paid</span>' : (o.paymentMethod==='gcash'?'<span class="badge-pending-pay">GCash pending</span>':'—');
+  document.getElementById('cm-details').innerHTML = `
+    <div class="modal-row"><span class="modal-label">Order</span><span class="modal-val">#${orderId.slice(0,8).toUpperCase()}</span></div>
+    <div class="modal-row"><span class="modal-label">Items</span><span class="modal-val">${itemsText}</span></div>
+    <div class="modal-row"><span class="modal-label">Total</span><span class="modal-val" style="color:var(--red);font-family:'Playfair Display',serif;">₱${Number(o.total).toLocaleString('en-PH',{minimumFractionDigits:2})}</span></div>
+    <div class="modal-row"><span class="modal-label">Payment</span><span class="modal-val">${paymentLabels[o.paymentMethod]||o.paymentMethod} ${payStatus}</span></div>
+    <div class="modal-row"><span class="modal-label">Status</span><span class="modal-val">${o.status.replace(/_/g,' ')}</span></div>
+  `;
+
+  // Notice for paid GCash
+  const notice = document.getElementById('cm-notice');
+  if (isPaidGcash) {
+    notice.style.display = 'block';
+    notice.className = 'modal-notice';
+    notice.textContent = 'Your cancellation request will be reviewed by the store. If approved, your refund will be handled according to the store\'s refund policy. Cancelling your order does not mean your payment has already been refunded.';
+  } else {
+    notice.style.display = 'none';
+  }
+
+  document.getElementById('cm-reason').value = '';
+  document.getElementById('cm-confirm-btn').disabled = false;
+  document.getElementById('cm-confirm-btn').textContent = _cmIsRequest ? 'Submit Request' : 'Confirm Cancellation';
+  document.getElementById('cancel-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCancelModal() {
+  document.getElementById('cancel-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  _cmOrder = null; _cmOrderId = null;
+}
+
+async function submitCancellation() {
+  const reason = document.getElementById('cm-reason').value.trim();
+  if (!reason) { toast('Please enter a reason for cancellation.', 'error'); return; }
+
+  const btn = document.getElementById('cm-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
+  try {
+    if (_cmIsRequest) {
+      await api('/orders/' + _cmOrderId + '/cancel-request', 'POST', { reason });
+      toast('Cancellation request submitted. We\'ll notify you once reviewed.', 'success');
+    } else {
+      await api('/orders/' + _cmOrderId + '/cancel', 'PATCH', { reason });
+      toast('Order cancelled successfully.', 'success');
+    }
+    closeCancelModal();
+    loadOrders();
+  } catch(e) {
+    toast(e.message || 'Could not process cancellation.', 'error');
+    btn.disabled = false;
+    btn.textContent = _cmIsRequest ? 'Submit Request' : 'Confirm Cancellation';
+  }
+}
+
+// ── Payment checks ─────────────────────────────────────────────
+window.checkPayment=async(orderId,btn)=>{
+  if(btn){btn.textContent='Checking...';btn.disabled=true;}
+  try{
+    const data=await api('/payments/check/'+orderId);
+    if(data.paymentStatus==='paid'){toast('GCash payment confirmed!','success');setTimeout(()=>loadOrders(),800);}
+    else{toast('Payment not yet received. Please complete your GCash payment.','info');if(btn){btn.textContent='Check';btn.disabled=false;}}
+  }catch(e){toast('Failed to check payment','error');if(btn){btn.textContent='Check';btn.disabled=false;}}
+};
+
+let _ordersMap = {};
+
+async function autoCheckGcash(orders){
+  // Store map for modal use
+  _ordersMap = {};
+  orders.forEach(o => { _ordersMap[o.id] = o; });
+
+  const pending=orders.filter(o=>o.paymentMethod==='gcash'&&o.paymentStatus!=='paid'&&o.paymongoLinkId);
+  let anyConfirmed=false;
+  for(const o of pending){
+    try{
+      const d=await api('/payments/check/'+o.id);
+      if(d.paymentStatus==='paid'){
+        toast('GCash payment confirmed for order #'+o.id.slice(0,8).toUpperCase(),'success');
+        anyConfirmed=true;
+      }
+    }catch(e){}
+  }
+  if(anyConfirmed) setTimeout(()=>loadOrders(),800);
+}
+
+function checkGcashBanner(){
+  if(localStorage.getItem('gcashPending')==='1'){document.getElementById('gcash-banner').style.display='block';}
+}
+function dismissGcashBanner(){
+  document.getElementById('gcash-banner').style.display='none';
+  localStorage.removeItem('gcashPending');localStorage.removeItem('lastOrderId');
+}
+window.checkLatestGcash=async()=>{
+  const orderId=localStorage.getItem('lastOrderId');if(!orderId){toast('No pending GCash order found','info');return;}
+  const btn=document.getElementById('btn-check-gcash');btn.textContent='Checking...';btn.disabled=true;
+  try{
+    const data=await api('/payments/check/'+orderId);
+    if(data.paymentStatus==='paid'){
+      document.getElementById('gcash-banner').style.background='#065F46';
+      document.getElementById('gcash-banner').innerHTML=`<div style="max-width:860px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:16px 0;"><div><div style="font-size:14px;font-weight:600;color:white;">GCash payment confirmed</div><div style="font-size:12px;color:rgba(255,255,255,0.7);">Your order has been confirmed and is being prepared.</div></div><button onclick="dismissGcashBanner()" style="margin-left:auto;background:rgba(255,255,255,0.15);color:white;border:none;border-radius:4px;padding:7px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;">Dismiss</button></div>`;
+      localStorage.removeItem('gcashPending');localStorage.removeItem('lastOrderId');
+      setTimeout(()=>loadOrders(),800);
+    }else{toast('Payment not yet received. Please complete your GCash payment.','info');btn.textContent='Check payment';btn.disabled=false;}
+  }catch(e){toast('Failed','error');btn.textContent='Check payment';btn.disabled=false;}
+};
+
+document.getElementById('btn-logout').onclick=()=>{
+  confirmModal({
+    title:'Sign out?',
+    message:'Are you sure you want to sign out of your account?',
+    confirmText:'Sign out',
+    cancelText:'Stay',
+    danger:false,
+    onConfirm:async()=>{
+      await api('/auth/logout','POST');
+      localStorage.removeItem('thefold_cart');
+      window.location.replace('/login');
+    }
+  });
+};
+
+// Close modal on overlay click
+document.getElementById('cancel-modal').addEventListener('click', function(e){
+  if(e.target===this) closeCancelModal();
+});
+
+// Make openCancelModal global
+window.openCancelModal = openCancelModal;
+
+init();
+</script>
+</body>
+</html>
