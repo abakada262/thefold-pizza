@@ -26,16 +26,20 @@ app.use((req, res, next) => {
 });
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'thefold-secret-2024',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'thefold-jwt-2024';
+
+app.use((req, res, next) => {
+  const token = req.cookies['thefold_token'];
+  req.session = {
+    user: null,
+    destroy: (cb) => { res.clearCookie('thefold_token'); if (cb) cb(); }
+  };
+  if (token) {
+    try { req.session.user = jwt.verify(token, JWT_SECRET); } catch (e) {}
   }
-}));
+  next();
+});
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '../public')));
