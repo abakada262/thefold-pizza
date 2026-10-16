@@ -316,14 +316,13 @@ document.getElementById('btn-change-pwd').onclick=async()=>{
   btn.disabled=true;btn.textContent='Updating...';
   try{
     const user=auth.currentUser;
-    const{EmailAuthProvider,reauthenticateWithCredential}=firebase.auth;
-    const cred=EmailAuthProvider.credential(user.email,cur);
-    await reauthenticateWithCredential(user,cred);
+    const cred=firebase.auth.EmailAuthProvider.credential(user.email,cur);
+    await user.reauthenticateWithCredential(cred);
     await user.updatePassword(nw);
-    toast('Password updated','success');
+    toast('Password updated successfully','success');
     ['cur-pwd','new-pwd','confirm-pwd'].forEach(id=>document.getElementById(id).value='');
   }catch(e){
-    if(e.code==='auth/wrong-password')toast('Current password is incorrect','error');
+    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')toast('Current password is incorrect','error');
     else toast(e.message,'error');
   }
   finally{btn.disabled=false;btn.textContent='Update password';}
