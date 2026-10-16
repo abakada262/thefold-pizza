@@ -1,8 +1,7 @@
-const admin = require('firebase-admin');
+﻿const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
   const rawKey = process.env.FIREBASE_PRIVATE_KEY || '';
-  console.log('KEY_LEN:', rawKey.length, 'FIRST_CHAR:', rawKey.charCodeAt(0), 'LAST_CHAR:', rawKey.charCodeAt(rawKey.length-1));
   const key = rawKey.split(String.fromCharCode(13,10)).join(String.fromCharCode(10)).split(String.fromCharCode(13)).join(String.fromCharCode(10));
   admin.initializeApp({
     credential: admin.credential.cert({
