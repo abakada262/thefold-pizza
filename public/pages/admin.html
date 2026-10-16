@@ -1278,6 +1278,27 @@ async function doCancelOrder(){
     // Replace dropdown with final badge
     if(selectEl){const td=selectEl.closest('td');if(td)td.innerHTML='<span class="badge badge-cancelled">Cancelled</span>';}
     if(row){const b=row.querySelector('.badge');if(b){b.className='badge badge-cancelled';b.textContent='Cancelled';}}
+    // Auto-create refund record for GCash-paid orders
+    if(o && o.paymentMethod==='gcash' && o.paymentStatus==='paid'){
+      try{
+        await api('/admin/refunds','POST',{
+          orderId: id,
+          orderShortId: id.slice(0,8).toUpperCase(),
+          customerName: o.userName||o.userEmail||'',
+          customerEmail: o.userEmail||'',
+          amount: o.total||0,
+          paymentMethod: 'gcash',
+          paymentRef: o.paymongoRef||o.paymentRef||'',
+          reason: reason,
+          refundStatus: 'pending_review',
+        });
+        toast('Refund record created for GCash payment','success');
+        if(document.getElementById('panel-refunds').classList.contains('active')) loadRefunds();
+      }catch(refundErr){
+        console.warn('Refund record creation failed:',refundErr);
+        toast('Order cancelled — please create refund record manually','error');
+      }
+    }
   }catch(e){
     toast(e.message||'Failed to cancel order','error');
   }
