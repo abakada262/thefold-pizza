@@ -1216,8 +1216,9 @@ function updateStatus(id,status,selectEl){
       }
       _showPrepDialog(data.ingredients,data.allSufficient);
     }).catch(e=>{
-      toast('Failed to load ingredient preview','error');
+      // Endpoint not available — skip preview and commit directly
       selectEl.disabled=false;
+      _commitStatus(id,'preparing',selectEl,prevStatus);
     });
     return;
   }
