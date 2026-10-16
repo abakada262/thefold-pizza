@@ -150,11 +150,49 @@ tr:hover td{background:#FDFAF5;}
 .notif-detail-label{color:var(--text-mid);font-weight:500;}
 .notif-detail-val{color:var(--text);font-weight:600;text-align:right;}
 .notif-detail-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;}
+
+/* ── Mobile responsive ─────────────────────────────────── */
+.hamburger{display:none;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.hamburger svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:299;top:64px;}
+.sidebar-overlay.open{display:block;}
+@media(max-width:700px){
+  .hamburger{display:flex;}
+  .nav-user{display:none;}
+  .sidebar{position:fixed;top:64px;left:-220px;z-index:300;height:calc(100vh - 64px);transition:left 0.25s;display:block!important;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
+  .sidebar.mobile-open{left:0;}
+  .main{padding:14px;overflow-x:hidden;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  /* Filter tabs: horizontal scroll, no wrap */
+  .filter-tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:0;border-bottom:1px solid var(--border);}
+  .filter-tabs::-webkit-scrollbar{display:none;}
+  .filter-tab{white-space:nowrap;flex-shrink:0;}
+  /* Orders table -> card layout */
+  .card .table-wrap{overflow-x:visible;}
+  .table-wrap table{width:100%;}
+  .table-wrap table thead{display:none;}
+  .table-wrap table tbody tr{display:block;background:white;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;padding:10px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+  .table-wrap table tbody tr:hover td{background:transparent;}
+  .table-wrap table tbody td{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border:none;font-size:13px;gap:8px;}
+  .table-wrap table tbody td::before{content:attr(data-label);font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);flex-shrink:0;min-width:72px;padding-top:1px;}
+  .table-wrap table tbody td:last-child{border-top:1px solid var(--border);margin-top:6px;padding-top:8px;}
+  /* Status select on mobile */
+  .status-select{width:100%;font-size:13px;}
+  /* Grid adjustments */
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  /* Inv tabs wrap on mobile */
+  [style*="display:flex;gap:0;border-bottom"]{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
+  /* Notif panel full width */
+  .notif-panel{width:calc(100vw - 20px);right:-10px;}
+}
 </style>
 </head>
 <body>
 <nav class="nav">
   <div class="nav-left">
+    <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
+      <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/></svg>
+    </button>
     <img src="/images/thefold_logo.png" alt="" class="nav-logo" onerror="this.style.display='none'">
     <span class="nav-name">The Fold Pizza</span>
     <span class="nav-role">Admin</span>
@@ -198,6 +236,7 @@ tr:hover td{background:#FDFAF5;}
   </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-section">Management</div>
@@ -970,6 +1009,15 @@ tr:hover td{background:#FDFAF5;}
 <script>
 let allOrders=[],orderFilter='all',invItems=[],invFilter='all',currentInvItem=null,addonRowIds=[],menuItems=[],cachedOrders=[];
 
+// ── Mobile sidebar toggle ─────────────────────────────────────
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  const isOpen=sb.classList.contains('mobile-open');
+  sb.classList.toggle('mobile-open',!isOpen);
+  ov.classList.toggle('open',!isOpen);
+  document.body.style.overflow=isOpen?'':'hidden';
+}
 // ── Workflow map ──────────────────────────────────────────────
 const NEXT_STATUSES={
   pending:['confirmed','cancelled'],
@@ -1013,6 +1061,12 @@ document.querySelectorAll('.sidebar-item').forEach(item=>{
     document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
     item.classList.add('active');
     showPanel(item.dataset.panel);
+    // Close sidebar on mobile after selecting a panel
+    if(window.innerWidth<=700){
+      document.querySelector('.sidebar').classList.remove('mobile-open');
+      document.getElementById('sidebar-overlay').classList.remove('open');
+      document.body.style.overflow='';
+    }
   });
 });
 
@@ -1081,14 +1135,14 @@ function renderOrders(){
   const filtered=orderFilter==='all'?allOrders:allOrders.filter(o=>o.status===orderFilter);
   document.getElementById('orders-tbody').innerHTML=filtered.length?filtered.map(o=>`
     <tr>
-      <td style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
-      <td><div style="font-weight:500;">${o.userName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${o.userEmail||''}</div></td>
-      <td style="font-size:12px;width:240px;max-width:240px;">${buildOrderItemCell(o)}</td>
-      <td style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
-      <td>${paymentBadge(o)}</td>
-      <td><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
-      <td style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
-      <td>${renderStatusAction(o)}</td>
+      <td data-label="Order ID" style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
+      <td data-label="Customer"><div style="font-weight:500;">${o.userName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${o.userEmail||''}</div></td>
+      <td data-label="Items" style="font-size:12px;">${buildOrderItemCell(o)}</td>
+      <td data-label="Total" style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
+      <td data-label="Payment">${paymentBadge(o)}</td>
+      <td data-label="Status"><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
+      <td data-label="Date" style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
+      <td data-label="Action">${renderStatusAction(o)}</td>
     </tr>`).join(''):
     `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-mid);">No orders found</td></tr>`;
 }
@@ -1096,18 +1150,18 @@ function renderOrders(){
 function loadRecentOrders(){
   document.getElementById('recent-orders-tbody').innerHTML=allOrders.slice(0,6).map(o=>`
     <tr>
-      <td style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
-      <td style="font-weight:500;">${o.userName||'—'}</td>
-      <td style="font-size:12px;max-width:220px;">
+      <td data-label="Order ID" style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
+      <td data-label="Customer" style="font-weight:500;">${o.userName||'—'}</td>
+      <td data-label="Items" style="font-size:12px;">
         ${(o.items||[]).map(i=>{
           const isCustom = i.name && i.name.toLowerCase().includes('custom');
           return `<div>${i.qty}× ${i.name}${isCustom&&i.addonNames?` <span style="font-size:10px;color:var(--green);font-weight:600;">[${[...new Set(i.addonNames.split(' / '))].slice(0,3).join(', ')}${i.addonNames.split(' / ').length>3?'…':''}]</span>`:''}`;
         }).join('<br>')}
       </td>
-      <td style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
-      <td>${paymentBadge(o)}</td>
-      <td><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
-      <td style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
+      <td data-label="Total" style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
+      <td data-label="Payment">${paymentBadge(o)}</td>
+      <td data-label="Status"><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
+      <td data-label="Date" style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
     </tr>`).join('')||`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-mid);">No orders yet</td></tr>`;
 }
 
