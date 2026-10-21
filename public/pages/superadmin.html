@@ -46,12 +46,6 @@ a{text-decoration:none;color:inherit;}
 .card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .card-title{font-size:14px;font-weight:600;color:var(--text);}
 .card-body{padding:20px;}
-/* ── Analytics KPI cards ── */
-.an-kpi-card{background:white;border:1px solid var(--border);border-radius:8px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;}
-.an-kpi-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.an-kpi-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:4px;}
-.an-kpi-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);line-height:1.1;}
-.an-kpi-delta{font-size:11px;font-weight:600;color:var(--text-light);margin-top:3px;}
 table{width:100%;border-collapse:collapse;}
 th{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);background:#FDFAF5;}
 td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
@@ -106,203 +100,22 @@ tr:hover td{background:#FDFAF5;}
 .confirm-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
 .confirm-msg{font-size:14px;color:var(--text-mid);margin-bottom:24px;line-height:1.6;font-weight:300;}
 .confirm-actions{display:flex;gap:10px;}
-.sidebar-badge{background:var(--red);color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:auto;font-family:'Inter',sans-serif;}
-/* ── Inventory Tabs ─────────────────────────────────── */
-.inv-tab{padding:10px 18px;font-size:13px;font-weight:500;color:var(--text-mid);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Inter',sans-serif;transition:all 0.15s;}
-.inv-tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
-.inv-tab:hover{color:var(--text);}
-/* ── Notification Bell ─────────────────────────────── */
-.notif-btn{position:relative;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;flex-shrink:0;}
-.notif-btn:hover{background:rgba(255,255,255,0.22);}
-.notif-btn svg{width:18px;height:18px;stroke:white;fill:none;stroke-width:1.6;}
-.notif-badge{position:absolute;top:-5px;right:-5px;background:var(--red);color:white;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--green);display:none;}
-.notif-badge.show{display:flex;}
-.notif-panel{position:absolute;top:calc(100% + 10px);right:0;width:380px;max-height:520px;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.16);z-index:9999;display:none;flex-direction:column;overflow:hidden;}
-.notif-panel.open{display:flex;}
-.notif-panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.notif-panel-title{font-size:14px;font-weight:700;color:var(--text);}
-.notif-read-all{font-size:12px;font-weight:600;color:var(--green);cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;padding:0;}
-.notif-read-all:hover{text-decoration:underline;}
-.notif-list{overflow-y:auto;flex:1;}
-.notif-item{padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;display:flex;gap:12px;align-items:flex-start;}
-.notif-item:last-child{border-bottom:none;}
-.notif-item:hover{background:#F8F5F0;}
-.notif-item.unread{background:#F0F7F0;}
-.notif-item.unread:hover{background:#E8F5E9;}
-.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;}
-.notif-dot.read{background:transparent;}
-.notif-body{flex:1;min-width:0;}
-.notif-body-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
-.notif-body-sub{font-size:12px;color:var(--text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.notif-body-time{font-size:11px;color:var(--text-light);margin-top:4px;}
-.notif-empty{padding:40px 20px;text-align:center;color:var(--text-light);font-size:13px;}
-#notif-detail-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;align-items:center;justify-content:center;padding:20px;}
-#notif-detail-modal.open{display:flex;}
-.notif-detail-box{background:white;border-radius:8px;width:100%;max-width:480px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.25);}
-.notif-detail-head{background:var(--green);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.notif-detail-body{overflow-y:auto;padding:20px 22px;flex:1;}
-.notif-detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.notif-detail-row:last-child{border-bottom:none;}
-.notif-detail-label{color:var(--text-mid);font-weight:500;}
-.notif-detail-val{color:var(--text);font-weight:600;text-align:right;}
-.notif-detail-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;}
-/* ── Mobile responsive ─────────────────────────────────── */
-.hamburger{display:none;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
-.hamburger svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2;}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:299;top:64px;}
-.sidebar-overlay.open{display:block;}
-@media(max-width:700px){
-  .hamburger{display:flex;}
-  .nav-user{display:none;}
-  .sidebar{position:fixed;top:64px;left:-220px;z-index:300;height:calc(100vh - 64px);transition:left 0.25s;display:block!important;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
-  .sidebar.mobile-open{left:0;}
-  .main{padding:14px;overflow-x:hidden;}
-  .stats-row{grid-template-columns:1fr 1fr;}
-  .filter-tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:0;border-bottom:1px solid var(--border);}
-  .filter-tabs::-webkit-scrollbar{display:none;}
-  .filter-tab{white-space:nowrap;flex-shrink:0;}
-  .card .table-wrap{overflow-x:visible;}
-  .table-wrap table{width:100%;}
-  .table-wrap table thead{display:none;}
-  .table-wrap table tbody tr{display:block;background:white;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;padding:10px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
-  .table-wrap table tbody tr:hover td{background:transparent;}
-  .table-wrap table tbody td{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border:none;font-size:13px;gap:8px;}
-  .table-wrap table tbody td::before{content:attr(data-label);font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-light);flex-shrink:0;min-width:72px;padding-top:1px;}
-  .table-wrap table tbody td:last-child{border-top:1px solid var(--border);margin-top:6px;padding-top:8px;}
-  .status-select{width:100%;font-size:13px;}
-  .grid-2,.grid-3{grid-template-columns:1fr;}
-  [style*="display:flex;gap:0;border-bottom"]{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
-  .notif-panel{width:calc(100vw - 20px);right:-10px;}
-}
+@media(max-width:900px){.sidebar{display:none;}.stats-row{grid-template-columns:1fr 1fr;}.main{padding:20px;}}
 </style>
 </head>
 <body>
 <nav class="nav">
   <div class="nav-left">
-    <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
-      <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/></svg>
-    </button>
     <img src="/images/thefold_logo.png" alt="" class="nav-logo" onerror="this.style.display='none'">
     <span class="nav-name">The Fold Pizza</span>
     <span class="nav-role">Super Admin</span>
   </div>
-  <div class="nav-right" style="position:relative;">
-    <!-- Notification Bell -->
-    <div class="notif-btn" id="notif-btn" onclick="toggleNotifPanel(event)" title="Notifications">
-      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span class="notif-badge" id="notif-badge">0</span>
-    </div>
-    <!-- Notification Panel -->
-    <div class="notif-panel" id="notif-panel">
-      <div class="notif-panel-head">
-        <span class="notif-panel-title">Notifications</span>
-        <button class="notif-read-all" onclick="markAllRead()">Mark all as read</button>
-      </div>
-      <div class="notif-list" id="notif-list">
-        <div class="notif-empty">No notifications yet</div>
-      </div>
-    </div>
+  <div class="nav-right">
     <span class="nav-user" id="user-name">Super Admin</span>
     <button class="btn-signout" id="btn-logout">Sign out</button>
   </div>
 </nav>
 
-<!-- Notification Order Detail Modal -->
-<div id="notif-detail-modal">
-  <div class="notif-detail-box">
-    <div class="notif-detail-head">
-      <div>
-        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;" id="nd-title">Order Details</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:2px;" id="nd-sub"></div>
-      </div>
-      <button onclick="closeNotifDetail()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;">✕</button>
-    </div>
-    <div class="notif-detail-body" id="nd-body"></div>
-    <div class="notif-detail-foot">
-      <button id="nd-view-btn" class="btn btn-primary" style="flex:1;justify-content:center;">View in Orders</button>
-      <button onclick="closeNotifDetail()" class="btn btn-outline" style="flex:1;justify-content:center;">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- INGREDIENT MODAL -->
-<div id="ing-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8000;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:white;border-radius:8px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-    <div style="padding:18px 24px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;" id="ing-modal-title">Add Ingredient</div>
-      <button onclick="closeIngModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&#x2715;</button>
-    </div>
-    <div style="padding:20px 24px;">
-      <div class="form-group"><label class="form-label">Ingredient name</label><input type="text" class="form-input" id="ing-name" placeholder="e.g. Mozzarella Cheese"></div>
-      <div class="grid-2">
-        <div class="form-group"><label class="form-label">Unit</label>
-          <select class="form-input" id="ing-unit">
-            <option value="grams">Grams (g)</option><option value="kilograms">Kilograms (kg)</option>
-            <option value="milliliters">Milliliters (ml)</option><option value="liters">Liters (L)</option>
-            <option value="pieces">Pieces (pcs)</option><option value="slices">Slices</option>
-            <option value="cups">Cups</option><option value="tablespoons">Tablespoons</option><option value="ounces">Ounces (oz)</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="form-label">Current Stock</label><input type="number" class="form-input" id="ing-stock" placeholder="0" min="0"></div>
-      </div>
-      <div class="grid-2">
-        <div class="form-group"><label class="form-label">Low Stock Alert At</label><input type="number" class="form-input" id="ing-threshold" placeholder="e.g. 500" min="0"></div>
-        <div class="form-group"><label class="form-label">Cost per unit (₱)</label><input type="number" class="form-input" id="ing-cost" placeholder="0.00" step="0.01" min="0"></div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:4px;">
-        <button id="btn-save-ing" onclick="saveIngredient()" class="btn btn-primary" style="flex:1;">Save ingredient</button>
-        <button onclick="closeIngModal()" class="btn btn-outline">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- RECIPE MODAL -->
-<div id="recipe-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
-  <div style="background:white;border-radius:8px;width:100%;max-width:560px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-    <div style="padding:18px 24px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;">Recipe / BOM</div>
-      <button onclick="closeRecipeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&#x2715;</button>
-    </div>
-    <div style="padding:20px 24px;">
-      <div class="grid-2">
-        <div class="form-group"><label class="form-label">Menu item</label><select class="form-input" id="rec-item"><option value="">Select item...</option></select></div>
-        <div class="form-group"><label class="form-label">Size (or All)</label>
-          <select class="form-input" id="rec-size">
-            <option value="all">All sizes</option><option value="10">10" Small</option><option value="12">12" Medium</option>
-            <option value="16">16" Large</option><option value="20">20" XL</option><option value="30">30" Party</option><option value="36">36" Fiesta</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-label" style="margin-bottom:8px;">Ingredients</div>
-      <div id="rec-ing-list" style="margin-bottom:10px;"></div>
-      <button onclick="addRecipeRow()" style="background:none;border:1px dashed var(--border);border-radius:4px;width:100%;padding:9px;font-size:13px;color:var(--text-mid);cursor:pointer;font-family:'Inter',sans-serif;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)';">+ Add ingredient row</button>
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button id="btn-save-recipe" onclick="saveRecipe()" class="btn btn-primary" style="flex:1;">Save recipe</button>
-        <button onclick="closeRecipeModal()" class="btn btn-outline">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- INGREDIENT SETUP PROMPT -->
-<div id="ing-setup-prompt" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8500;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:white;border-radius:10px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;">
-    <div style="background:var(--green);padding:20px 24px;">
-      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;" id="ing-prompt-title">Item Added!</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:4px;">Would you like to set up ingredients for this item?</div>
-    </div>
-    <div style="padding:20px 24px;">
-      <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px;line-height:1.6;">Setting up a <strong style="color:var(--text);">Recipe / BOM</strong> lets the system automatically deduct raw ingredients from your inventory every time this item is ordered.</p>
-      <div style="display:flex;gap:10px;">
-        <button onclick="goSetupIngredients()" style="flex:1;padding:11px;background:var(--green);color:white;border:none;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Yes, set up ingredients</button>
-        <button onclick="closeIngSetupPrompt()" style="flex:1;padding:11px;background:white;color:var(--text-mid);border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;">Skip for now</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-section">Command Center</div>
@@ -334,16 +147,6 @@ tr:hover td{background:#FDFAF5;}
     <div class="sidebar-item" data-panel="sa-custom-pricing">
       <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v1.5M8 9.5V11M6 7h4M6 9h4"/></svg>
       Custom Pricing
-    </div>
-    <div class="sidebar-section">Customer Service</div>
-    <div class="sidebar-item" data-panel="cancel-requests">
-      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4"/></svg>
-      Cancellations
-      <span class="sidebar-badge" id="cancel-req-badge" style="display:none;">0</span>
-    </div>
-    <div class="sidebar-item" data-panel="refunds">
-      <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M3 8l3-3M3 8l3 3"/><rect x="1" y="1" width="14" height="14" rx="2"/></svg>
-      Refunds
     </div>
     <div class="sidebar-section">Access</div>
     <div class="sidebar-item" data-panel="roles">
@@ -383,7 +186,7 @@ tr:hover td{background:#FDFAF5;}
       </div>
       <div class="card">
         <div class="card-head"><span class="card-title">Recent orders</span><button class="btn btn-outline btn-sm" onclick="showPanel('all-orders')">View all</button></div>
-        <div class="table-wrap" style="overflow-x:auto;"><table>
+        <div style="overflow-x:auto;"><table>
           <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead>
           <tbody id="sa-recent-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
         </table></div>
@@ -392,99 +195,13 @@ tr:hover td{background:#FDFAF5;}
 
     <!-- ANALYTICS -->
     <div class="panel" id="panel-analytics">
-      <!-- Header row -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
-        <div>
-          <div class="page-title" style="margin-bottom:2px;">Analytics</div>
-          <div class="page-sub" style="margin-bottom:0;">Sales performance and trends</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <select id="an-range" onchange="loadAnalytics()" style="border:1px solid var(--border);background:white;padding:7px 12px;border-radius:4px;font-size:13px;font-family:'Inter',sans-serif;color:var(--text);cursor:pointer;outline:none;">
-            <option value="7">Last 7 days</option>
-            <option value="30" selected>Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">This year</option>
-            <option value="0">All time</option>
-          </select>
-          <button onclick="loadAnalytics()" style="background:var(--green);color:white;border:none;padding:8px 16px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Refresh</button>
-        </div>
+      <div class="page-title">Analytics</div>
+      <div class="page-sub">Sales performance and trends</div>
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="card" style="margin:0;"><div class="card-head"><span class="card-title">Orders by status</span></div><div class="card-body" id="analytics-status"><div class="spinner"></div></div></div>
+        <div class="card" style="margin:0;"><div class="card-head"><span class="card-title">Payment methods</span></div><div class="card-body" id="analytics-payment"><div class="spinner"></div></div></div>
       </div>
-
-      <!-- KPI tiles -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="an-kpi-row">
-        <div class="an-kpi-card" id="an-k-revenue">
-          <div class="an-kpi-icon" style="background:#ECFDF5;">💰</div>
-          <div>
-            <div class="an-kpi-label">Total Revenue</div>
-            <div class="an-kpi-value" id="an-kv-revenue">—</div>
-            <div class="an-kpi-delta" id="an-kd-revenue"></div>
-          </div>
-        </div>
-        <div class="an-kpi-card" id="an-k-orders">
-          <div class="an-kpi-icon" style="background:#EFF6FF;">📦</div>
-          <div>
-            <div class="an-kpi-label">Total Orders</div>
-            <div class="an-kpi-value" id="an-kv-orders">—</div>
-            <div class="an-kpi-delta" id="an-kd-orders"></div>
-          </div>
-        </div>
-        <div class="an-kpi-card" id="an-k-avg">
-          <div class="an-kpi-icon" style="background:#FFF7ED;">📊</div>
-          <div>
-            <div class="an-kpi-label">Avg. Order Value</div>
-            <div class="an-kpi-value" id="an-kv-avg">—</div>
-            <div class="an-kpi-delta" id="an-kd-avg"></div>
-          </div>
-        </div>
-        <div class="an-kpi-card" id="an-k-delivered">
-          <div class="an-kpi-icon" style="background:#F5F3FF;">✅</div>
-          <div>
-            <div class="an-kpi-label">Delivered</div>
-            <div class="an-kpi-value" id="an-kv-delivered">—</div>
-            <div class="an-kpi-delta" id="an-kd-delivered" style="color:var(--green);"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Revenue trend chart -->
-      <div class="card" style="margin-bottom:16px;">
-        <div class="card-head">
-          <span class="card-title">Revenue trend</span>
-          <span style="font-size:12px;color:var(--text-light);" id="an-trend-label"></span>
-        </div>
-        <div class="card-body" style="padding:16px 20px 20px;">
-          <canvas id="an-revenue-chart" style="width:100%;height:180px;display:block;"></canvas>
-        </div>
-      </div>
-
-      <!-- Bottom row: donut charts + top items -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:16px;align-items:start;">
-        <!-- Order status donut -->
-        <div class="card" style="margin:0;">
-          <div class="card-head"><span class="card-title">Orders by status</span></div>
-          <div class="card-body" style="padding:16px;">
-            <div style="display:flex;justify-content:center;margin-bottom:14px;">
-              <canvas id="an-status-donut" width="160" height="160"></canvas>
-            </div>
-            <div id="an-status-legend" style="display:flex;flex-direction:column;gap:6px;"></div>
-          </div>
-        </div>
-        <!-- Payment method donut -->
-        <div class="card" style="margin:0;">
-          <div class="card-head"><span class="card-title">Payment methods</span></div>
-          <div class="card-body" style="padding:16px;">
-            <div style="display:flex;justify-content:center;margin-bottom:14px;">
-              <canvas id="an-payment-donut" width="160" height="160"></canvas>
-            </div>
-            <div id="an-payment-legend" style="display:flex;flex-direction:column;gap:6px;"></div>
-          </div>
-        </div>
-        <!-- Top items -->
-        <div class="card" style="margin:0;">
-          <div class="card-head"><span class="card-title">Top menu items</span><span style="font-size:11px;color:var(--text-light);">by qty sold</span></div>
-          <div class="card-body" style="padding:10px 16px;" id="analytics-items"><div class="spinner"></div></div>
-        </div>
-      </div>
+      <div class="card"><div class="card-head"><span class="card-title">Top menu items</span></div><div class="card-body" id="analytics-items"><div class="spinner"></div></div></div>
     </div>
 
     <!-- ALL ORDERS -->
@@ -502,7 +219,7 @@ tr:hover td{background:#FDFAF5;}
         <button class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="loadAllOrders()">Refresh</button>
       </div>
       <div class="card">
-        <div class="table-wrap" style="overflow-x:auto;"><table>
+        <div style="overflow-x:auto;"><table>
           <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
           <tbody id="sa-orders-tbody"><tr><td colspan="8" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
         </table></div>
@@ -519,7 +236,7 @@ tr:hover td{background:#FDFAF5;}
         <div class="stat-card"><div class="stat-label">Have ordered</div><div class="stat-value" id="u-customers">—</div></div>
       </div>
       <div class="card">
-        <div class="table-wrap" style="overflow-x:auto;"><table>
+        <div style="overflow-x:auto;"><table>
           <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Joined</th></tr></thead>
           <tbody id="sa-users-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
         </table></div>
@@ -529,86 +246,37 @@ tr:hover td{background:#FDFAF5;}
     <!-- INVENTORY -->
     <div class="panel" id="panel-sa-inventory">
       <div class="page-title">Inventory</div>
-      <div class="page-sub">Set daily order limits per item, track raw ingredients, and view usage logs</div>
-
-      <!-- TABS -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;">
-        <button class="inv-tab active" data-inv="stock" onclick="switchInvTab('stock',this)">Daily Limits</button>
-        <button class="inv-tab" data-inv="ingredients" onclick="switchInvTab('ingredients',this)">Raw Ingredients</button>
-        <button class="inv-tab" data-inv="recipes" onclick="switchInvTab('recipes',this)">Recipes / BOM</button>
-        <button class="inv-tab" data-inv="logs" onclick="switchInvTab('logs',this)">Usage Logs</button>
+      <div class="page-sub">Stock levels across all menu items</div>
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="stat-card"><div class="stat-label">Total items</div><div class="stat-value" id="sa-inv-total">—</div></div>
+        <div class="stat-card" style="border-left:2px solid var(--green);"><div class="stat-label">In stock</div><div class="stat-value green" id="sa-inv-instock">—</div></div>
+        <div class="stat-card" style="border-left:2px solid var(--gold);"><div class="stat-label">Low stock</div><div class="stat-value" style="color:#92400E;" id="sa-inv-low">—</div></div>
+        <div class="stat-card" style="border-left:2px solid var(--red);"><div class="stat-label">Out of stock</div><div class="stat-value red" id="sa-inv-out">—</div></div>
       </div>
-
-      <!-- DAILY LIMITS TAB -->
-      <div id="inv-stock">
-        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
-          <span style="font-size:16px;">ℹ️</span>
-          <div style="font-size:13px;color:#1E40AF;line-height:1.5;"><strong>Daily Limits</strong> let you control how many orders to accept per item each shift. Set the limit at the start of your day — orders are blocked once the limit is reached.</div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
-          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;"><div class="stat-label">Total Items</div><div class="stat-value" id="inv-total">—</div></div></div>
-          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;"><div class="stat-label">Available</div><div class="stat-value green" id="inv-instock">—</div></div></div>
-          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;"><div class="stat-label">Almost Full</div><div class="stat-value" style="color:#F57F17;" id="inv-low">—</div></div></div>
-          <div class="card"><div class="card-body" style="text-align:center;padding:16px 10px;"><div class="stat-label">Fully Booked</div><div class="stat-value" style="color:var(--red);" id="inv-out">—</div></div></div>
-        </div>
-        <div class="filter-tabs" id="inv-filter-tabs">
-          <button class="filter-tab active" data-inv-filter="all">All</button>
-          <button class="filter-tab" data-inv-filter="low">Almost full</button>
-          <button class="filter-tab" data-inv-filter="out">Fully booked</button>
-        </div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-sainv="all">All</button>
+        <button class="filter-tab" data-sainv="instock">In stock</button>
+        <button class="filter-tab" data-sainv="low">Low stock</button>
+        <button class="filter-tab" data-sainv="out">Out of stock</button>
+        <button class="btn btn-outline btn-sm" style="margin-left:auto;" onclick="loadSaInventory()">Refresh</button>
+      </div>
+      <div class="card">
         <div style="overflow-x:auto;"><table>
-          <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Daily Limit</th><th>Status</th><th>Available</th><th>Actions</th></tr></thead>
-          <tbody id="inv-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
+          <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Available</th><th>Actions</th></tr></thead>
+          <tbody id="sa-inv-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
         </table></div>
       </div>
-
-      <!-- INGREDIENTS TAB -->
-      <div id="inv-ingredients" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <div style="font-size:13px;color:var(--text-mid);">Track raw materials used in your recipes</div>
-          <button onclick="openIngModal()" class="btn btn-primary btn-sm">+ Add Ingredient</button>
-        </div>
-        <div style="overflow-x:auto;"><table>
-          <thead><tr><th>Ingredient</th><th>Unit</th><th>Current Stock</th><th>Low Stock Alert</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="ing-tbody"><tr><td colspan="6" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
-        </table></div>
-      </div>
-
-      <!-- RECIPES TAB -->
-      <div id="inv-recipes" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <div style="font-size:13px;color:var(--text-mid);">Define what ingredients each menu item uses per order</div>
-          <button onclick="openRecipeModal()" class="btn btn-primary btn-sm">+ Add Recipe</button>
-        </div>
-        <div style="overflow-x:auto;"><table>
-          <thead><tr><th>Menu Item</th><th>Size</th><th>Ingredients</th><th>Actions</th></tr></thead>
-          <tbody id="recipe-tbody"><tr><td colspan="4" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
-        </table></div>
-      </div>
-
-      <!-- LOGS TAB -->
-      <div id="inv-logs" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <div style="font-size:13px;color:var(--text-mid);">Auto-deduction history from orders</div>
-          <button onclick="loadIngLogs()" class="btn btn-outline btn-sm">↻ Refresh</button>
-        </div>
-        <div style="overflow-x:auto;"><table>
-          <thead><tr><th>Date</th><th>Ingredient</th><th>Action</th><th>Qty</th><th>Before</th><th>After</th><th>Reason</th></tr></thead>
-          <tbody id="logs-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
-        </table></div>
-      </div>
-
-      <!-- DAILY LIMIT MODAL -->
-      <div id="inv-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:8000;align-items:center;justify-content:center;padding:20px;">
-        <div style="background:white;border-radius:8px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2);padding:28px;">
-          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:4px;" id="modal-item-name">Update Limit</div>
-          <div style="font-size:12px;color:var(--text-mid);margin-bottom:20px;" id="modal-item-cat"></div>
-          <div class="form-group"><label class="form-label">Daily Limit</label><input type="number" class="form-input" id="modal-stock" min="0"></div>
-          <div class="form-group"><label class="form-label">Low stock threshold</label><input type="number" class="form-input" id="modal-threshold" min="0" placeholder="10"></div>
-          <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="modal-notes" placeholder="e.g. Restocked from supplier"></div>
+      <div id="sa-inv-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:white;border-radius:8px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:4px;" id="sa-modal-name">Update stock</div>
+          <div style="font-size:12px;color:var(--text-mid);margin-bottom:24px;" id="sa-modal-cat"></div>
+          <div class="form-group"><label class="form-label">Quantity</label><input type="number" class="form-input" id="sa-modal-stock" min="0"></div>
+          <div class="form-group"><label class="form-label">Low stock threshold</label><input type="number" class="form-input" id="sa-modal-threshold" min="0" placeholder="10"></div>
+          <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="sa-modal-notes" placeholder="e.g. Restocked from supplier"></div>
+          <div style="background:#F0F7F0;border-radius:5px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:var(--green);">Setting quantity to 0 will hide this item from the menu.</div>
           <div style="display:flex;gap:10px;">
-            <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="closeInvModal()">Cancel</button>
-            <button id="modal-save-btn" class="btn btn-primary" style="flex:1;justify-content:center;" onclick="saveInvModal()">Save limit</button>
+            <button class="btn btn-primary" id="sa-modal-save" style="flex:1;">Save changes</button>
+            <button class="btn btn-outline" onclick="closeSaInvModal()">Cancel</button>
           </div>
         </div>
       </div>
@@ -797,75 +465,6 @@ tr:hover td{background:#FDFAF5;}
       </div>
     </div>
 
-    <!-- CANCELLATION REQUESTS -->
-    <div class="panel" id="panel-cancel-requests">
-      <div class="page-title">Cancellation Requests</div>
-      <div class="page-sub">Review and action customer cancellation requests</div>
-      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-        <input id="cr-search" type="text" placeholder="Search by order ID or customer…" oninput="renderCancelRequests()" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;outline:none;">
-        <select id="cr-filter" onchange="renderCancelRequests()" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;background:white;outline:none;">
-          <option value="">All statuses</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
-      <div id="cr-loading" style="text-align:center;padding:40px;color:var(--text-light);">Loading…</div>
-      <div id="cr-table-wrap" style="display:none;overflow-x:auto;">
-        <table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">
-          <thead><tr style="background:#F8F5F0;">
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Request</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Order</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Customer</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Items / Total</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Payment</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Reason</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Status</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Requested</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Actions</th>
-          </tr></thead>
-          <tbody id="cr-tbody"></tbody>
-        </table>
-      </div>
-      <div id="cr-empty" style="display:none;text-align:center;padding:60px;color:var(--text-light);">No cancellation requests found.</div>
-    </div>
-
-    <!-- REFUND MANAGEMENT -->
-    <div class="panel" id="panel-refunds">
-      <div class="page-title">Refund Management</div>
-      <div class="page-sub">Track and update GCash refund statuses manually</div>
-      <div style="background:#FEF3C7;border-left:3px solid #F59E0B;padding:12px 16px;border-radius:0 4px 4px 0;font-size:13px;color:#92400E;margin-bottom:20px;line-height:1.6;">
-        <strong>Manual refund process:</strong> GCash refunds must be processed manually through your GCash Business or PayMongo dashboard. Update the status here only after confirming the refund has been sent.
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-        <input id="rf-search" type="text" placeholder="Search by order ID or customer…" oninput="renderRefunds()" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;outline:none;">
-        <select id="rf-filter" onchange="renderRefunds()" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;background:white;outline:none;">
-          <option value="">All statuses</option>
-          <option value="pending_review">Pending Review</option>
-          <option value="approved">Approved</option>
-          <option value="processing">Processing</option>
-          <option value="refunded">Refunded</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
-      <div id="rf-loading" style="text-align:center;padding:40px;color:var(--text-light);">Loading…</div>
-      <div id="rf-table-wrap" style="display:none;overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <thead><tr style="background:#F8F5F0;">
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Order</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Customer</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Amount</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Payment Ref</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Status</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Date</th>
-            <th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--text-mid);border-bottom:1px solid var(--border);">Actions</th>
-          </tr></thead>
-          <tbody id="rf-tbody"></tbody>
-        </table>
-      </div>
-      <div id="rf-empty" style="display:none;text-align:center;padding:60px;color:var(--text-light);">No refund records found.</div>
-    </div>
-
     <!-- SECURITY -->
     <div class="panel" id="panel-sa-security">
       <div class="page-title">Security</div>
@@ -976,54 +575,6 @@ tr:hover td{background:#FDFAF5;}
   </div>
 </div>
 
-<!-- REJECT CANCELLATION MODAL -->
-<div id="reject-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9300;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:white;border-radius:10px;width:100%;max-width:460px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:6px;">Reject Cancellation Request</div>
-    <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px;">Please provide a reason for rejecting this cancellation request. The customer will be notified.</p>
-    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Rejection Reason <span style="color:var(--red);">*</span></label>
-    <textarea id="reject-reason-input" rows="4" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:6px;padding:10px;font-size:13px;resize:vertical;" placeholder="e.g. Order is already being prepared and cannot be cancelled at this stage."></textarea>
-    <div style="display:flex;gap:10px;margin-top:18px;">
-      <button id="reject-cancel-btn" class="btn btn-outline" style="flex:1;justify-content:center;">Go Back</button>
-      <button id="reject-confirm-btn" class="btn btn-danger" style="flex:1;justify-content:center;background:#991B1B;border-color:#991B1B;">Reject Request</button>
-    </div>
-  </div>
-</div>
-<style>#reject-modal.open{display:flex;}</style>
-
-<!-- REFUND STATUS MODAL -->
-<div id="refund-status-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9300;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:white;border-radius:10px;width:100%;max-width:500px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-    <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:16px;">Update Refund Status</div>
-    <div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:6px;padding:10px 14px;font-size:12px;color:#854D0E;margin-bottom:16px;">
-      ⚠️ Only mark a refund as <strong>Refunded</strong> after you have verified the actual GCash transfer in your PayMongo/GCash dashboard. Provide the transaction reference below.
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:13px;">
-      <div><span style="color:var(--text-mid);">Order:</span> <strong id="rsu-order-id"></strong></div>
-      <div><span style="color:var(--text-mid);">Customer:</span> <strong id="rsu-customer"></strong></div>
-      <div><span style="color:var(--text-mid);">Amount:</span> <strong id="rsu-amount" style="color:var(--red);"></strong></div>
-      <div><span style="color:var(--text-mid);">Current Status:</span> <strong id="rsu-current-status"></strong></div>
-    </div>
-    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">New Status</label>
-    <select id="rsu-status-select" style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:9px;font-size:13px;margin-bottom:14px;">
-      <option value="pending_review">Pending Review</option>
-      <option value="approved">Approved</option>
-      <option value="processing">Processing</option>
-      <option value="refunded">Refunded (confirmed transfer)</option>
-      <option value="rejected">Rejected</option>
-    </select>
-    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">GCash Refund Reference <span style="font-weight:400;color:var(--text-mid);">(required if marking Refunded)</span></label>
-    <input id="rsu-ref" type="text" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:6px;padding:9px;font-size:13px;margin-bottom:14px;" placeholder="e.g. PAYMONGO-REF-12345 or GCash transaction ID">
-    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Notes</label>
-    <textarea id="rsu-notes" rows="3" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:6px;padding:10px;font-size:13px;resize:vertical;" placeholder="Optional notes about this refund action…"></textarea>
-    <div style="display:flex;gap:10px;margin-top:18px;">
-      <button id="rsu-cancel-btn" class="btn btn-outline" style="flex:1;justify-content:center;">Cancel</button>
-      <button id="rsu-confirm-btn" class="btn" style="flex:1;justify-content:center;background:var(--red);color:#fff;border-color:var(--red);">Update Status</button>
-    </div>
-  </div>
-</div>
-<style>#refund-status-modal.open{display:flex;}</style>
-
 <!-- SALES BREAKDOWN MODAL -->
 <div id="sales-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;padding:20px">
   <div style="background:white;border-radius:8px;width:100%;max-width:580px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
@@ -1050,38 +601,22 @@ tr:hover td{background:#FDFAF5;}
 firebase.initializeApp({apiKey:"AIzaSyAsXZxD59Igs9oYOC5VR566lfE9VHhbszM",authDomain:"thefold-pizza.firebaseapp.com",projectId:"thefold-pizza",storageBucket:"thefold-pizza.firebasestorage.app",messagingSenderId:"75022777499",appId:"1:75022777499:web:e08d59f9e51d6dcaf05a3e"});
 const auth=firebase.auth();
 
-let allOrders=[],saOrderFilter='all',allUsers=[],cachedRevOrders=[],currentRevPeriod='week',cachedOrders=[];
-let invItems=[],invFilter='all',currentInvItem=null,ingItems=[],recipeItems=[],menuItems=[];
+let allOrders=[],saOrderFilter='all',allUsers=[],saInvItems=[],saInvFilter='all',saCurrentInvItem=null,cachedRevOrders=[],currentRevPeriod='week',cachedOrders=[];
 const statusNames={pending:'Pending',confirmed:'Confirmed',preparing:'Preparing',out_for_delivery:'Out for delivery',delivered:'Delivered',cancelled:'Cancelled'};
 const statusColors={pending:'badge-pending',confirmed:'badge-confirmed',preparing:'badge-preparing',out_for_delivery:'badge-out_for_delivery',delivered:'badge-delivered',cancelled:'badge-cancelled'};
 const paymentLabels={cash:'Cash',gcash:'GCash',card:'Card'};
 
 async function init(){
-  const user=await requireSuperAdmin();if(!user)return;
+  const user=await requireLogin();if(!user)return;
+  if(user.role!=='superadmin')return window.location.replace(user.role==='admin'?'/admin':'/dashboard');
   document.getElementById('user-name').textContent=user.name||'Super Admin';
   loadStats();
-}
-
-function toggleSidebar(){
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sidebar-overlay');
-  const isOpen=sb.classList.contains('mobile-open');
-  sb.classList.toggle('mobile-open',!isOpen);
-  ov.classList.toggle('open',!isOpen);
-  document.body.style.overflow=isOpen?'':'hidden';
 }
 
 document.querySelectorAll('.sidebar-item').forEach(item=>{
   item.addEventListener('click',()=>{
     document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
     item.classList.add('active');showPanel(item.dataset.panel);
-    if(window.innerWidth<=700){
-      const sb=document.querySelector('.sidebar');
-      const ov=document.getElementById('sidebar-overlay');
-      sb.classList.remove('mobile-open');
-      ov.classList.remove('open');
-      document.body.style.overflow='';
-    }
   });
 });
 
@@ -1092,12 +627,10 @@ function showPanel(id){
   if(id==='all-users')loadAllUsers();
   if(id==='analytics')loadAnalytics();
   if(id==='revenue')loadRevenue();
-  if(id==='sa-inventory')loadInventory();
+  if(id==='sa-inventory')loadSaInventory();
   if(id==='sa-custom-pricing')loadSaCustomPrices();
   if(id==='sa-security')initSaSecurityPanel();
   if(id==='roles')loadAdminAccounts();
-  if(id==='cancel-requests')loadCancelRequests();
-  if(id==='refunds')loadRefunds();
 }
 
 function paymentBadge(o){
@@ -1127,7 +660,6 @@ async function loadStats(){
     orders.forEach(o=>{
       const d=new Date(o.createdAt);
       if(o.status==='cancelled'){cancelled++;return;}
-      if(o.status!=='delivered')return; // only count delivered as income
       const r=o.total||0;
       if(d>=todayStart)daily+=r;if(d>=weekStart)weekly+=r;if(d>=monthStart)monthly+=r;if(d>=yearStart)yearly+=r;
     });
@@ -1138,13 +670,13 @@ async function loadStats(){
     document.getElementById('ov-yearly').textContent=formatCurrency(yearly);
     document.getElementById('sa-recent-tbody').innerHTML=orders.slice(0,6).map(o=>`
       <tr>
-        <td data-label="Order ID" style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
-        <td data-label="Customer" style="font-weight:500;">${o.userName||'—'}</td>
-        <td data-label="Items" style="font-size:12px;">${(o.items||[]).map(i=>`${i.qty}× ${i.name}`).join(', ')}</td>
-        <td data-label="Total" style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
-        <td data-label="Payment">${paymentBadge(o)}</td>
-        <td data-label="Status"><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
-        <td data-label="Date" style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
+        <td style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
+        <td style="font-weight:500;">${o.userName||'—'}</td>
+        <td style="font-size:12px;">${(o.items||[]).map(i=>`${i.qty}× ${i.name}`).join(', ')}</td>
+        <td style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
+        <td>${paymentBadge(o)}</td>
+        <td><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
+        <td style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
       </tr>`).join('')||`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-mid);">No orders yet</td></tr>`;
   }catch(e){console.error(e);}
 }
@@ -1155,77 +687,33 @@ async function loadAllOrders(){
   }catch(e){toast('Failed to load orders','error');}
 }
 
-// ── Workflow map (mirrors admin) ──────────────────────────────
-const NEXT_STATUSES={
-  pending:['confirmed','cancelled'],
-  confirmed:['preparing','cancelled'],
-  preparing:['out_for_delivery','cancelled'],
-  out_for_delivery:['delivered'],
-  delivered:[],
-  cancelled:[],
-};
-const nextLabels={
-  confirmed:'Confirm Order',
-  preparing:'Start Preparing',
-  out_for_delivery:'Out for Delivery',
-  delivered:'Mark Delivered',
-  cancelled:'Cancel Order',
-};
-
-function renderStatusAction(o){
-  const nexts=NEXT_STATUSES[o.status]||[];
-  if(!nexts.length){
-    return `<span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span>`;
-  }
-  const opts=nexts.map(s=>`<option value="${s}" ${s==='cancelled'?'style="color:var(--red);"':''}>${nextLabels[s]||statusNames[s]}</option>`).join('');
-  return `<select class="status-select" onchange="updateStatus('${o.id}',this.value,this)" data-current="${o.status}">
-    <option value="" disabled selected style="color:var(--text-light);">Move to…</option>
-    ${opts}
-  </select>`;
-}
-
 function renderSaOrders(){
   const filtered=saOrderFilter==='all'?allOrders:allOrders.filter(o=>o.status===saOrderFilter);
   document.getElementById('sa-orders-tbody').innerHTML=filtered.length?filtered.map(o=>`
     <tr>
-      <td data-label="Order ID" style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
-      <td data-label="Customer"><div style="font-weight:500;">${o.userName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${o.userEmail||''}</div></td>
-      <td data-label="Items" style="font-size:12px;width:240px;max-width:240px;">${buildOrderItemCell(o)}</td>
-      <td data-label="Total" style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
-      <td data-label="Payment">${paymentBadge(o)}</td>
-      <td data-label="Status"><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
-      <td data-label="Date" style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
-      <td data-label="Action">${renderStatusAction(o)}</td>
+      <td style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
+      <td><div style="font-weight:500;">${o.userName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${o.userEmail||''}</div></td>
+      <td style="font-size:12px;width:240px;max-width:240px;">${buildOrderItemCell(o)}</td>
+      <td style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
+      <td>${paymentBadge(o)}</td>
+      <td><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
+      <td style="font-size:12px;color:var(--text-mid);">${formatDate(o.createdAt)}</td>
+      <td><select class="status-select" onchange="updateStatus('${o.id}',this.value,this)">
+        ${Object.entries(statusNames).map(([k,v])=>`<option value="${k}" ${o.status===k?'selected':''}>${v}</option>`).join('')}
+      </select></td>
     </tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-mid);">No orders found</td></tr>`;
 }
 
-document.getElementById('sa-order-tabs').addEventListener('click',e=>{
-  const tab=e.target.closest('[data-saorder]');
-  if(!tab)return;
-  document.querySelectorAll('[data-saorder]').forEach(t=>t.classList.remove('active'));
-  tab.classList.add('active');
-  saOrderFilter=tab.dataset.saorder;
-  // If orders not loaded yet, load them; otherwise just re-render
-  if(!allOrders.length){loadAllOrders();}else{renderSaOrders();}
+document.querySelectorAll('[data-saorder]').forEach(tab=>{
+  tab.addEventListener('click',()=>{document.querySelectorAll('[data-saorder]').forEach(t=>t.classList.remove('active'));tab.classList.add('active');saOrderFilter=tab.dataset.saorder;renderSaOrders();});
 });
 
 async function updateStatus(id,status,selectEl){
-  if(!status)return;
   const prevStatus=allOrders.find(o=>o.id===id)?.status;
-  try{
-    await api('/admin/orders/'+id+'/status','PATCH',{status});
-    toast('Status updated','success');
-    const o=allOrders.find(o=>o.id===id);
-    if(o)o.status=status;
-    // Re-render the action cell to show correct next options
-    const row=selectEl?.closest('tr');
-    if(row&&o){row.querySelector('td:last-child').innerHTML=renderStatusAction(o);}
-    const badge=row?.querySelector('.badge');
-    if(badge){badge.className='badge '+(statusColors[status]||'badge-pending');badge.textContent=statusNames[status]||status;}
-  }catch(e){
-    toast('Failed to update status','error');
-    if(selectEl)selectEl.value='';
-  }
+  const row=selectEl?.closest('tr');
+  if(row){const badge=row.querySelector('.badge');if(badge){badge.className='badge '+(statusColors[status]||'badge-pending');badge.textContent=statusNames[status]||status;}}
+  try{await api('/admin/orders/'+id+'/status','PATCH',{status});toast('Status updated','success');const o=allOrders.find(o=>o.id===id);if(o)o.status=status;}
+  catch(e){toast('Failed','error');if(selectEl)selectEl.value=prevStatus;if(row){const badge=row.querySelector('.badge');if(badge){badge.className='badge '+(statusColors[prevStatus]||'badge-pending');badge.textContent=statusNames[prevStatus]||prevStatus;}}}
 }
 
 async function loadAllUsers(){
@@ -1240,11 +728,11 @@ async function loadAllUsers(){
     const customerList = users.filter(u => u.role === 'customer' || !u.role);
     document.getElementById('sa-users-tbody').innerHTML=customerList.map(u=>`
       <tr>
-        <td data-label="Name"><div style="display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;">${(u.name||'?').charAt(0).toUpperCase()}</div><span style="font-weight:500;">${u.name||'—'}</span></div></td>
-        <td data-label="Email" style="font-size:13px;">${u.email||'—'}</td>
-        <td data-label="Phone" style="font-size:13px;">${u.phone||'—'}</td>
-        <td data-label="Orders" style="font-weight:600;">${u.totalOrders||0}</td>
-        <td data-label="Joined" style="font-size:12px;color:var(--text-mid);">${formatDate(u.createdAt)}</td>
+        <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;">${(u.name||'?').charAt(0).toUpperCase()}</div><span style="font-weight:500;">${u.name||'—'}</span></div></td>
+        <td style="font-size:13px;">${u.email||'—'}</td>
+        <td style="font-size:13px;">${u.phone||'—'}</td>
+        <td style="font-weight:600;">${u.totalOrders||0}</td>
+        <td style="font-size:12px;color:var(--text-mid);">${formatDate(u.createdAt)}</td>
       </tr>`).join('')||`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-mid);">No customers yet</td></tr>`;
   }catch(e){toast('Failed to load users','error');}
 }
@@ -1254,393 +742,64 @@ async function changeRole(uid,role){
   catch(e){toast('Failed','error');}
 }
 
-// ── Chart.js inline mini-library (canvas 2D only, no deps) ──────────────────
-function drawDonut(canvasId, data, colors) {
-  const el = document.getElementById(canvasId);
-  if (!el) return;
-  const ctx = el.getContext('2d');
-  const W = el.width, H = el.height, cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 8, r = R * 0.55;
-  ctx.clearRect(0, 0, W, H);
-  const total = data.reduce((s, d) => s + d.value, 0) || 1;
-  let angle = -Math.PI / 2;
-  data.forEach((d, i) => {
-    const sweep = (d.value / total) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, R, angle, angle + sweep);
-    ctx.closePath();
-    ctx.fillStyle = colors[i % colors.length];
-    ctx.fill();
-    angle += sweep;
-  });
-  // center hole
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fillStyle = 'white';
-  ctx.fill();
-  // center text
-  ctx.fillStyle = '#1A1714';
-  ctx.font = 'bold 18px Inter,sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(total, cx, cy - 8);
-  ctx.font = '11px Inter,sans-serif';
-  ctx.fillStyle = '#9B9490';
-  ctx.fillText('total', cx, cy + 10);
-}
-
-function drawLegend(containerId, data, colors, fmtFn) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  const total = data.reduce((s,d)=>s+d.value,0)||1;
-  el.innerHTML = data.map((d,i)=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-      <div style="display:flex;align-items:center;gap:7px;">
-        <span style="width:10px;height:10px;border-radius:50%;background:${colors[i%colors.length]};flex-shrink:0;display:inline-block;"></span>
-        <span style="font-size:12px;font-weight:500;">${d.label}</span>
-      </div>
-      <span style="font-size:12px;font-weight:700;color:var(--text-mid);">${fmtFn?fmtFn(d.value):d.value} <span style="font-weight:400;color:var(--text-light);">(${Math.round(d.value/total*100)}%)</span></span>
-    </div>`).join('');
-}
-
-function drawLineChart(canvasId, labels, datasets) {
-  const el = document.getElementById(canvasId);
-  if (!el) return;
-  const dpr = window.devicePixelRatio || 1;
-  const rect = el.getBoundingClientRect();
-  const W = rect.width || el.parentElement.offsetWidth || 600;
-  const H = 180;
-  el.width = W * dpr;
-  el.height = H * dpr;
-  el.style.width = W + 'px';
-  el.style.height = H + 'px';
-  const ctx = el.getContext('2d');
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, W, H);
-
-  const pad = {top: 16, right: 24, bottom: 40, left: 70};
-  const cW = W - pad.left - pad.right;
-  const cH = H - pad.top - pad.bottom;
-  const allVals = datasets.flatMap(d => d.data);
-  const maxV = Math.max(...allVals, 1);
-
-  const yScale = v => pad.top + cH - (v / maxV) * cH;
-  const xScale = i => pad.left + (i / Math.max(labels.length - 1, 1)) * cW;
-
-  // horizontal grid + y labels
-  const gridCount = 4;
-  for (let g = 0; g <= gridCount; g++) {
-    const yy = pad.top + (cH / gridCount) * g;
-    const val = maxV * (1 - g / gridCount);
-    ctx.beginPath();
-    ctx.strokeStyle = '#E8E2D9';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]);
-    ctx.moveTo(pad.left, yy);
-    ctx.lineTo(pad.left + cW, yy);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#9B9490';
-    ctx.font = '10px Inter,sans-serif';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    const label = val >= 1000 ? '₱' + (val/1000).toFixed(val%1000===0?0:1) + 'k' : '₱' + Math.round(val);
-    ctx.fillText(label, pad.left - 8, yy);
-  }
-
-  // x-axis labels — show ~7 evenly spaced
-  const step = Math.max(1, Math.floor(labels.length / 7));
-  labels.forEach((l, i) => {
-    if (i % step !== 0 && i !== labels.length - 1) return;
-    ctx.fillStyle = '#9B9490';
-    ctx.font = '10px Inter,sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(l, xScale(i), pad.top + cH + 8);
-  });
-
-  // draw each dataset
-  datasets.forEach(ds => {
-    const pts = ds.data.map((v, i) => ({x: xScale(i), y: yScale(v)}));
-    if (pts.length < 2) return;
-
-    // area fill
-    ctx.beginPath();
-    ctx.moveTo(pts[0].x, pad.top + cH);
-    pts.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.lineTo(pts[pts.length - 1].x, pad.top + cH);
-    ctx.closePath();
-    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
-    grad.addColorStop(0, 'rgba(27,94,32,0.18)');
-    grad.addColorStop(1, 'rgba(27,94,32,0.01)');
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    // line
-    ctx.beginPath();
-    ctx.strokeStyle = ds.color || '#1B5E20';
-    ctx.lineWidth = 2;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-    ctx.stroke();
-
-    // dots — only on non-zero values or sparse sets
-    pts.forEach((p, i) => {
-      if (ds.data[i] === 0 && labels.length > 20) return;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, ds.data[i] > 0 ? 4 : 2.5, 0, Math.PI * 2);
-      ctx.fillStyle = ds.data[i] > 0 ? (ds.color || '#1B5E20') : '#D1D5DB';
-      ctx.fill();
-      if (ds.data[i] > 0) {
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-    });
-  });
-}
-
 async function loadAnalytics(){
   try{
     const{orders}=await api('/admin/orders');
-    const days=parseInt(document.getElementById('an-range')?.value||'30');
-    const now=new Date();
-    const cutoff=days===0?null:new Date(now-days*86400000);
-    const filtered=cutoff?orders.filter(o=>new Date(o.createdAt)>=cutoff):orders;
-
-    // ── KPIs ─────────────────────────────────────────────────────────────────
-    const delivered=filtered.filter(o=>o.status==='delivered');
-    const revenue=delivered.reduce((s,o)=>s+(o.total||0),0);
-    const avgOrder=delivered.length?revenue/delivered.length:0;
-    const safe=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-    safe('an-kv-revenue',formatCurrency(revenue));
-    safe('an-kv-orders',filtered.length);
-    safe('an-kv-avg',formatCurrency(avgOrder));
-    safe('an-kv-delivered',delivered.length+' orders');
-    const pct=filtered.length?Math.round(delivered.length/filtered.length*100):0;
-    safe('an-kd-delivered',pct+'% completion rate');
-    const label=days===0?'All time':`Last ${days} days`;
-    const trendEl=document.getElementById('an-trend-label');if(trendEl)trendEl.textContent=label;
-
-    // ── Revenue trend (daily buckets) ────────────────────────────────────────
-    const buckets={};
-    const bucketDays=days===0?90:days;
-    for(let i=0;i<Math.min(bucketDays,90);i++){
-      const d=new Date(now-(Math.min(bucketDays,90)-1-i)*86400000);
-      const k=d.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
-      buckets[k]=0;
-    }
-    filtered.filter(o=>o.status==='delivered').forEach(o=>{
-      const d=new Date(o.createdAt);
-      const k=d.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
-      if(k in buckets)buckets[k]+=(o.total||0);
+    const statusCount={};const paymentCount={};const itemCount={};
+    orders.forEach(o=>{
+      statusCount[o.status]=(statusCount[o.status]||0)+1;
+      paymentCount[o.paymentMethod]=(paymentCount[o.paymentMethod]||0)+1;
+      (o.items||[]).forEach(i=>{itemCount[i.name]=(itemCount[i.name]||0)+i.qty;});
     });
-    const trendLabels=Object.keys(buckets);
-    const trendData=Object.values(buckets);
-    setTimeout(()=>drawLineChart('an-revenue-chart',trendLabels,[{data:trendData,color:'#1B5E20',fill:'rgba(27,94,32,0.08)'}]),50);
-
-    // ── Status donut ─────────────────────────────────────────────────────────
-    const statusCount={};
-    filtered.forEach(o=>{statusCount[o.status]=(statusCount[o.status]||0)+1;});
-    const statusColors={'delivered':'#1B5E20','preparing':'#F59E0B','confirmed':'#3B82F6','pending':'#6B7280','out_for_delivery':'#8B5CF6','cancelled':'#EF4444'};
-    const statusData=Object.entries(statusCount).map(([s,n])=>({label:statusNames[s]||s,value:n,color:statusColors[s]||'#ccc'}));
-    const dColors=statusData.map(d=>d.color);
-    setTimeout(()=>{drawDonut('an-status-donut',statusData,dColors);drawLegend('an-status-legend',statusData,dColors,null);},50);
-
-    // ── Payment donut ────────────────────────────────────────────────────────
-    const payCount={};
-    filtered.forEach(o=>{const p=o.paymentMethod||'cash';payCount[p]=(payCount[p]||0)+1;});
-    const payPalette=['#1B5E20','#F59E0B','#3B82F6','#8B5CF6'];
-    const payData=Object.entries(payCount).map(([p,n])=>({label:paymentLabels[p]||p,value:n}));
-    setTimeout(()=>{drawDonut('an-payment-donut',payData,payPalette);drawLegend('an-payment-legend',payData,payPalette,null);},50);
-
-    // ── Top items ────────────────────────────────────────────────────────────
-    const itemCount={};
-    filtered.forEach(o=>{(o.items||[]).forEach(i=>{itemCount[i.name]=(itemCount[i.name]||0)+i.qty;});});
+    const total=orders.length||1;
+    document.getElementById('analytics-status').innerHTML=Object.entries(statusCount).map(([s,n])=>`
+      <div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span style="font-weight:500;">${statusNames[s]||s}</span><span style="color:var(--text-mid);">${n} orders (${Math.round(n/total*100)}%)</span></div><div class="inv-bar-bg"><div class="inv-bar-fill" style="width:${Math.round(n/total*100)}%;background:var(--green);"></div></div></div>`).join('')||'<p style="color:var(--text-mid);font-size:13px;">No data yet</p>';
+    document.getElementById('analytics-payment').innerHTML=Object.entries(paymentCount).map(([p,n])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"><span style="font-weight:500;font-size:14px;">${paymentLabels[p]||p}</span><span style="font-weight:600;font-size:13px;">${n} orders</span></div>`).join('')||'<p style="color:var(--text-mid);font-size:13px;">No data yet</p>';
     const topItems=Object.entries(itemCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const maxQty=topItems[0]?.[1]||1;
     document.getElementById('analytics-items').innerHTML=topItems.map(([name,qty],i)=>`
-      <div style="padding:9px 0;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="width:18px;height:18px;border-radius:50%;background:var(--green);color:white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</span>
-            <span style="font-size:12px;font-weight:500;">${name}</span>
-          </div>
-          <span style="font-size:12px;font-weight:700;color:var(--red);">${qty}</span>
-        </div>
-        <div style="height:4px;background:#F0EDE8;border-radius:2px;overflow:hidden;">
-          <div style="height:100%;width:${Math.round(qty/maxQty*100)}%;background:var(--green);border-radius:2px;"></div>
-        </div>
-      </div>`).join('')||'<p style="color:var(--text-mid);font-size:13px;padding:12px 0;">No data yet</p>';
-  }catch(e){toast('Failed to load analytics','error');}
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span style="width:20px;height:20px;border-radius:50%;background:var(--green);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</span>
+        <span style="flex:1;font-weight:500;">${name}</span>
+        <span style="font-weight:700;color:var(--red);font-size:13px;">${qty} sold</span>
+      </div>`).join('')||'<p style="color:var(--text-mid);font-size:13px;">No data yet</p>';
+  }catch(e){toast('Failed','error');}
 }
 
 let revOrders=[];
-
-// ===== FULL INVENTORY SYSTEM =====
-function getStockStatus(item){const q=item.quantity??50;if(q===0)return'out';if(q<=(item.threshold||10))return'low';return'instock';}
-function updateInvStats(){
-  const safe=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  safe('inv-total',invItems.length);safe('inv-instock',invItems.filter(i=>getStockStatus(i)==='instock').length);
-  safe('inv-low',invItems.filter(i=>getStockStatus(i)==='low').length);safe('inv-out',invItems.filter(i=>getStockStatus(i)==='out').length);
-}
-function renderInventory(){
-  const filtered=invFilter==='all'?invItems:invItems.filter(i=>getStockStatus(i)===invFilter);
-  const statusBadge=i=>{const s=getStockStatus(i);return s==='instock'?'<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">In stock</span>':s==='low'?'<span style="background:#FFFBEB;color:#92400E;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Low stock</span>':'<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Out of stock</span>';};
-  document.getElementById('inv-tbody').innerHTML=filtered.length?filtered.map(item=>{
-    const limit=item.quantity??50;const threshold=item.threshold??10;const status=getStockStatus(item);
-    const color=status==='out'?'#EF4444':status==='low'?'#F59E0B':'#10B981';
-    const pct=Math.min((limit/Math.max(limit,50))*100,100);
-    const isPhoto=item.image&&item.image.startsWith('/');
-    const availBadge=status==='out'?'<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Fully Booked</span>':status==='low'?'<span style="background:#FFFBEB;color:#92400E;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Almost Full</span>':'<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Open</span>';
-    return`<tr>
-      <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:4px;background:#F5F0E8;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">${isPhoto?`<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;">`:(item.image||'🍕')}</div><div><div style="font-weight:500;font-size:13px;">${item.name}</div></div></div></td>
-      <td style="font-size:12px;text-transform:capitalize;color:var(--text-mid);">${item.category}</td>
-      <td style="font-weight:600;">${formatCurrency(item.price)}</td>
-      <td style="min-width:150px;"><div style="display:flex;align-items:center;gap:8px;"><div class="inv-bar-bg"><div class="inv-bar-fill" style="width:${pct}%;background:${color};"></div></div><span style="font-weight:600;font-size:13px;">${limit}</span><span style="font-size:11px;color:var(--text-light);">/ day</span></div></td>
-      <td>${availBadge}</td>
-      <td><button class="toggle ${item.available?'on':''}" onclick="toggleMenuAvailable('${item.id}',${item.available},this)"></button></td>
-      <td style="white-space:nowrap;"><button class="btn btn-outline btn-sm" onclick="openInvModal('${item.id}')">Set Limit</button><button class="btn btn-outline btn-sm" style="margin-left:4px;border-color:#BFDBFE;color:#1E40AF;" onclick="openEditModal('${item.id}')">Price</button><button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;margin-left:4px;" onclick="deleteMenuItem('${item.id}','${item.name}')">Delete</button></td>
-    </tr>`;
-  }).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-mid);">No items found</td></tr>`;
-}
-async function loadInventory(){
-  try{const{items}=await api('/admin/stock');invItems=items;renderInventory();updateInvStats();}
+async function loadSaInventory(){
+  try{const{items}=await api('/admin/stock');saInvItems=items;renderSaInventory();updateSaInvStats();}
   catch(e){toast('Failed to load inventory','error');}
 }
-window.switchInvTab=(tab,btn)=>{
-  ['stock','ingredients','recipes','logs'].forEach(t=>document.getElementById('inv-'+t).style.display=t===tab?'':'none');
-  document.querySelectorAll('.inv-tab').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  if(tab==='stock'){invFilter='all';document.querySelectorAll('[data-inv-filter]').forEach(b=>b.classList.remove('active'));const ab=document.querySelector('[data-inv-filter="all"]');if(ab)ab.classList.add('active');setTimeout(()=>{if(invItems&&invItems.length){renderInventory();updateInvStats();}loadInventory();},30);}
-  if(tab==='ingredients')loadIngredients();
-  if(tab==='recipes'){loadIngredients();loadRecipes();}
-  if(tab==='logs')loadIngLogs();
-};
-document.querySelectorAll('[data-inv-filter]').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('[data-inv-filter]').forEach(t=>t.classList.remove('active'));tab.classList.add('active');invFilter=tab.dataset.invFilter;renderInventory();});});
-window.openInvModal=(id)=>{currentInvItem=invItems.find(i=>i.id===id);if(!currentInvItem)return;document.getElementById('modal-item-name').textContent=currentInvItem.name;document.getElementById('modal-item-cat').textContent=currentInvItem.category+' — '+formatCurrency(currentInvItem.price);document.getElementById('modal-stock').value=currentInvItem.quantity??50;document.getElementById('modal-threshold').value=currentInvItem.threshold||10;document.getElementById('modal-notes').value=currentInvItem.notes||'';document.getElementById('inv-modal').style.display='flex';};
-window.closeInvModal=()=>{const im=document.getElementById('inv-modal');if(im)im.style.display='none';currentInvItem=null;};
-window.saveInvModal=async()=>{if(!currentInvItem)return;const quantity=parseInt(document.getElementById('modal-stock').value);const threshold=parseInt(document.getElementById('modal-threshold').value)||10;const notes=document.getElementById('modal-notes').value;if(isNaN(quantity)||quantity<0)return toast('Enter a valid quantity','error');const previousQty=currentInvItem.quantity??50;const btn=document.getElementById('modal-save-btn');btn.disabled=true;btn.textContent='Saving...';try{await api('/admin/stock/'+currentInvItem.id,'PATCH',{quantity,threshold,notes});await api('/admin/stock/'+currentInvItem.id+'/log','POST',{quantity,threshold,notes,previousQty});toast('Daily limit updated','success');closeInvModal();loadInventory();}catch(e){toast(e.message,'error');}finally{btn.disabled=false;btn.textContent='Save changes';}};
-window.toggleMenuAvailable=async(id,current,btn)=>{const nv=!current;if(btn){btn.classList.toggle('on',nv);btn.setAttribute('onclick',`toggleMenuAvailable('${id}',${nv},this)`);}try{await api('/admin/menu/'+id,'PATCH',{available:nv});toast(nv?'Item visible':'Item hidden','info');}catch(e){if(btn){btn.classList.toggle('on',current);btn.setAttribute('onclick',`toggleMenuAvailable('${id}',${current},this)`);}toast('Failed','error');}};
-window.deleteMenuItem=async(id,name)=>{showConfirm(`Delete "${name}"?`,'This will permanently remove the item from the menu and inventory.',async()=>{try{await api('/admin/menu/'+id,'DELETE');try{await api('/admin/stock/'+id,'DELETE');}catch(e){}toast(`${name} deleted`,'info');invItems=invItems.filter(i=>i.id!==id);updateInvStats();renderInventory();}catch(e){toast('Failed: '+e.message,'error');}});};
-
-// ── INGREDIENTS ──
-let currentIngId=null;
-async function loadIngredients(){
-  try{const{ingredients}=await api('/admin/ingredients');ingItems=ingredients||[];renderIngredients();}
-  catch(e){toast('Failed to load ingredients','error');}
+function getSaStockStatus(item){const qty=item.quantity??50;if(qty===0)return'out';if(qty<=(item.threshold||10))return'low';return'instock';}
+function updateSaInvStats(){
+  document.getElementById('sa-inv-total').textContent=saInvItems.length;
+  document.getElementById('sa-inv-instock').textContent=saInvItems.filter(i=>getSaStockStatus(i)==='instock').length;
+  document.getElementById('sa-inv-low').textContent=saInvItems.filter(i=>getSaStockStatus(i)==='low').length;
+  document.getElementById('sa-inv-out').textContent=saInvItems.filter(i=>getSaStockStatus(i)==='out').length;
 }
-function renderIngredients(){
-  const tbody=document.getElementById('ing-tbody');if(!tbody)return;
-  if(!ingItems.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-mid);">No ingredients yet. Click + Add Ingredient to get started.</td></tr>';return;}
-  tbody.innerHTML=ingItems.map(ing=>{
-    const pct=ing.lowStockThreshold?Math.min(100,(ing.currentStock/Math.max(ing.currentStock,ing.lowStockThreshold*3))*100):100;
-    const isLow=ing.lowStockThreshold&&ing.currentStock<=ing.lowStockThreshold;const isOut=ing.currentStock<=0;
-    const barColor=isOut?'var(--red)':isLow?'#F57F17':'var(--green)';
-    const badge=isOut?'<span class="badge badge-out">Out</span>':isLow?'<span class="badge badge-low">Low</span>':'<span class="badge badge-ok">OK</span>';
-    return`<tr>
-      <td style="font-weight:600;">${ing.name}</td>
-      <td style="color:var(--text-mid);">${ing.unit}</td>
-      <td><div style="font-size:14px;font-weight:700;">${Number(ing.currentStock).toLocaleString()} <span style="font-size:11px;font-weight:400;color:var(--text-mid);">${ing.unit}</span></div><div style="height:5px;background:var(--border);border-radius:3px;margin-top:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width 0.3s;"></div></div></td>
-      <td style="color:var(--text-mid);">${ing.lowStockThreshold?Number(ing.lowStockThreshold).toLocaleString()+' '+ing.unit:'—'}</td>
-      <td>${badge}</td>
-      <td><button class="btn btn-outline btn-sm" onclick="openIngModal('${ing.id}')">Edit</button><button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;margin-left:4px;" onclick="deleteIngredient('${ing.id}','${ing.name}')">Delete</button></td>
+function renderSaInventory(){
+  const filtered=saInvFilter==='all'?saInvItems:saInvItems.filter(i=>getSaStockStatus(i)===saInvFilter);
+  const statusBadge=i=>{const s=getSaStockStatus(i);return s==='instock'?'<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">In stock</span>':s==='low'?'<span style="background:#FFFBEB;color:#92400E;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Low stock</span>':'<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Out of stock</span>';};
+  document.getElementById('sa-inv-tbody').innerHTML=filtered.length?filtered.map(item=>{
+    const qty=item.quantity??50;const pct=Math.min((qty/Math.max(qty,50))*100,100);const color=getSaStockStatus(item)==='out'?'#EF4444':getSaStockStatus(item)==='low'?'#F59E0B':'#10B981';
+    const isPhoto=item.image&&item.image.startsWith('/');
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:4px;background:#F5F0E8;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">${isPhoto?`<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;">`:(item.image||'🍕')}</div><span style="font-weight:500;font-size:13px;">${item.name}</span></div></td>
+      <td style="font-size:12px;text-transform:capitalize;color:var(--text-mid);">${item.category}</td>
+      <td style="font-weight:600;">${formatCurrency(item.price)}</td>
+      <td style="min-width:140px;"><div style="display:flex;align-items:center;gap:8px;"><div class="inv-bar-bg"><div class="inv-bar-fill" style="width:${pct}%;background:${color};"></div></div><span style="font-weight:600;font-size:13px;">${qty}</span></div></td>
+      <td>${statusBadge(item)}</td>
+      <td><button class="toggle ${item.available?'on':''}" onclick="toggleSaMenu('${item.id}',${item.available},this)"></button></td>
+      <td style="white-space:nowrap;"><button class="btn btn-outline btn-sm" onclick="openSaInvModal('${item.id}')">Stock</button><button class="btn btn-outline btn-sm" style="margin-left:4px;border-color:#BFDBFE;color:#1E40AF;" onclick="openEditModal('${item.id}')">Price</button><button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;margin-left:4px;" onclick="deleteSaMenuItem('${item.id}','${item.name}')">Delete</button></td>
     </tr>`;
-  }).join('');
+  }).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-mid);">No items</td></tr>`;
 }
-window.openIngModal=(id)=>{
-  currentIngId=id||null;const ing=id?ingItems.find(i=>i.id===id):null;
-  document.getElementById('ing-modal-title').textContent=ing?'Edit Ingredient':'Add Ingredient';
-  document.getElementById('ing-name').value=ing?.name||'';
-  document.getElementById('ing-unit').value=ing?.unit||'grams';
-  document.getElementById('ing-stock').value=ing?.currentStock??'';
-  document.getElementById('ing-threshold').value=ing?.lowStockThreshold??'';
-  document.getElementById('ing-cost').value=ing?.cost??'';
-  document.getElementById('ing-modal').style.display='flex';
-};
-window.closeIngModal=()=>{document.getElementById('ing-modal').style.display='none';currentIngId=null;};
-window.saveIngredient=async()=>{
-  const name=document.getElementById('ing-name').value.trim();const unit=document.getElementById('ing-unit').value;
-  const currentStock=document.getElementById('ing-stock').value;const lowStockThreshold=document.getElementById('ing-threshold').value;const cost=document.getElementById('ing-cost').value;
-  if(!name)return toast('Name is required','error');
-  const btn=document.getElementById('btn-save-ing');btn.disabled=true;btn.textContent='Saving...';
-  try{if(currentIngId){await api('/admin/ingredients/'+currentIngId,'PATCH',{name,unit,currentStock,lowStockThreshold,cost});}else{await api('/admin/ingredients','POST',{name,unit,currentStock,lowStockThreshold,cost});}toast(name+' saved!','success');closeIngModal();loadIngredients();}
-  catch(e){toast(e.message,'error');}finally{btn.disabled=false;btn.textContent='Save ingredient';}
-};
-window.deleteIngredient=(id,name)=>{showConfirm('Delete "'+name+'"?','This ingredient will be removed from all recipes too.',async()=>{await api('/admin/ingredients/'+id,'DELETE');toast(name+' deleted','info');loadIngredients();});};
-
-// ── RECIPES ──
-async function loadRecipes(){
-  try{const{recipes}=await api('/admin/recipes');recipeItems=recipes||[];
-    try{const r=await api('/admin/stock');menuItems=r.items||[];}catch(e){}renderRecipes();}
-  catch(e){toast('Failed to load recipes','error');}
-}
-function renderRecipes(){
-  const tbody=document.getElementById('recipe-tbody');if(!tbody)return;
-  if(!recipeItems.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-mid);">No recipes yet. Add a recipe to enable auto stock deduction.</td></tr>';return;}
-  tbody.innerHTML=recipeItems.map(r=>`<tr>
-    <td style="font-weight:600;">${r.menuItemName||r.menuItemId}</td>
-    <td>${r.size==='all'?'All sizes':r.size+'"'}</td>
-    <td style="font-size:12px;color:var(--text-mid);">${(r.ingredients||[]).map(i=>i.qty+' '+i.unit+' '+i.name).join('<br>')}</td>
-    <td><button class="btn btn-outline btn-sm" onclick="openRecipeModal('${r.id}')">Edit</button><button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;margin-left:4px;" onclick="deleteRecipe('${r.id}')">Delete</button></td>
-  </tr>`).join('');
-}
-window.openRecipeModal=(id)=>{
-  const rec=id?recipeItems.find(r=>r.id===id):null;
-  const sel=document.getElementById('rec-item');
-  sel.innerHTML='<option value="">Select item...</option>';
-  (menuItems||[]).forEach(item=>{const opt=document.createElement('option');opt.value=item.id;opt.textContent=item.name;if(rec&&rec.menuItemId===item.id)opt.selected=true;sel.appendChild(opt);});
-  document.getElementById('rec-size').value=rec?.size||'all';
-  const ingList=document.getElementById('rec-ing-list');ingList.innerHTML='';
-  const rows=rec?.ingredients?.length?rec.ingredients:[{}];rows.forEach(ing=>addRecipeRow(ing));
-  document.getElementById('recipe-modal').dataset.editId=id||'';
-  document.getElementById('recipe-modal').style.display='flex';
-};
-window.closeRecipeModal=()=>{document.getElementById('recipe-modal').style.display='none';};
-window.addRecipeRow=(ing)=>{
-  ing=ing||{};const div=document.createElement('div');
-  div.style.cssText='display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;margin-bottom:8px;align-items:center;';
-  div.innerHTML=`<select class="form-input" style="font-size:12px;" data-field="ingId"><option value="">Select ingredient...</option>${ingItems.map(i=>'<option value="'+i.id+'" data-name="'+i.name+'" data-unit="'+i.unit+'"'+(ing.ingredientId===i.id?' selected':'')+'>'+i.name+'</option>').join('')}</select><input type="number" class="form-input" placeholder="Qty" min="0" step="0.01" value="${ing.qty||''}" data-field="qty" style="font-size:12px;text-align:center;"><input type="text" class="form-input" placeholder="Unit" value="${ing.unit||''}" data-field="unit" style="font-size:12px;" readonly><button onclick="this.parentElement.remove()" style="background:#FEE2E2;color:#991B1B;border:none;border-radius:4px;width:28px;height:36px;cursor:pointer;font-size:14px;">✕</button>`;
-  div.querySelector('[data-field="ingId"]').onchange=function(){const opt=this.options[this.selectedIndex];div.querySelector('[data-field="unit"]').value=opt.dataset.unit||'';};
-  document.getElementById('rec-ing-list').appendChild(div);
-};
-window.saveRecipe=async()=>{
-  const menuItemId=document.getElementById('rec-item').value;const size=document.getElementById('rec-size').value;const editId=document.getElementById('recipe-modal').dataset.editId;
-  if(!menuItemId)return toast('Select a menu item','error');
-  const rows=document.querySelectorAll('#rec-ing-list > div');const ingredients=[];
-  rows.forEach(row=>{const sel=row.querySelector('[data-field="ingId"]');const qty=parseFloat(row.querySelector('[data-field="qty"]').value);const unit=row.querySelector('[data-field="unit"]').value;if(sel.value&&qty>0){const opt=sel.options[sel.selectedIndex];ingredients.push({ingredientId:sel.value,name:opt.dataset.name||opt.textContent,qty,unit});}});
-  if(!ingredients.length)return toast('Add at least one ingredient','error');
-  const menuItemName=document.getElementById('rec-item').options[document.getElementById('rec-item').selectedIndex]?.textContent||'';
-  const btn=document.getElementById('btn-save-recipe');btn.disabled=true;btn.textContent='Saving...';
-  try{if(editId)await api('/admin/recipes/'+editId,'PATCH',{menuItemId,menuItemName,size,ingredients}).catch(()=>api('/admin/recipes','POST',{menuItemId,menuItemName,size,ingredients}));else await api('/admin/recipes','POST',{menuItemId,menuItemName,size,ingredients});toast('Recipe saved!','success');closeRecipeModal();loadRecipes();}
-  catch(e){toast(e.message,'error');}finally{btn.disabled=false;btn.textContent='Save recipe';}
-};
-window.deleteRecipe=(id)=>{showConfirm('Delete this recipe?','Auto stock deduction will stop for this item.',async()=>{await api('/admin/recipes/'+id,'DELETE');toast('Recipe deleted','info');loadRecipes();});};
-
-// ── LOGS ──
-async function loadIngLogs(){
-  try{const{logs}=await api('/admin/ingredient-logs');const tbody=document.getElementById('logs-tbody');
-    if(!logs||!logs.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-mid);">No usage logs yet</td></tr>';return;}
-    const actionColor={deducted:'var(--red)',restocked:'var(--green)',cancelled:'#F57F17',adjusted:'#1565C0'};
-    tbody.innerHTML=logs.map(l=>`<tr>
-      <td style="font-size:12px;color:var(--text-mid);">${formatDate(l.createdAt)}</td>
-      <td style="font-weight:600;">${l.ingredientName||'—'}</td>
-      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;background:${actionColor[l.action]||'var(--border)'}20;color:${actionColor[l.action]||'var(--text-mid)'};">${l.action}</span></td>
-      <td style="font-weight:700;color:${l.qty<0?'var(--red)':'var(--green)'};">${l.qty>0?'+':''}${l.qty} ${l.unit}</td>
-      <td style="font-size:12px;">${Number(l.balanceBefore||0).toLocaleString()}</td>
-      <td style="font-size:12px;font-weight:600;">${Number(l.balanceAfter||0).toLocaleString()}</td>
-      <td style="font-size:12px;color:var(--text-mid);">${l.reason||'—'}</td>
-    </tr>`).join('');}
-  catch(e){document.getElementById('logs-tbody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-mid);">Failed to load logs</td></tr>';}
-}
-
-// ── INGREDIENT SETUP PROMPT ──
-window.showIngredientSetupPrompt=(name,itemId)=>{document.getElementById('ing-prompt-title').textContent='"'+(name||'Item')+'" added!';document.getElementById('ing-setup-prompt').style.display='flex';};
-window.closeIngSetupPrompt=()=>{document.getElementById('ing-setup-prompt').style.display='none';};
-window.goSetupIngredients=async()=>{closeIngSetupPrompt();document.querySelector('[data-panel="sa-inventory"]')?.click();setTimeout(()=>{const rt=document.querySelector('.inv-tab[data-inv="recipes"]');if(rt)switchInvTab('recipes',rt);},100);};
-window.prefillCommonIngredients=(name)=>{const nl=(name||'').toLowerCase();const dough=ingItems.find(i=>i.name.toLowerCase().includes('dough'));const sauce=ingItems.find(i=>i.name.toLowerCase().includes('sauce'));const mozz=ingItems.find(i=>i.name.toLowerCase().includes('mozzarella')||i.name.toLowerCase().includes('cheese'));if(dough||sauce||mozz){document.getElementById('rec-ing-list').innerHTML='';if(dough)addRecipeRow({ingredientId:dough.id,name:dough.name,qty:200,unit:dough.unit});if(sauce)addRecipeRow({ingredientId:sauce.id,name:sauce.name,qty:80,unit:sauce.unit});if(mozz)addRecipeRow({ingredientId:mozz.id,name:mozz.name,qty:150,unit:mozz.unit});toast('Common ingredients pre-filled. Adjust quantities as needed.','info');}};
-
+document.querySelectorAll('[data-sainv]').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('[data-sainv]').forEach(t=>t.classList.remove('active'));tab.classList.add('active');saInvFilter=tab.dataset.sainv;renderSaInventory();});});
+window.toggleSaMenu=async(id,current,btn)=>{const newVal=!current;if(btn){btn.classList.toggle('on',newVal);btn.setAttribute('onclick',`toggleSaMenu('${id}',${newVal},this)`);}try{await api('/admin/menu/'+id,'PATCH',{available:newVal});toast(newVal?'Item available':'Item hidden','info');}catch(e){if(btn){btn.classList.toggle('on',current);btn.setAttribute('onclick',`toggleSaMenu('${id}',${current},this)`);}toast('Failed','error');}};
+window.openSaInvModal=(id)=>{saCurrentInvItem=saInvItems.find(i=>i.id===id);if(!saCurrentInvItem)return;document.getElementById('sa-modal-name').textContent=saCurrentInvItem.name;document.getElementById('sa-modal-cat').textContent=saCurrentInvItem.category+' — '+formatCurrency(saCurrentInvItem.price);document.getElementById('sa-modal-stock').value=saCurrentInvItem.quantity??50;document.getElementById('sa-modal-threshold').value=saCurrentInvItem.threshold||10;document.getElementById('sa-modal-notes').value=saCurrentInvItem.notes||'';document.getElementById('sa-inv-modal').style.display='flex';};
+window.closeSaInvModal=()=>{document.getElementById('sa-inv-modal').style.display='none';saCurrentInvItem=null;};
+document.getElementById('sa-modal-save').onclick=async()=>{if(!saCurrentInvItem)return;const quantity=parseInt(document.getElementById('sa-modal-stock').value);const threshold=parseInt(document.getElementById('sa-modal-threshold').value)||10;const notes=document.getElementById('sa-modal-notes').value;if(isNaN(quantity)||quantity<0)return toast('Enter a valid quantity','error');const previousQty=saCurrentInvItem.quantity??50;const btn=document.getElementById('sa-modal-save');btn.disabled=true;btn.textContent='Saving...';try{await api('/admin/stock/'+saCurrentInvItem.id,'PATCH',{quantity,threshold,notes});await api('/admin/stock/'+saCurrentInvItem.id+'/log','POST',{quantity,threshold,notes,previousQty});toast('Stock updated','success');closeSaInvModal();loadSaInventory();}catch(e){toast(e.message,'error');}finally{btn.disabled=false;btn.textContent='Save changes';}};
 
 function showConfirm(title,msg,onConfirm){
   document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-msg').textContent=msg;
@@ -1660,37 +819,11 @@ window.deleteSaMenuItem=async(id,name)=>{
 
 // CREATE ADMIN
 document.getElementById('btn-create-admin').onclick=async()=>{
-  const name=document.getElementById('new-admin-name').value.trim();
-  const email=document.getElementById('new-admin-email').value.trim();
-  const pwd=document.getElementById('new-admin-pwd').value;
-  if(!name||!email||!pwd)return toast('Fill in all fields','error');
-  if(pwd.length<6)return toast('Password must be at least 6 characters','error');
+  const name=document.getElementById('new-admin-name').value.trim();const email=document.getElementById('new-admin-email').value.trim();const pwd=document.getElementById('new-admin-pwd').value;
+  if(!name||!email||!pwd)return toast('Fill in all fields','error');if(pwd.length<6)return toast('Password minimum 6 characters','error');
   const btn=document.getElementById('btn-create-admin');btn.disabled=true;btn.textContent='Creating...';
-  let secondaryApp=null;
-  try{
-    // Create user with secondary Firebase app so current session stays logged in
-    secondaryApp=firebase.initializeApp(firebase.app().options,'secondary-'+Date.now());
-    const secondaryAuth=secondaryApp.auth();
-    const cred=await secondaryAuth.createUserWithEmailAndPassword(email,pwd);
-    const uid=cred.user.uid;
-    // Register user in Firestore
-    await api('/auth/register','POST',{uid,email,name,phone:''});
-    // Grant admin role
-    await api('/admin/make-admin','POST',{uid,role:'admin'});
-    // Clean up secondary session
-    await secondaryAuth.signOut();
-    await secondaryApp.delete();secondaryApp=null;
-    toast(`✅ Admin account created for ${name}`,'success');
-    ['new-admin-name','new-admin-email','new-admin-pwd'].forEach(id=>document.getElementById(id).value='');
-    // Optimistically add to list then reload from server
-    allAdmins.push({id:uid,name,email,role:'admin',createdAt:new Date().toISOString()});
-    renderAdminAccounts();
-    setTimeout(loadAdminAccounts,1500);
-  }catch(e){
-    if(secondaryApp){try{await secondaryApp.delete();}catch(_){}}
-    const msg=e.code==='auth/email-already-in-use'?'That email already has an account':e.code==='auth/invalid-email'?'Invalid email address':(e.message||'Failed to create account');
-    toast(msg,'error');
-  }
+  try{const cred=await auth.createUserWithEmailAndPassword(email,pwd);await api('/auth/register','POST',{uid:cred.user.uid,email,name,phone:''});await api('/admin/make-admin','POST',{uid:cred.user.uid,role:'admin'});await auth.signOut();toast(`Admin account created for ${name}`,'success');['new-admin-name','new-admin-email','new-admin-pwd'].forEach(id=>document.getElementById(id).value='');}
+  catch(e){toast(e.message,'error');}
   finally{btn.disabled=false;btn.textContent='Create admin account';}
 };
 
@@ -1728,7 +861,7 @@ window.updateEditPriceFields = () => {
 };
 
 window.openEditModal = (id) => {
-  currentEditItem = invItems.find(i=>i.id===id);
+  currentEditItem = saInvItems.find(i=>i.id===id);
   if (!currentEditItem) return toast('Item not found','error');
   document.getElementById('edit-modal-title').textContent = 'Edit — ' + currentEditItem.name;
   document.getElementById('edit-name').value = currentEditItem.name||'';
@@ -1764,7 +897,7 @@ document.getElementById('btn-save-edit').onclick = async () => {
   const btn=document.getElementById('btn-save-edit'); btn.disabled=true; btn.textContent='Saving...';
   try{
     await api('/admin/menu/'+currentEditItem.id,'PATCH',{name,description:desc,category:cat,price:basePrice,sizes});
-    toast(name+' updated!','success'); closeEditModal(); loadInventory();
+    toast(name+' updated!','success'); closeEditModal(); loadSaInventory();
   }catch(e){toast(e.message,'error');}
   finally{btn.disabled=false;btn.textContent='Save changes';}
 };
@@ -1879,13 +1012,9 @@ window.removeAdmin = async (uid, name) => {
     'This will change their role to customer. They will lose all admin access immediately.',
     async () => {
       try {
-        await api('/admin/remove-admin', 'POST', { uid });
-        // Remove from local list immediately so UI updates right away
-        allAdmins = allAdmins.filter(u => u.id !== uid);
-        renderAdminAccounts();
+        await api('/admin/make-admin', 'POST', { uid, role: 'customer' });
         toast(`${name} is no longer an admin`, 'info');
-        // Re-sync with server after short delay
-        setTimeout(loadAdminAccounts, 1500);
+        loadAdminAccounts();
       } catch(e) { toast('Failed: ' + e.message, 'error'); }
     }
   );
@@ -2137,23 +1266,22 @@ window.renderSalesReport = () => {
     );
   }
 
-  // Compute metrics — revenue = delivered orders only
-  const deliveredFiltered = filtered.filter(o => o.status === 'delivered');
-  const totalRevenue = deliveredFiltered.reduce((s,o) => s + (o.total||0), 0);
+  // Compute metrics
+  const totalRevenue = filtered.reduce((s,o) => s + (o.total||0), 0);
   const totalOrders = filtered.length;
-  const avgOrder = deliveredFiltered.length ? totalRevenue / deliveredFiltered.length : 0;
+  const avgOrder = totalOrders ? totalRevenue / totalOrders : 0;
 
-  // Payment breakdown (delivered only)
-  const cashOrders = deliveredFiltered.filter(o => o.paymentMethod === 'cash');
-  const gcashOrders = deliveredFiltered.filter(o => o.paymentMethod === 'gcash');
+  // Payment breakdown
+  const cashOrders = filtered.filter(o => o.paymentMethod === 'cash');
+  const gcashOrders = filtered.filter(o => o.paymentMethod === 'gcash');
   const cashTotal = cashOrders.reduce((s,o) => s + (o.total||0), 0);
   const gcashTotal = gcashOrders.reduce((s,o) => s + (o.total||0), 0);
   const cashPct = totalRevenue ? Math.round(cashTotal/totalRevenue*100) : 0;
   const gcashPct = totalRevenue ? Math.round(gcashTotal/totalRevenue*100) : 0;
 
-  // Top products (delivered only)
+  // Top products
   const productMap = {};
-  deliveredFiltered.forEach(o => {
+  filtered.forEach(o => {
     (o.items||[]).forEach(item => {
       const key = item.name || 'Unknown';
       if (!productMap[key]) productMap[key] = { name: key, qty: 0, revenue: 0 };
@@ -2432,299 +1560,7 @@ window.downloadSalesPDF = async () => {
   }
 };;;
 
-// ── confirmModal wrapper (Promise-based, owns the confirm modal directly) ──
-function confirmModal(title, msg){
-  return new Promise(resolve=>{
-    document.getElementById('confirm-title').textContent=title;
-    document.getElementById('confirm-msg').textContent=msg;
-    document.getElementById('confirm-modal').classList.add('open');
-    document.body.style.overflow='hidden';
-    const okBtn=document.getElementById('confirm-ok-btn');
-    const cancelBtn=document.getElementById('confirm-cancel-btn');
-    function cleanup(){
-      document.getElementById('confirm-modal').classList.remove('open');
-      document.body.style.overflow='';
-      okBtn.removeEventListener('click',onOk);
-      cancelBtn.removeEventListener('click',onCancel);
-    }
-    function onOk(){cleanup();resolve(true);}
-    function onCancel(){cleanup();resolve(false);}
-    okBtn.addEventListener('click',onOk,{once:true});
-    cancelBtn.addEventListener('click',onCancel,{once:true});
-  });
-}
-
-// ── Cancellation Requests ──
-let _cancelRequests=[];
-async function loadCancelRequests(){
-  document.getElementById('cr-loading').style.display='';
-  document.getElementById('cr-table-wrap').style.display='none';
-  document.getElementById('cr-empty').style.display='none';
-  try{
-    const data=await api('/admin/cancellation-requests');
-    _cancelRequests=data.requests||data||[];
-    renderCancelRequests();
-  }catch(e){
-    toast('Failed to load cancellation requests','error');
-    document.getElementById('cr-loading').style.display='none';
-  }
-}
-function renderCancelRequests(){
-  const q=(document.getElementById('cr-search').value||'').toLowerCase();
-  const f=document.getElementById('cr-filter').value;
-  let rows=_cancelRequests.filter(r=>{
-    if(f&&r.status!==f)return false;
-    if(q&&!((r.orderId||'').toLowerCase().includes(q)||(r.customerName||'').toLowerCase().includes(q)))return false;
-    return true;
-  });
-  document.getElementById('cr-loading').style.display='none';
-  if(!rows.length){
-    document.getElementById('cr-table-wrap').style.display='none';
-    document.getElementById('cr-empty').style.display='';
-    return;
-  }
-  document.getElementById('cr-empty').style.display='none';
-  document.getElementById('cr-table-wrap').style.display='';
-  const statusBadge=s=>{
-    const map={pending:'background:#FEF3C7;color:#92400E;',approved:'background:#DCFCE7;color:#166534;',rejected:'background:#FEE2E2;color:#991B1B;'};
-    return `<span style="display:inline-block;padding:2px 9px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;${map[s]||''}">${s}</span>`;
-  };
-  document.getElementById('cr-tbody').innerHTML=rows.map(r=>{
-    const isPending=r.status==='pending';
-    const itemsSummary=(r.orderItems||[]).map(i=>`${i.name}${i.size?' ('+i.size+')':''} x${i.quantity}`).join(', ')||'—';
-    return `<tr>
-      <td style="padding:10px 12px;">#${r.id||r._id||''}</td>
-      <td style="padding:10px 12px;font-weight:600;">#${r.orderId||''}</td>
-      <td style="padding:10px 12px;">${r.customerName||r.userName||'—'}<br><span style="font-size:11px;color:var(--text-light);">${r.customerEmail||''}</span></td>
-      <td style="padding:10px 12px;max-width:200px;"><div style="font-size:12px;color:var(--text-mid);">${itemsSummary}</div><div style="font-weight:600;margin-top:2px;">₱${Number(r.orderTotal||0).toLocaleString()}</div></td>
-      <td style="padding:10px 12px;">${r.paymentMethod==='gcash'?'GCash':'Cash'}</td>
-      <td style="padding:10px 12px;max-width:160px;font-size:12px;color:var(--text-mid);">${r.reason||'—'}</td>
-      <td style="padding:10px 12px;">${statusBadge(r.status)}</td>
-      <td style="padding:10px 12px;font-size:12px;color:var(--text-light);">${r.createdAt?new Date(r.createdAt).toLocaleDateString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}</td>
-      <td style="padding:10px 12px;">
-        ${isPending?`<div style="display:flex;gap:6px;">
-          <button onclick="approveCancelRequest('${r.id||r._id}')" class="btn btn-sm" style="background:var(--green);color:white;border:none;">Approve</button>
-          <button onclick="openRejectModal('${r.id||r._id}')" class="btn btn-sm btn-outline">Reject</button>
-        </div>`:'<span style="font-size:12px;color:var(--text-light);">—</span>'}
-      </td>
-    </tr>`;
-  }).join('');
-}
-async function updateCancelBadge(){
-  try{
-    const data=await api('/admin/cancellation-requests/count');
-    const count=data.count||0;
-    const badge=document.getElementById('cancel-req-badge');
-    if(badge){badge.textContent=count;badge.style.display=count>0?'':'none';}
-  }catch(e){}
-}
-async function approveCancelRequest(id){
-  const ok=await confirmModal('Approve Cancellation?','This will cancel the order and trigger a refund if paid via GCash.');
-  if(!ok)return;
-  try{
-    await api(`/admin/cancellation-requests/${id}/approve`,'PATCH');
-    toast('Cancellation approved','success');
-    loadCancelRequests();
-    loadAllOrders();
-    updateCancelBadge();
-  }catch(e){toast(e.message||'Failed to approve','error');}
-}
-let _rejectTargetId=null;
-function openRejectModal(id){
-  _rejectTargetId=id;
-  document.getElementById('reject-reason-input').value='';
-  document.getElementById('reject-modal').classList.add('open');
-}
-function closeRejectModal(){
-  _rejectTargetId=null;
-  document.getElementById('reject-modal').classList.remove('open');
-}
-document.getElementById('reject-cancel-btn').onclick=closeRejectModal;
-document.getElementById('reject-confirm-btn').onclick=async()=>{
-  const reason=document.getElementById('reject-reason-input').value.trim();
-  if(!reason){toast('Please enter a rejection reason','error');return;}
-  try{
-    await api(`/admin/cancellation-requests/${_rejectTargetId}/reject`,'PATCH',{reason});
-    toast('Cancellation rejected','success');
-    closeRejectModal();
-    loadCancelRequests();
-    updateCancelBadge();
-  }catch(e){toast(e.message||'Failed to reject','error');}
-};
-setInterval(updateCancelBadge,30000);
-updateCancelBadge();
-
-// ── Refund Management ──
-let _refunds=[];
-const REFUND_STATUS_LABELS={pending_review:'Pending Review',approved:'Approved',processing:'Processing',refunded:'Refunded',rejected:'Rejected'};
-const REFUND_STATUS_COLORS={pending_review:'background:#FEF3C7;color:#92400E;',approved:'background:#DCFCE7;color:#166534;',processing:'background:#DBEAFE;color:#1E40AF;',refunded:'background:#ECFDF5;color:#065F46;',rejected:'background:#FEE2E2;color:#991B1B;'};
-async function loadRefunds(){
-  document.getElementById('rf-loading').style.display='';
-  document.getElementById('rf-table-wrap').style.display='none';
-  document.getElementById('rf-empty').style.display='none';
-  try{
-    const data=await api('/admin/refunds');
-    _refunds=data.refunds||data||[];
-    renderRefunds();
-  }catch(e){
-    toast('Failed to load refunds','error');
-    document.getElementById('rf-loading').style.display='none';
-  }
-}
-function renderRefunds(){
-  const q=(document.getElementById('rf-search').value||'').toLowerCase();
-  const f=document.getElementById('rf-filter').value;
-  let rows=_refunds.filter(r=>{
-    if(f&&r.status!==f)return false;
-    if(q&&!((r.orderId||'').toLowerCase().includes(q)||(r.customerName||'').toLowerCase().includes(q)))return false;
-    return true;
-  });
-  document.getElementById('rf-loading').style.display='none';
-  if(!rows.length){
-    document.getElementById('rf-table-wrap').style.display='none';
-    document.getElementById('rf-empty').style.display='';
-    return;
-  }
-  document.getElementById('rf-empty').style.display='none';
-  document.getElementById('rf-table-wrap').style.display='';
-  document.getElementById('rf-tbody').innerHTML=rows.map(r=>`<tr>
-    <td style="padding:10px 12px;font-weight:600;">#${r.orderId||''}</td>
-    <td style="padding:10px 12px;">${r.customerName||'—'}<br><span style="font-size:11px;color:var(--text-light);">${r.customerEmail||''}</span></td>
-    <td style="padding:10px 12px;font-weight:600;color:var(--red);">₱${Number(r.amount||0).toLocaleString()}</td>
-    <td style="padding:10px 12px;font-size:12px;color:var(--text-mid);">${r.paymentReference||'—'}</td>
-    <td style="padding:10px 12px;"><span style="display:inline-block;padding:2px 9px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;${REFUND_STATUS_COLORS[r.status]||''}">${REFUND_STATUS_LABELS[r.status]||r.status}</span></td>
-    <td style="padding:10px 12px;font-size:12px;color:var(--text-light);">${r.createdAt?new Date(r.createdAt).toLocaleDateString('en-PH',{month:'short',day:'numeric'}):'—'}</td>
-    <td style="padding:10px 12px;"><button onclick="openRefundStatusModal('${r.id||r._id}')" class="btn btn-sm btn-outline">Update</button></td>
-  </tr>`).join('');
-}
-let _refundTargetId=null;
-function openRefundStatusModal(id){
-  const r=_refunds.find(x=>(x.id||x._id)==id);
-  if(!r)return;
-  _refundTargetId=id;
-  document.getElementById('rsu-order-id').textContent='#'+(r.orderId||'');
-  document.getElementById('rsu-customer').textContent=r.customerName||'—';
-  document.getElementById('rsu-amount').textContent='₱'+Number(r.amount||0).toLocaleString();
-  document.getElementById('rsu-current-status').textContent=REFUND_STATUS_LABELS[r.status]||r.status;
-  document.getElementById('rsu-status-select').value=r.status||'pending_review';
-  document.getElementById('rsu-ref').value=r.refundReference||'';
-  document.getElementById('rsu-notes').value=r.notes||'';
-  document.getElementById('refund-status-modal').classList.add('open');
-}
-function closeRefundStatusModal(){
-  _refundTargetId=null;
-  document.getElementById('refund-status-modal').classList.remove('open');
-}
-document.getElementById('rsu-cancel-btn').onclick=closeRefundStatusModal;
-document.getElementById('rsu-confirm-btn').onclick=async()=>{
-  const status=document.getElementById('rsu-status-select').value;
-  const ref=document.getElementById('rsu-ref').value.trim();
-  const notes=document.getElementById('rsu-notes').value.trim();
-  if(status==='refunded'&&!ref){toast('Please enter the GCash refund reference','error');return;}
-  const ok=await confirmModal('Update Refund Status?',`Set status to "${REFUND_STATUS_LABELS[status]||status}"?`);
-  if(!ok)return;
-  try{
-    await api(`/admin/refunds/${_refundTargetId}/status`,'PATCH',{status,refundRef:ref,notes});
-    toast('Refund status updated','success');
-    closeRefundStatusModal();
-    loadRefunds();
-  }catch(e){toast(e.message||'Failed to update','error');}
-};
-
 document.getElementById('btn-logout').onclick=async()=>{await api('/auth/logout','POST');await auth.signOut();window.location.replace('/login');};
-
-// ===== NOTIFICATION SYSTEM =====
-let _notifs=[];
-let _notifOpen=false;
-let _notifSeenIds=new Set(JSON.parse(sessionStorage.getItem('_notifSeen')||'[]'));
-let _notifPollTimer=null;
-let _notifAudioCtx=null;
-
-function playNotifSound(){try{if(!_notifAudioCtx)_notifAudioCtx=new(window.AudioContext||window.webkitAudioContext)();const ctx=_notifAudioCtx;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.setValueAtTime(880,ctx.currentTime);osc.frequency.exponentialRampToValueAtTime(660,ctx.currentTime+0.15);gain.gain.setValueAtTime(0.25,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.4);}catch(e){}}
-
-function notifToast(msg,sub){const c=document.getElementById('toast-container')||document.body;const t=document.createElement('div');t.className='toast';t.style.cssText='background:var(--green);flex-direction:column;align-items:flex-start;gap:2px;min-width:220px;';t.innerHTML=`<span style="font-weight:700;font-size:14px;">🔔 ${msg}</span>${sub?`<span style="font-size:12px;opacity:0.85;">${sub}</span>`:''}`;c.appendChild(t);setTimeout(()=>t.remove(),5000);}
-
-function relTime(iso){const diff=Date.now()-new Date(iso).getTime();const s=Math.floor(diff/1000);if(s<60)return'just now';const m=Math.floor(s/60);if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;return`${Math.floor(h/24)}d ago`;}
-
-function fmtPeso(n){return'₱'+Number(n).toLocaleString();}
-
-function renderNotifPanel(){
-  const list=document.getElementById('notif-list');
-  const badge=document.getElementById('notif-badge');
-  const unread=_notifs.filter(n=>!n.read).length;
-  badge.textContent=unread>99?'99+':unread;
-  badge.classList.toggle('show',unread>0);
-  if(!_notifs.length){list.innerHTML='<div class="notif-empty">No notifications yet</div>';return;}
-  list.innerHTML=_notifs.map(n=>`
-    <div class="notif-item ${n.read?'':'unread'}" onclick="openNotifDetail('${n.id}')">
-      <div class="notif-dot ${n.read?'read':''}"></div>
-      <div class="notif-body">
-        <div class="notif-body-title">New Order #${n.orderShortId}</div>
-        <div class="notif-body-sub">${n.customerName} — ${n.itemSummary||''}</div>
-        <div class="notif-body-time">${relTime(n.createdAt)} · ${fmtPeso(n.total)}</div>
-      </div>
-    </div>`).join('');
-}
-
-function toggleNotifPanel(e){e.stopPropagation();const panel=document.getElementById('notif-panel');_notifOpen=!_notifOpen;panel.classList.toggle('open',_notifOpen);}
-
-document.addEventListener('click',e=>{if(_notifOpen&&!document.getElementById('notif-btn').contains(e.target)){_notifOpen=false;document.getElementById('notif-panel').classList.remove('open');}});
-
-async function markAllRead(){
-  try{await api('/admin/notifications/read-all','PATCH');_notifs.forEach(n=>n.read=true);renderNotifPanel();}
-  catch(e){console.error(e);}
-}
-
-async function openNotifDetail(id){
-  const n=_notifs.find(x=>x.id===id);if(!n)return;
-  if(!n.read){n.read=true;api(`/admin/notifications/${id}/read`,'PATCH').catch(()=>{});renderNotifPanel();}
-  _notifOpen=false;document.getElementById('notif-panel').classList.remove('open');
-  document.getElementById('nd-title').textContent=`Order #${n.orderShortId}`;
-  document.getElementById('nd-sub').textContent=new Date(n.createdAt).toLocaleString();
-  const itemsHtml=(n.items||[]).map(i=>`<div class="notif-detail-row"><span class="notif-detail-label">${i.name}</span><span class="notif-detail-val">${i.qty}× ${fmtPeso(i.price*i.qty)}</span></div>`).join('');
-  document.getElementById('nd-body').innerHTML=`
-    <div class="notif-detail-row"><span class="notif-detail-label">Customer</span><span class="notif-detail-val">${n.customerName}</span></div>
-    <div class="notif-detail-row"><span class="notif-detail-label">Email</span><span class="notif-detail-val" style="font-size:12px;">${n.customerEmail||'—'}</span></div>
-    <div class="notif-detail-row"><span class="notif-detail-label">Address</span><span class="notif-detail-val" style="font-size:12px;">${n.address||'—'}</span></div>
-    <div style="margin:12px 0 6px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);">Items ordered</div>
-    ${itemsHtml}
-    <div class="notif-detail-row" style="margin-top:8px;border-top:2px solid var(--border);padding-top:10px;"><span class="notif-detail-label">Total</span><span class="notif-detail-val" style="color:var(--green);font-size:16px;">${fmtPeso(n.total)}</span></div>
-    <div class="notif-detail-row"><span class="notif-detail-label">Payment</span><span class="notif-detail-val">${(n.paymentMethod||'cash').toUpperCase()}</span></div>
-    ${n.notes?`<div class="notif-detail-row"><span class="notif-detail-label">Notes</span><span class="notif-detail-val">${n.notes}</span></div>`:''}`;
-  document.getElementById('nd-view-btn').onclick=()=>{
-    closeNotifDetail();
-    document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    const item=document.querySelector('[data-panel="all-orders"]');if(item)item.classList.add('active');
-    const panel=document.getElementById('panel-all-orders');if(panel)panel.classList.add('active');
-    loadAllOrders();
-  };
-  document.getElementById('notif-detail-modal').classList.add('open');
-}
-
-function closeNotifDetail(){document.getElementById('notif-detail-modal').classList.remove('open');}
-document.getElementById('notif-detail-modal').addEventListener('click',function(e){if(e.target===this)closeNotifDetail();});
-
-async function fetchNotifications(){
-  try{
-    const data=await api('/admin/notifications');
-    if(!data.success)return;
-    const incoming=data.notifications||[];
-    const prevIds=new Set(_notifs.map(n=>n.id));
-    const fresh=incoming.filter(n=>!prevIds.has(n.id)&&!_notifSeenIds.has(n.id)&&!n.read);
-    if(fresh.length>0){
-      fresh.forEach(n=>_notifSeenIds.add(n.id));
-      sessionStorage.setItem('_notifSeen',JSON.stringify([..._notifSeenIds]));
-      fresh.forEach(n=>{playNotifSound();notifToast('New Order Received!',`${n.customerName} — ${fmtPeso(n.total)}`);});
-    }
-    _notifs=incoming;
-    renderNotifPanel();
-  }catch(e){}
-}
-
-function startNotifPolling(){fetchNotifications();_notifPollTimer=setInterval(fetchNotifications,15000);}
-setTimeout(startNotifPolling,1500);
-
 init();
 </script>
 </body>
