@@ -23,7 +23,7 @@ a{text-decoration:none;color:inherit;}
 .btn-signout{background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.8);font-size:12px;font-weight:500;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
 .btn-signout:hover{border-color:rgba(255,255,255,0.5);color:white;}
 
-/* GCASH BANNER */
+
 .gcash-banner{background:var(--green);padding:16px 28px;display:none;}
 .gcash-banner-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 .gcash-banner-text{color:white;}
@@ -35,7 +35,6 @@ a{text-decoration:none;color:inherit;}
 .btn-check:disabled{opacity:0.6;cursor:not-allowed;}
 .btn-dismiss{background:transparent;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);padding:8px 14px;border-radius:4px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;}
 
-/* MAIN */
 .main{max-width:860px;margin:0 auto;padding:32px 28px;}
 .page-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .page-sub{font-size:14px;color:var(--text-mid);margin-bottom:28px;font-weight:300;}
@@ -47,7 +46,6 @@ a{text-decoration:none;color:inherit;}
 .btn-order-now{display:inline-block;background:var(--green);color:white;padding:12px 28px;border-radius:4px;font-size:14px;font-weight:600;transition:all 0.15s;}
 .btn-order-now:hover{background:var(--green-mid);}
 
-/* ORDER CARD */
 .order-card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px;transition:all 0.15s;}
 .order-card:hover{box-shadow:0 2px 16px rgba(0,0,0,0.06);}
 .order-head{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
@@ -79,13 +77,11 @@ a{text-decoration:none;color:inherit;}
 .btn-cancel-order:hover{background:#FEF2F2;}
 .btn-contact-store{padding:7px 14px;background:white;color:var(--text-mid);border:1px solid var(--border);border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
 
-/* Cancellation status banners */
 .cancel-status{margin-top:10px;padding:8px 12px;border-radius:4px;font-size:12px;font-weight:500;line-height:1.5;}
 .cancel-status.requested{background:#FEF3C7;color:#92400E;border-left:3px solid #F59E0B;}
 .cancel-status.approved{background:#ECFDF5;color:#065F46;border-left:3px solid #10B981;}
 .cancel-status.rejected{background:#FEE2E2;color:#991B1B;border-left:3px solid #EF4444;}
 
-/* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:16px;}
 .modal-overlay.open{display:flex;}
 .modal-box{background:white;border-radius:10px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
@@ -108,10 +104,10 @@ a{text-decoration:none;color:inherit;}
 .modal-btn.secondary{background:white;color:var(--text-mid);border:1px solid var(--border);}
 .modal-btn.secondary:hover{border-color:var(--text-mid);}
 
-/* Toast */
+
 #toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
 
-/* MOBILE BOTTOM NAV */
+
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);z-index:300;padding:8px 0;padding-bottom:max(8px, env(safe-area-inset-bottom));}
 .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;text-decoration:none;color:#9B9490;font-size:10px;font-weight:600;letter-spacing:0.02em;font-family:'Inter',sans-serif;}
 .bottom-nav-item.active{color:var(--green);}
@@ -163,7 +159,7 @@ a{text-decoration:none;color:inherit;}
 
 <div id="toast-container"></div>
 
-<!-- CANCELLATION MODAL -->
+
 <div class="modal-overlay" id="cancel-modal">
   <div class="modal-box">
     <div class="modal-title" id="cm-title">Cancel Order</div>
@@ -207,10 +203,10 @@ const steps=[
 const stepIndex={pending:0,confirmed:1,preparing:2,out_for_delivery:3,delivered:4};
 const paymentLabels={cash:'Cash on delivery',gcash:'GCash (PayMongo)',card:'Card'};
 
-// ── modal state ────────────────────────────────────────────────
+
 let _cmOrderId = null;
 let _cmIsPaidGcash = false;
-let _cmIsRequest = false; // true = submit request, false = direct cancel
+let _cmIsRequest = false; 
 
 async function init(){
   const user=await requireLogin();if(!user)return;
@@ -219,7 +215,9 @@ async function init(){
   loadOrders();
 }
 
-async function loadOrders(){
+let _pollTimer = null;
+
+async function loadOrders(silent=false){
   try{
     const data=await api('/orders/my');
     const orders=data.orders||[];
@@ -227,10 +225,25 @@ async function loadOrders(){
     document.getElementById('orders-loading').style.display='none';
     if(!orders.length){
       document.getElementById('orders-list').innerHTML=`<div class="empty"><div class="empty-title">No orders yet</div><div class="empty-sub">Your order history will appear here once you place your first order.</div><a href="/dashboard" class="btn-order-now">Browse the menu</a></div>`;
+      stopPolling();
       return;
     }
     document.getElementById('orders-list').innerHTML=orders.map(o=>orderCard(o)).join('');
-  }catch(e){document.getElementById('orders-loading').innerHTML='<p style="text-align:center;color:var(--text-mid);padding:48px;">Failed to load orders. Please refresh.</p>';}
+    // Poll every 15s if any order is active
+    const activeStatuses=['pending','confirmed','preparing','out_for_delivery'];
+    const hasActive=orders.some(o=>activeStatuses.includes(o.status));
+    if(hasActive) startPolling(); else stopPolling();
+  }catch(e){
+    if(!silent) document.getElementById('orders-loading').innerHTML='<p style="text-align:center;color:var(--text-mid);padding:48px;">Failed to load orders. Please refresh.</p>';
+  }
+}
+
+function startPolling(){
+  if(_pollTimer) return;
+  _pollTimer=setInterval(()=>loadOrders(true),15000);
+}
+function stopPolling(){
+  if(_pollTimer){clearInterval(_pollTimer);_pollTimer=null;}
 }
 
 function cancelStatusBanner(o) {
@@ -293,12 +306,11 @@ function orderCard(o){
   </div>`;
 }
 
-// ── Cancellation modal ─────────────────────────────────────────
+// Cancellation modal
 let _cmOrder = null;
 
 function openCancelModal(orderId) {
-  // Find order from DOM? We need full order data. Reload from last fetch.
-  // We'll pass the full order object via a stored map.
+
   const o = _ordersMap[orderId];
   if (!o) { toast('Could not load order details', 'error'); return; }
   _cmOrder = o;
@@ -373,7 +385,7 @@ async function submitCancellation() {
   }
 }
 
-// ── Payment checks ─────────────────────────────────────────────
+// Payment checks
 window.checkPayment=async(orderId,btn)=>{
   if(btn){btn.textContent='Checking...';btn.disabled=true;}
   try{
@@ -440,12 +452,10 @@ document.getElementById('btn-logout').onclick=()=>{
   });
 };
 
-// Close modal on overlay click
 document.getElementById('cancel-modal').addEventListener('click', function(e){
   if(e.target===this) closeCancelModal();
 });
 
-// Make openCancelModal global
 window.openCancelModal = openCancelModal;
 
 init();
