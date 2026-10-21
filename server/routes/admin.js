@@ -55,6 +55,99 @@ router.get('/orders', requireAdmin, async (req, res) => {
   }
 });
 
+// Helper: deduct ingredients when order moves to "preparing"
+async function deductIngredients(db, orderId, order) {
+  const items = order.items || [];
+  if (!items.length) return;
+
+  const recipesSnap = await db.collection('recipes').get();
+  const recipes = recipesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const deductionLog = [];
+  const batch = db.batch();
+
+  for (const item of items) {
+    const menuItemId = item.menuItemId || item.id;
+    const itemSize = item.size || 'all';
+
+    // Match recipe by menuItemId or by name, prefer size-specific then 'all'
+    const recipe = recipes.find(r =>
+      (menuItemId && r.menuItemId === menuItemId && (r.size === itemSize || r.size === 'all')) ||
+      (!menuItemId && r.menuItemName === item.name && (r.size === itemSize || r.size === 'all'))
+    );
+    if (!recipe) continue;
+
+    for (const ing of (recipe.ingredients || [])) {
+      const needed = (parseFloat(ing.amount) || 0) * (parseInt(item.qty) || 1);
+      if (!needed || !ing.ingredientId) continue;
+
+      const ingRef = db.collection('ingredients').doc(ing.ingredientId);
+      const ingDoc = await ingRef.get();
+      if (!ingDoc.exists) continue;
+
+      const current = parseFloat(ingDoc.data().currentStock) || 0;
+      batch.update(ingRef, {
+        currentStock: Math.max(0, current - needed),
+        updatedAt: new Date().toISOString(),
+      });
+
+      const logRef = db.collection('ingredient_logs').doc();
+      batch.set(logRef, {
+        ingredientId: ing.ingredientId,
+        ingredientName: ing.ingredientName || ingDoc.data().name || '',
+        action: 'deducted',
+        amount: needed,
+        orderId,
+        menuItem: item.name,
+        createdAt: new Date().toISOString(),
+      });
+
+      deductionLog.push({
+        ingredientId: ing.ingredientId,
+        ingredientName: ing.ingredientName || ingDoc.data().name || '',
+        amountDeducted: needed,
+      });
+    }
+  }
+
+  await batch.commit();
+  await db.collection('orders').doc(orderId).update({
+    ingredientsDeducted: true,
+    ingredientDeductions: deductionLog,
+  });
+}
+
+// Helper: restore ingredients when order is cancelled
+async function restoreIngredients(db, orderId, order) {
+  const deductions = order.ingredientDeductions || [];
+  if (!deductions.length) return;
+
+  const batch = db.batch();
+  for (const d of deductions) {
+    if (!d.ingredientId || !d.amountDeducted) continue;
+    const ingRef = db.collection('ingredients').doc(d.ingredientId);
+    const ingDoc = await ingRef.get();
+    if (!ingDoc.exists) continue;
+
+    const current = parseFloat(ingDoc.data().currentStock) || 0;
+    batch.update(ingRef, {
+      currentStock: current + d.amountDeducted,
+      updatedAt: new Date().toISOString(),
+    });
+
+    const logRef = db.collection('ingredient_logs').doc();
+    batch.set(logRef, {
+      ingredientId: d.ingredientId,
+      ingredientName: d.ingredientName || '',
+      action: 'restored',
+      amount: d.amountDeducted,
+      orderId,
+      createdAt: new Date().toISOString(),
+    });
+  }
+  await batch.commit();
+}
+
 router.patch('/orders/:id/status', requireAdmin, async (req, res) => {
   const { status, reason } = req.body;
   const validStatuses = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];
@@ -62,9 +155,26 @@ router.patch('/orders/:id/status', requireAdmin, async (req, res) => {
     return res.status(400).json({ message: 'Invalid status' });
   }
   try {
+    const orderRef = db.collection('orders').doc(req.params.id);
+    const orderDoc = await orderRef.get();
+    if (!orderDoc.exists) return res.status(404).json({ success: false, message: 'Order not found' });
+    const order = orderDoc.data();
+
     const update = { status, updatedAt: new Date().toISOString() };
     if (status === 'cancelled' && reason) update.cancellationReason = reason;
-    await db.collection('orders').doc(req.params.id).update(update);
+
+    // Auto-deduct ingredients when moving to "preparing" (only once)
+    if (status === 'preparing' && order.status !== 'preparing' && !order.ingredientsDeducted) {
+      await deductIngredients(db, req.params.id, order);
+    }
+
+    // Restore ingredients if cancelled and deduction was done
+    if (status === 'cancelled' && order.ingredientsDeducted) {
+      await restoreIngredients(db, req.params.id, order);
+      update.ingredientsDeducted = false;
+    }
+
+    await orderRef.update(update);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
