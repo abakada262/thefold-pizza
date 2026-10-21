@@ -71,6 +71,8 @@ app.get('/payment-result', (req, res) => res.sendFile(path.join(__dirname, '../p
 
 app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, '../public/pages/forgot-password.html')));
 
+app.get('/receipt', (req, res) => res.sendFile(path.join(__dirname, '../public/pages/receipt.html')));
+
 app.listen(PORT, () => {
   console.log(`🍕 The Fold Pizza server running on http://localhost:${PORT}`);
 });

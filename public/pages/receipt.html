@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receipt — The Fold Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="/js/app.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--green:#1B5E20;--green-mid:#2E7D32;--red:#B71C1C;--gold:#F9A825;--border:#E8E2D9;--text:#1A1714;--text-mid:#6B6560;--text-light:#9B9490;--bg:#F8F5F0;--white:#fff;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.nav{background:var(--green);height:64px;display:flex;align-items:center;padding:0 28px;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:38px;height:38px;border-radius:50%;object-fit:contain;}
+.nav-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:white;}
+.nav-tagline{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.08em;text-transform:uppercase;}
+.nav-right{display:flex;gap:10px;}
+.btn-nav{background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.8);font-size:12px;font-weight:500;padding:6px 14px;border-radius:4px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-nav:hover{border-color:rgba(255,255,255,0.5);color:white;}
+
+.main{max-width:680px;margin:40px auto;padding:0 20px 60px;}
+.spinner{width:32px;height:32px;border:2px solid rgba(27,94,32,0.12);border-top-color:var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:80px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{text-align:center;padding:80px 20px;}
+.error-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);margin-bottom:8px;}
+.error-sub{font-size:14px;color:var(--text-mid);}
+
+/* Receipt */
+.receipt{background:white;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.receipt-header{background:var(--green);padding:32px 36px;text-align:center;}
+.receipt-logo{width:56px;height:56px;border-radius:50%;object-fit:contain;background:rgba(255,255,255,0.1);margin:0 auto 12px;}
+.receipt-brand{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;margin-bottom:2px;}
+.receipt-tagline{font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:0.1em;text-transform:uppercase;}
+.receipt-title{margin-top:20px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.7);}
+.receipt-id{font-size:28px;font-weight:700;color:white;font-family:'Playfair Display',serif;letter-spacing:0.04em;margin-top:4px;}
+
+.receipt-body{padding:28px 36px;}
+.receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:20px;border-bottom:1px dashed var(--border);margin-bottom:20px;}
+.meta-item{}
+.meta-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:3px;}
+.meta-val{font-size:13px;font-weight:500;color:var(--text);}
+
+.section-title{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;}
+.items-table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+.items-table th{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);padding:0 0 8px;text-align:left;border-bottom:1px solid var(--border);}
+.items-table th:last-child,.items-table td:last-child{text-align:right;}
+.items-table td{padding:10px 0;font-size:13px;border-bottom:1px solid #F3EDE4;vertical-align:top;}
+.items-table tr:last-child td{border-bottom:none;}
+.item-name{font-weight:500;color:var(--text);}
+.item-note{font-size:11px;color:var(--text-light);margin-top:2px;}
+.item-qty{color:var(--text-mid);}
+.item-price{font-weight:600;color:var(--text);}
+
+.totals{border-top:1px dashed var(--border);padding-top:16px;margin-top:4px;}
+.total-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;color:var(--text-mid);}
+.total-row.grand{font-size:18px;font-weight:700;color:var(--text);margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.total-row.grand .total-label{font-family:'Playfair Display',serif;}
+.total-row.grand .total-amount{color:var(--red);}
+
+.status-row{margin-top:20px;padding:14px 16px;border-radius:5px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;}
+.status-row.delivered{background:#ECFDF5;color:#065F46;}
+.status-row.cancelled{background:#FEE2E2;color:#991B1B;}
+.status-row.active{background:#EFF6FF;color:#1E40AF;}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.status-row.delivered .status-dot{background:#10B981;}
+.status-row.cancelled .status-dot{background:#EF4444;}
+.status-row.active .status-dot{background:#3B82F6;}
+
+.payment-section{margin-top:20px;padding-top:20px;border-top:1px dashed var(--border);}
+.pay-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.pay-label{color:var(--text-mid);}
+.pay-val{font-weight:500;color:var(--text);}
+.badge-paid{display:inline-block;background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-left:6px;}
+
+.receipt-footer{background:#FDFAF5;border-top:1px solid var(--border);padding:20px 36px;text-align:center;}
+.footer-msg{font-size:13px;color:var(--text-mid);margin-bottom:4px;}
+.footer-contact{font-size:11px;color:var(--text-light);}
+
+.actions{display:flex;gap:10px;margin-top:24px;justify-content:center;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;border:none;transition:all 0.15s;}
+.btn-primary{background:var(--green);color:white;}
+.btn-primary:hover{background:var(--green-mid);}
+.btn-outline{background:white;border:1px solid var(--border);color:var(--text-mid);}
+.btn-outline:hover{border-color:var(--green);color:var(--green);}
+
+@media print{
+  .nav,.actions{display:none!important;}
+  body{background:white;}
+  .main{margin:0;padding:0;max-width:100%;}
+  .receipt{border:none;border-radius:0;}
+}
+@media(max-width:600px){
+  .receipt-body{padding:20px 18px;}
+  .receipt-header{padding:24px 18px;}
+  .receipt-footer{padding:16px 18px;}
+  .receipt-meta{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <img src="/images/thefold_logo.png" alt="" class="nav-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="nav-name">The Fold Pizza</div>
+      <div class="nav-tagline">Fresh and Delicious</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="/orders" class="btn-nav">← My Orders</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div id="loading"><div class="spinner"></div></div>
+  <div id="error-box" style="display:none;" class="error-box">
+    <div class="error-title">Receipt not found</div>
+    <div class="error-sub">This order could not be loaded. Please check your order history.</div>
+  </div>
+  <div id="receipt-wrap" style="display:none;">
+    <div class="receipt" id="receipt">
+      <div class="receipt-header">
+        <img src="/images/thefold_logo.png" alt="" class="receipt-logo" onerror="this.style.display='none'">
+        <div class="receipt-brand">The Fold Pizza</div>
+        <div class="receipt-tagline">Fresh and Delicious</div>
+        <div class="receipt-title">Digital Receipt</div>
+        <div class="receipt-id" id="r-id">—</div>
+      </div>
+
+      <div class="receipt-body">
+        <div class="receipt-meta">
+          <div class="meta-item">
+            <div class="meta-label">Date & Time</div>
+            <div class="meta-val" id="r-date">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Order Status</div>
+            <div class="meta-val" id="r-status-text">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Customer</div>
+            <div class="meta-val" id="r-customer">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Delivery Address</div>
+            <div class="meta-val" id="r-address">—</div>
+          </div>
+        </div>
+
+        <div class="section-title">Items Ordered</div>
+        <table class="items-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+          <tbody id="r-items"></tbody>
+        </table>
+
+        <div class="totals">
+          <div class="total-row"><span class="total-label">Subtotal</span><span id="r-subtotal">—</span></div>
+          <div class="total-row"><span class="total-label">Delivery Fee</span><span id="r-delivery">—</span></div>
+          <div class="total-row grand">
+            <span class="total-label">Total</span>
+            <span class="total-amount" id="r-total">—</span>
+          </div>
+        </div>
+
+        <div id="r-status-banner" class="status-row active" style="display:none;">
+          <div class="status-dot"></div>
+          <span id="r-status-msg">—</span>
+        </div>
+
+        <div class="payment-section">
+          <div class="section-title">Payment Details</div>
+          <div class="pay-row"><span class="pay-label">Method</span><span class="pay-val" id="r-method">—</span></div>
+          <div class="pay-row" id="r-pay-status-row" style="display:none;"><span class="pay-label">Status</span><span class="pay-val" id="r-pay-status">—</span></div>
+          <div class="pay-row" id="r-notes-row" style="display:none;"><span class="pay-label">Notes</span><span class="pay-val" id="r-notes">—</span></div>
+        </div>
+      </div>
+
+      <div class="receipt-footer">
+        <div class="footer-msg">Thank you for ordering with The Fold Pizza! 🍕</div>
+        <div class="footer-contact">Questions? Contact us at our store.</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Receipt
+      </button>
+      <a href="/orders" class="btn btn-outline">Back to My Orders</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const paymentLabels = { cash: 'Cash on Delivery', gcash: 'GCash (PayMongo)', card: 'Card' };
+const statusLabels = { pending: 'Order Received', confirmed: 'Confirmed', preparing: 'Preparing', out_for_delivery: 'Out for Delivery', delivered: 'Delivered', cancelled: 'Cancelled' };
+
+function fmt(n){ return '₱' + Number(n||0).toLocaleString('en-PH',{minimumFractionDigits:2}); }
+
+async function init(){
+  const user = await requireLogin();
+  if (!user) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('id');
+  if (!orderId) { showError(); return; }
+
+  try {
+    const data = await api('/orders/my');
+    const orders = data.orders || [];
+    const o = orders.find(x => x.id === orderId);
+    if (!o) { showError(); return; }
+    renderReceipt(o);
+  } catch(e) {
+    showError();
+  }
+}
+
+function showError(){
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error-box').style.display = 'block';
+}
+
+function renderReceipt(o){
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('receipt-wrap').style.display = 'block';
+
+  document.getElementById('r-id').textContent = '#' + o.id.slice(0,8).toUpperCase();
+  document.getElementById('r-date').textContent = formatDate(o.createdAt);
+  document.getElementById('r-customer').textContent = o.userName || o.customerName || '—';
+  document.getElementById('r-address').textContent = o.address || o.deliveryAddress || '—';
+  document.getElementById('r-status-text').textContent = statusLabels[o.status] || o.status;
+
+  // Items
+  const items = o.items || [];
+  const subtotal = items.reduce((s,i) => s + ((i.price||0)*(i.qty||1)), 0);
+  const deliveryFee = (o.total||0) - subtotal;
+
+  document.getElementById('r-items').innerHTML = items.map(i => {
+    const lineTotal = (i.price||0) * (i.qty||1);
+    const note = [i.size ? `Size: ${i.size}` : '', i.notes||i.note||''].filter(Boolean).join(' · ');
+    return `<tr>
+      <td><div class="item-name">${i.name}</div>${note ? `<div class="item-note">${note}</div>` : ''}</td>
+      <td class="item-qty">×${i.qty||1}</td>
+      <td class="item-price">${fmt(lineTotal)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('r-subtotal').textContent = fmt(subtotal);
+  document.getElementById('r-delivery').textContent = deliveryFee > 0 ? fmt(deliveryFee) : 'Free';
+  document.getElementById('r-total').textContent = fmt(o.total);
+
+  // Status banner
+  const banner = document.getElementById('r-status-banner');
+  const msg = document.getElementById('r-status-msg');
+  banner.style.display = 'flex';
+  if (o.status === 'delivered') {
+    banner.className = 'status-row delivered';
+    msg.textContent = 'Order delivered. Thank you for choosing The Fold Pizza!';
+  } else if (o.status === 'cancelled') {
+    banner.className = 'status-row cancelled';
+    msg.textContent = 'This order was cancelled' + (o.cancellationReason ? ': ' + o.cancellationReason : '.');
+  } else {
+    banner.className = 'status-row active';
+    msg.textContent = 'Order status: ' + (statusLabels[o.status] || o.status);
+  }
+
+  // Payment
+  document.getElementById('r-method').textContent = paymentLabels[o.paymentMethod] || o.paymentMethod || '—';
+  if (o.paymentMethod === 'gcash') {
+    const row = document.getElementById('r-pay-status-row');
+    row.style.display = 'flex';
+    document.getElementById('r-pay-status').innerHTML = o.paymentStatus === 'paid'
+      ? 'Paid <span class="badge-paid">Confirmed</span>'
+      : 'Pending';
+  }
+  if (o.notes) {
+    document.getElementById('r-notes-row').style.display = 'flex';
+    document.getElementById('r-notes').textContent = o.notes;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
