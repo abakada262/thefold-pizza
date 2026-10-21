@@ -167,13 +167,6 @@ a{text-decoration:none;color:inherit;}
           <button class="btn btn-primary" id="btn-change-pwd">Update password</button>
         </div>
       </div>
-      <div class="card" style="border-color:#FCA5A5;">
-        <div class="card-head" style="background:#FEF2F2;"><div class="card-title" style="color:var(--red);">Danger zone</div></div>
-        <div class="card-body">
-          <div style="font-size:13px;color:var(--text-mid);margin-bottom:14px;font-weight:300;">Signing out will end your current session. You can sign back in at any time.</div>
-          <button class="btn btn-danger" id="btn-logout2">Sign out of account</button>
-        </div>
-      </div>
     </div>
 
     <!-- ORDER SUMMARY -->
@@ -393,7 +386,6 @@ async function loadSummary(){
 
 const signout=async()=>{await api('/auth/logout','POST');await auth.signOut();window.location.replace('/login');};
 document.getElementById('btn-logout').onclick=signout;
-document.getElementById('btn-logout2').onclick=signout;
 init();
 </script>
 </body>
