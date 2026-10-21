@@ -1,23 +1,5 @@
-/**
- * seed-recipes.js
- * ─────────────────────────────────────────────────────────────────────────────
- * Run once to populate Firestore with:
- *   - /ingredients  — one doc per unique ingredient
- *   - /recipes      — one doc per pizza variant (flavor × size)
- *
- * Usage:
- *   node seed-recipes.js
- *
- * Place this file in your project root (next to server/) and run from there.
- * It reads your existing firebase config so no extra setup is needed.
- * ─────────────────────────────────────────────────────────────────────────────
- */
-
 const { db } = require('../../config/firebase');
 
-// ── Ingredient master list ────────────────────────────────────────────────────
-// Keys are used internally to link recipes → ingredients.
-// name: display name  |  unit: storage unit  |  defaultStock: initial grams
 const INGREDIENTS = {
   dough:          { name: 'Dough',            unit: 'g',  defaultStock: 10000 },
   red_sauce:      { name: 'Red Sauce',         unit: 'oz', defaultStock: 500   },
@@ -41,37 +23,17 @@ const INGREDIENTS = {
   beef_toppings:  { name: 'Beef Toppings',     unit: 'g',  defaultStock: 2000  },
 };
 
-// ── Size key → inches string (matches how resolveRecipe parses item names) ───
-// Your menu item names contain sizes like:
-//   "The Pepperoni (Regular)"  → no numeric size → 'all'
-//   "The Hawaiin (30\" Party)" → '30'
-//   "The Hawaiin (36\" Fiesta)"→ '36'
-// We create one recipe per size so the backend can match either.
-//
-// For sizes not in your menu (10", 12", 16", 20") the per-unit figures
-// from the spreadsheet are stored but the menu currently only sells
-// Regular (≈12"), 30", and 36". Add more if you add those sizes later.
-
 const SIZES = {
   '10': 10, '12': 12, '16': 16, '20': 20, '30': 30, '36': 36,
 };
 
-// ── Helper: build ingredient array for one recipe row ────────────────────────
 function ing(key, qty) {
   return { ingredientKey: key, qty };  // ingredientId filled in during seeding
 }
 
-// ── Recipe definitions ────────────────────────────────────────────────────────
-// Format: { menuItemId, menuItemName, sizes: { '10': [...ings], '12': [...], ... } }
-//
-// menuItemId must match the id of the corresponding doc in your Firestore
-// 'menu' collection. Set these to your real Firestore IDs before running.
-//
-// For flavors that appear on custom pizzas (30" / 36"), we also include a
-// "custom_pizza" entry — the custom pizza resolver looks for menuItemId="custom_pizza".
 
 const RECIPES = [
-  // ── FOUR CHEESE ────────────────────────────────────────────────────────────
+
   {
     menuItemId: 'qe8p0OukNsHhvMjPFl69',
     menuItemName: 'Four Cheese',
@@ -85,7 +47,6 @@ const RECIPES = [
     }
   },
 
-  // ── PEPPERONI ──────────────────────────────────────────────────────────────
   {
     menuItemId: 'vdsMSTOPxvgxPHydMerD',
     menuItemName: 'The Pepperoni',
@@ -99,7 +60,7 @@ const RECIPES = [
     }
   },
 
-  // ── HAWAIIAN ───────────────────────────────────────────────────────────────
+
   {
     menuItemId: 'rQTBhA6MIRhCZHAhqdeE',
     menuItemName: 'The Hawaiian',
@@ -113,7 +74,7 @@ const RECIPES = [
     }
   },
 
-  // ── VEGGIE ─────────────────────────────────────────────────────────────────
+
   {
     menuItemId: 'GA5eynYUBQKcqGcRr6lm',
     menuItemName: 'Veggies',
@@ -127,7 +88,6 @@ const RECIPES = [
     }
   },
 
-  // ── JALAPEÑO ───────────────────────────────────────────────────────────────
   {
     menuItemId: 'KUepStUmOlVbu5oRkZBp',
     menuItemName: 'Jalapeño',
@@ -141,7 +101,6 @@ const RECIPES = [
     }
   },
 
-  // ── CREAMY SPINACH ─────────────────────────────────────────────────────────
   {
     menuItemId: 'b8gM55pvt6bxTLqGD5EU',
     menuItemName: 'Creamy Spinach',
@@ -155,7 +114,6 @@ const RECIPES = [
     }
   },
 
-  // ── LUAU CHICKEN ───────────────────────────────────────────────────────────
   {
     menuItemId: 'm9pq5MASxIQe5Ah3hx8H',
     menuItemName: 'Luau Chicken',
@@ -169,7 +127,6 @@ const RECIPES = [
     }
   },
 
-  // ── BBQ CHICKEN ────────────────────────────────────────────────────────────
   {
     menuItemId: 'PXzjl7s9Ly17X7WCvhvN',
     menuItemName: 'BBQ Chicken',
@@ -183,7 +140,6 @@ const RECIPES = [
     }
   },
 
-  // ── ALL MEAT ───────────────────────────────────────────────────────────────
   {
     menuItemId: 'Kl3d2PCQXtcl3XBemAks',
     menuItemName: 'All Meat',
@@ -197,7 +153,6 @@ const RECIPES = [
     }
   },
 
-  // ── THE FOLD SPECIAL ───────────────────────────────────────────────────────
   {
     menuItemId: 'IBqnAKgs14ZuuowWkkkW',
     menuItemName: 'The Fold Special',
@@ -211,7 +166,6 @@ const RECIPES = [
     }
   },
 
-  // ── SHRIMP ─────────────────────────────────────────────────────────────────
   {
     menuItemId: 'O1V7gOZllwYjy1FzUEMA',
     menuItemName: 'The Shrimp',
@@ -225,9 +179,6 @@ const RECIPES = [
     }
   },
 
-  // ── CUSTOM PIZZA — 9 FLAVORS (30" and 36") ────────────────────────────────
-  // Used for custom pizza orders. menuItemId = "custom_pizza" is looked up
-  // by resolveRecipe when item.isCustom is true.
   {
     menuItemId: 'custom_pizza',
     menuItemName: 'Custom Pizza — 9 Flavors',
@@ -237,7 +188,6 @@ const RECIPES = [
     }
   },
 
-  // ── CUSTOM PIZZA — 11 FLAVORS (36" only) ──────────────────────────────────
   {
     menuItemId: 'custom_pizza_11',
     menuItemName: 'Custom Pizza — 11 Flavors',
@@ -247,9 +197,6 @@ const RECIPES = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SEED FUNCTION
-// ─────────────────────────────────────────────────────────────────────────────
 
 async function seed() {
   console.log('🌱 Seeding ingredients...');

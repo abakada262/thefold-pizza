@@ -1,11 +1,6 @@
-// fix-recipe-ids2.js
-// Fixes the remaining 5 unmatched recipe groups using direct ID mapping.
-// Run: node server/routes/fix-recipe-ids2.js
-
 const { db } = require('../../config/firebase');
 
-// Direct mapping: recipe menuItemName → correct Firestore menu doc ID
-// IDs taken from the menu collection output in the previous run.
+
 const DIRECT_MAP = {
   'Veggies':       'GA5eynYUBQKcqGcRr6im',  // The Veggie
   'Luau Chicken':  'm9pq5MASx1Qe5Ah3hx8H',  // The Luau Ckhicken

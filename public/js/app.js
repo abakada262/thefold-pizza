@@ -1,8 +1,3 @@
-// ============================================================
-// app.js — shared utilities for The Fold Pizza
-// ============================================================
-
-// Toast notifications
 function toast(msg, type = 'success') {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -52,9 +47,6 @@ function statusLabel(s) {
   return map[s] || s;
 }
 
-// ============================================================
-// BACK BUTTON BLOCKER
-// ============================================================
 (function blockBackButton() {
   try {
     window.history.pushState({ blocked: true }, '', window.location.href);
@@ -64,9 +56,6 @@ function statusLabel(s) {
   });
 })();
 
-// ============================================================
-// AUTO LOGOUT — 15 minutes of inactivity
-// ============================================================
 (function autoLogout() {
   const TIMEOUT_MS   = 15 * 60 * 1000;  // 15 minutes
   const WARNING_MS   = 14 * 60 * 1000;  // warn at 14 minutes
@@ -138,13 +127,6 @@ function statusLabel(s) {
   resetTimers();
 })();
 
-// ============================================================
-// AUTH GUARDS
-// ============================================================
-
-// requireLogin — customer pages only.
-// Redirects unauthenticated users to /login.
-// Redirects admin/superadmin who land here back to their own dashboard.
 async function requireLogin() {
   try {
     const data = await api('/auth/me');
@@ -166,8 +148,6 @@ async function requireLogin() {
   }
 }
 
-// requireAdmin — allows both admin AND superadmin.
-// Redirects customers to /login (not /dashboard — they have no business here).
 async function requireAdmin() {
   try {
     const data = await api('/auth/me');
@@ -184,8 +164,6 @@ async function requireAdmin() {
   }
 }
 
-// requireSuperAdmin — superadmin-only pages.
-// Admins are redirected to their own dashboard; customers to /login.
 async function requireSuperAdmin() {
   try {
     const data = await api('/auth/me');

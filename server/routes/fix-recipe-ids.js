@@ -1,41 +1,79 @@
-// fix-recipe-ids2.js
-// Fixes the remaining 5 unmatched recipe groups using direct ID mapping.
-// Run: node server/routes/fix-recipe-ids2.js
+// fix-recipe-ids.js
+// Run: node server/routes/fix-recipe-ids.js
+// Fixes menuItemId in all recipe docs by fuzzy-matching recipe names to real menu IDs.
 
 const { db } = require('../../config/firebase');
 
-// Direct mapping: recipe menuItemName → correct Firestore menu doc ID
-// IDs taken from the menu collection output in the previous run.
-const DIRECT_MAP = {
-  'Veggies':       'GA5eynYUBQKcqGcRr6im',  // The Veggie
-  'Luau Chicken':  'm9pq5MASx1Qe5Ah3hx8H',  // The Luau Ckhicken
-  'The Hawaiian':  'rQTBhA6MIRhCZHAhqdeE',  // The Haiiawan
-  'BBQ Chicken':   'PXzjl7s9Ly17X7WCvhvN',  // The BBQ chickem
-  'Four Cheese':   'qe8p0OukNsHhvMjPFl69',  // Four Cheese (HHGJHMFM)
-};
+function normalize(str) {
+  return (str || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, ' ')  // remove special chars
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Returns true if every word in `query` appears somewhere in `target`
+function fuzzyMatch(query, target) {
+  const qWords = normalize(query).split(' ').filter(Boolean);
+  const tNorm  = normalize(target);
+  return qWords.every(w => tNorm.includes(w));
+}
 
 async function main() {
+  // 1. Fetch all menu items
+  const menuSnap = await db.collection('menu').get();
+  const menuItems = []; // { id, name }
+  menuSnap.forEach(doc => {
+    menuItems.push({ id: doc.id, name: doc.data().name || '' });
+  });
+  console.log(`\nMenu items loaded: ${menuItems.length}`);
+  menuItems.forEach(m => console.log(`  ${m.id}  →  ${m.name}`));
+
+  // 2. Fetch all recipes
   const recipesSnap = await db.collection('recipes').get();
-  console.log(`Recipe docs loaded: ${recipesSnap.size}`);
+  console.log(`\nRecipe docs loaded: ${recipesSnap.size}`);
 
   const batch = db.batch();
   let updated = 0;
   let skipped = 0;
+  const noMatch = new Set();
 
   recipesSnap.forEach(doc => {
     const data = doc.data();
-    const correctId = DIRECT_MAP[data.menuItemName];
+    const recName = data.menuItemName || '';
 
-    if (!correctId) { skipped++; return; }
-    if (data.menuItemId === correctId) { skipped++; return; }
+    // Skip custom pizza entries — they use a fixed string ID
+    if (recName.toLowerCase().includes('custom')) {
+      skipped++;
+      return;
+    }
 
-    batch.update(doc.ref, { menuItemId: correctId });
-    console.log(`  ✓ "${data.menuItemName}" ${data.size}" : ${data.menuItemId} → ${correctId}`);
+    // Find best menu item match using fuzzy word matching
+    const match = menuItems.find(m => fuzzyMatch(recName, m.name) || fuzzyMatch(m.name, recName));
+
+    if (!match) {
+      noMatch.add(recName);
+      skipped++;
+      return;
+    }
+
+    if (data.menuItemId === match.id) {
+      skipped++; // already correct
+      return;
+    }
+
+    batch.update(doc.ref, { menuItemId: match.id });
+    console.log(`  ✓ "${recName}" ${data.size}" : ${data.menuItemId} → ${match.id}  (${match.name})`);
     updated++;
   });
 
+  if (noMatch.size > 0) {
+    console.log('\n⚠ Could not match these recipe names to any menu item:');
+    noMatch.forEach(n => console.log(`    "${n}"`));
+  }
+
   if (updated === 0) {
-    console.log('Nothing to update — all already correct.');
+    console.log('\nAll recipe IDs are already correct. Nothing to update.');
     process.exit(0);
   }
 

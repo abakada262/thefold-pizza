@@ -556,28 +556,79 @@ document.getElementById('btn-admin').onclick=async()=>{
   }
 };
 </script>
+<!-- ============================================================
+     REPLACE everything from <!-- TERMS MODAL --> down to the
+     closing </div> of the PRIVACY MODAL with this block.
+     IDs and onclick functions are unchanged, so your existing
+     script (openTermsModal, acceptTerms, etc.) still works.
+     ============================================================ -->
+
+<style>
+.legal-body{padding:20px 24px;overflow-y:auto;font-size:13px;color:#6B6560;line-height:1.75;}
+.legal-body .legal-date{font-size:12px;color:#9B9490;margin-bottom:14px;}
+.legal-body p{margin-bottom:14px;}
+.legal-body h4{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#1A1714;margin:18px 0 6px;}
+.legal-body ul{margin:0 0 14px 18px;}
+.legal-body li{margin-bottom:4px;}
+.legal-body strong{color:#1A1714;font-weight:600;}
+</style>
+
 <!-- TERMS MODAL -->
 <div id="terms-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:white;border-radius:10px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+  <div style="background:white;border-radius:10px;width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
     <div style="padding:20px 24px 16px;border-bottom:1px solid #E8E2D9;display:flex;align-items:center;justify-content:space-between;">
       <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1A1714;">Terms of Service</div>
-      <button onclick="closeTermsModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9B9490;">&#x2715;</button>
+      <button onclick="closeTermsModal()" aria-label="Close" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9B9490;">&#x2715;</button>
     </div>
-    <div style="padding:20px 24px;overflow-y:auto;font-size:13px;color:#6B6560;line-height:1.8;">
-      <p style="margin-bottom:12px;"><strong style="color:#1A1714;">Last updated: January 2024</strong></p>
-      <p style="margin-bottom:14px;">By creating an account and using The Fold Pizza's online ordering platform, you accept and agree to be bound by the following terms.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">1. Account Registration</p>
-      <p style="margin-bottom:14px;">You must provide accurate and complete information when creating your account. You are responsible for maintaining the security of your password and account.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">2. Orders & Payment</p>
-      <p style="margin-bottom:14px;">All orders are subject to availability and confirmation. Payment must be completed at the time of ordering or upon delivery for cash orders. GCash payments are processed securely through PayMongo.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">3. Delivery Policy</p>
-      <p style="margin-bottom:14px;">Delivery times are estimates and may vary. The Fold Pizza is not responsible for delays caused by traffic, weather, or other conditions beyond our control.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">4. Cancellations & Refunds</p>
-      <p style="margin-bottom:14px;">Orders may be cancelled before they are confirmed for preparation. Once preparation has begun, cancellation may not be possible. Valid refunds will be processed within 5–7 business days.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">5. User Conduct</p>
-      <p style="margin-bottom:14px;">You agree not to misuse our platform, submit false orders, or engage in any activity that disrupts our service.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">6. Changes to Terms</p>
-      <p>We reserve the right to modify these terms at any time. Continued use of our platform constitutes acceptance of updated terms.</p>
+    <div class="legal-body">
+      <div class="legal-date">Last updated: October 2026</div>
+      <p>Welcome to The Fold Pizza. These Terms of Service ("Terms") govern your use of our website and online ordering platform. By creating an account or placing an order, you confirm that you have read, understood, and agree to be bound by these Terms.</p>
+
+      <h4>1. Eligibility and Account Registration</h4>
+      <p>You must be at least 18 years old, or have the consent of a parent or legal guardian, to create an account. You agree to provide accurate, current, and complete information and to keep it updated. You are responsible for safeguarding your password and for all activity that occurs under your account. Please notify us immediately if you suspect unauthorized use.</p>
+
+      <h4>2. Orders and Pricing</h4>
+      <p>All orders are subject to product availability and confirmation by The Fold Pizza. Prices are listed in Philippine Pesos (PHP) and may change without prior notice; the price shown at checkout is the price you pay. Promotions, including Happy Hour discounts, are valid only during their stated periods and cannot be combined unless expressly indicated. We reserve the right to refuse or cancel any order, for example in cases of pricing errors, suspected fraud, or unavailable items.</p>
+
+      <h4>3. Payment</h4>
+      <p>We accept GCash and cash on delivery. GCash payments are processed securely through PayMongo, a payment gateway licensed by the Bangko Sentral ng Pilipinas (BSP). For cash orders, full payment is due upon delivery. Orders paid through GCash are confirmed only once payment has been successfully received.</p>
+
+      <h4>4. Delivery</h4>
+      <p>You are responsible for providing a complete and accurate delivery address and a reachable contact number. Delivery times are estimates and may be affected by traffic, weather, order volume, or other circumstances beyond our control. If a delivery cannot be completed because the recipient is unavailable or the address is incorrect, the order may be considered fulfilled and may not be eligible for a refund.</p>
+
+      <h4>5. Cancellations and Refunds</h4>
+      <p>Orders may be cancelled before they are confirmed for preparation. Once preparation has begun, cancellation may no longer be possible. If you receive an incorrect, incomplete, or unsatisfactory order, please contact us as soon as possible. Approved refunds are processed within 5–7 business days through the original payment method.</p>
+
+      <h4>6. Custom Messages</h4>
+      <p>Custom messages offered with celebration deals are provided free of charge. We reserve the right to decline or modify messages that contain offensive, discriminatory, or inappropriate content.</p>
+
+      <h4>7. Acceptable Use</h4>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Place false, fraudulent, or prank orders</li>
+        <li>Use another person's account or payment method without permission</li>
+        <li>Interfere with, disrupt, or attempt to gain unauthorized access to our platform</li>
+        <li>Harass or abuse our staff or delivery personnel</li>
+      </ul>
+      <p>We may suspend or terminate accounts that violate these Terms.</p>
+
+      <h4>8. Intellectual Property</h4>
+      <p>All content on this platform, including our name, logo, images, and text, is owned by The Fold Pizza and may not be copied or used without our written permission.</p>
+
+      <h4>9. Limitation of Liability</h4>
+      <p>To the fullest extent permitted by law, The Fold Pizza shall not be liable for indirect or incidental damages arising from your use of the platform. Our total liability for any claim related to an order shall not exceed the amount you paid for that order.</p>
+
+      <h4>10. Privacy</h4>
+      <p>Your use of our platform is also governed by our Privacy Policy, which explains how we collect and protect your personal information.</p>
+
+      <h4>11. Changes to These Terms</h4>
+      <p>We may update these Terms from time to time. The "Last updated" date above will reflect the latest version. Continued use of the platform after changes take effect constitutes acceptance of the revised Terms.</p>
+
+      <h4>12. Governing Law</h4>
+      <p>These Terms are governed by the laws of the Republic of the Philippines.</p>
+
+      <h4>13. Contact Us</h4>
+      <p style="margin-bottom:0;">For questions about these Terms, message us on Facebook at <strong>The Fold Pizza</strong> or call <strong>0916 617 4325</strong> (Globe), <strong>0919 098 2667</strong> (Smart), or <strong>(02) 8706 2514</strong> (Landline).</p>
     </div>
     <div style="padding:16px 24px;border-top:1px solid #E8E2D9;">
       <button onclick="acceptTerms()" style="width:100%;padding:12px;background:#1B5E20;color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">I Accept These Terms</button>
@@ -587,31 +638,55 @@ document.getElementById('btn-admin').onclick=async()=>{
 
 <!-- PRIVACY MODAL -->
 <div id="privacy-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:white;border-radius:10px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+  <div style="background:white;border-radius:10px;width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
     <div style="padding:20px 24px 16px;border-bottom:1px solid #E8E2D9;display:flex;align-items:center;justify-content:space-between;">
       <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1A1714;">Privacy Policy</div>
-      <button onclick="closePrivacyModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9B9490;">&#x2715;</button>
+      <button onclick="closePrivacyModal()" aria-label="Close" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9B9490;">&#x2715;</button>
     </div>
-    <div style="padding:20px 24px;overflow-y:auto;font-size:13px;color:#6B6560;line-height:1.8;">
-      <p style="margin-bottom:12px;"><strong style="color:#1A1714;">Last updated: January 2024</strong></p>
-      <p style="margin-bottom:14px;">The Fold Pizza is committed to protecting your personal information. This policy explains how we collect, use, and safeguard your data.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Information We Collect</p>
-      <p style="margin-bottom:14px;">We collect your name, email address, phone number, and delivery address when you register. We also collect order history and payment method preferences.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">How We Use Your Information</p>
-      <p style="margin-bottom:14px;">Your information is used to process orders, send order updates, improve our service, and comply with legal obligations. We do not sell your personal data to third parties.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Payment Security</p>
-      <p style="margin-bottom:14px;">GCash payments are processed through PayMongo, a BSP-licensed payment gateway. We do not store your payment credentials. All transactions are encrypted.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Data Retention</p>
-      <p style="margin-bottom:14px;">We retain your account information as long as your account is active. Order history is retained for accounting and legal compliance.</p>
-      <p style="font-weight:700;color:#1A1714;margin-bottom:6px;">Your Rights</p>
-      <p>You may request access, correction, or deletion of your personal data by contacting us via Facebook at "The Fold Pizza" or calling 0916 617 4325.</p>
+    <div class="legal-body">
+      <div class="legal-date">Last updated: October 2026</div>
+      <p>The Fold Pizza ("we," "us," or "our") respects your privacy and is committed to protecting your personal information in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173). This policy explains what information we collect, how we use it, and the choices available to you.</p>
+
+      <h4>Information We Collect</h4>
+      <p>When you create an account or place an order, we collect your full name, email address, mobile number, and delivery address. We also keep records of your order history and preferred payment method to provide and improve our services.</p>
+
+      <h4>How We Use Your Information</h4>
+      <ul>
+        <li>Process, prepare, and deliver your orders</li>
+        <li>Verify your account and send order confirmations and delivery updates</li>
+        <li>Respond to inquiries and provide customer support</li>
+        <li>Improve our menu, website, and overall service</li>
+        <li>Comply with applicable laws and regulations</li>
+      </ul>
+      <p>We do not sell, rent, or trade your personal information to third parties.</p>
+
+      <h4>Sharing of Information</h4>
+      <p>We share your information only as needed to fulfill your order. For example, your name, contact number, and address are shared with our delivery personnel, and payment details are handled by our payment provider. We may also disclose information when required by law.</p>
+
+      <h4>Payment Security</h4>
+      <p>GCash payments are processed securely through PayMongo, a payment gateway licensed by the Bangko Sentral ng Pilipinas (BSP). We do not store your GCash credentials or full payment details on our servers. All transactions are transmitted over encrypted connections.</p>
+
+      <h4>Data Retention</h4>
+      <p>We retain your account information for as long as your account remains active. Order and transaction records may be kept longer where required for accounting, tax, or legal purposes. Information that is no longer needed is securely deleted or anonymized.</p>
+
+      <h4>Your Rights</h4>
+      <p>Under the Data Privacy Act, you have the right to:</p>
+      <ul>
+        <li>Be informed about how your data is processed</li>
+        <li>Access the personal information we hold about you</li>
+        <li>Correct inaccurate or outdated information</li>
+        <li>Object to processing or request deletion of your data</li>
+        <li>File a complaint with the National Privacy Commission</li>
+      </ul>
+
+      <h4>Contact Us</h4>
+      <p style="margin-bottom:0;">To exercise any of these rights or raise a privacy concern, message us on Facebook at <strong>The Fold Pizza</strong> or call <strong>0916 617 4325</strong>.</p>
     </div>
     <div style="padding:16px 24px;border-top:1px solid #E8E2D9;">
-      <button onclick="closePrivacyModal()" style="width:100%;padding:12px;background:#1B5E20;color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Got it</button>
+      <button onclick="closePrivacyModal()" style="width:100%;padding:12px;background:#1B5E20;color:white;border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">I Understand</button>
     </div>
   </div>
 </div>
-
 <script>
 let _termsRead = false;
 let _privacyRead = false;

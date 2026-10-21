@@ -8,24 +8,14 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-// ============================================================
-// resolveRecipe — find the best recipe for an order item.
-// For regular items: match by menuItemId + size string.
-// For custom pizzas: custom items carry their toppings in
-// addonNames and use a special menuItemId like "custom_pizza_30"
-// which maps to recipe docs with menuItemId="custom_pizza".
-// ============================================================
 async function resolveRecipe(item) {
-  // Extract size from item name: e.g. "The Pepperoni (Regular)" → null
-  // or "Custom Heart 30\" Pizza (30\" · Combination)" → "30"
+
   const sizeMatch = item.name && item.name.match(/\((\d+)["”]/);
   const size = sizeMatch ? sizeMatch[1] : null;
 
-  // For custom pizzas the id is like "custom_pizza_30" or "custom_pizza_36"
   const isCustom = item.isCustom || (item.id && item.id.startsWith('custom_pizza'));
   const lookupId = isCustom ? 'custom_pizza' : item.id;
 
-  // Try exact size match first
   if (size) {
     const snap = await db.collection('recipes')
       .where('menuItemId', '==', lookupId)
@@ -34,7 +24,6 @@ async function resolveRecipe(item) {
     if (!snap.empty) return snap.docs[0].data();
   }
 
-  // Fallback: size='all' (recipe covers all sizes of that item)
   const snap2 = await db.collection('recipes')
     .where('menuItemId', '==', lookupId)
     .where('size', '==', 'all')
@@ -44,14 +33,9 @@ async function resolveRecipe(item) {
   return null;
 }
 
-// ============================================================
-// previewIngredients — calculate what will be consumed for an
-// order without touching any stock. Returns an array of:
-//   { ingredientId, name, unit, needed, currentStock, sufficient }
-// ============================================================
 async function previewIngredients(items) {
-  // Aggregate total consumption per ingredient across all items
-  const consumption = {}; // ingredientId → { name, unit, needed }
+
+  const consumption = {}; 
 
   for (const item of items) {
     const recipe = await resolveRecipe(item);
@@ -71,7 +55,6 @@ async function previewIngredients(items) {
 
   if (Object.keys(consumption).length === 0) return [];
 
-  // Fetch current stock for each ingredient
   const result = [];
   await Promise.all(
     Object.values(consumption).map(async (c) => {
@@ -92,12 +75,6 @@ async function previewIngredients(items) {
   return result;
 }
 
-// ============================================================
-// deductIngredients — atomically deduct stock once per order.
-// Uses Firestore transaction on the order doc itself as an
-// idempotency flag (inventoryDeducted: true).
-// Returns { success, logs, insufficientIngredients }
-// ============================================================
 async function deductIngredients(orderId, items, adminEmail) {
   const orderRef = db.collection('orders').doc(orderId);
 
@@ -222,11 +199,6 @@ async function deductIngredients(orderId, items, adminEmail) {
   }
 }
 
-// ============================================================
-// Place a new order (customer-facing)
-// Stock (menu-item quantity) is deducted here on order creation.
-// Ingredient BOM deduction happens later on → Preparing.
-// ============================================================
 router.post('/', requireAuth, async (req, res) => {
   const { items, address, paymentMethod, notes } = req.body;
   const user = req.session.user;
@@ -283,7 +255,6 @@ router.post('/', requireAuth, async (req, res) => {
     });
     await Promise.all(stockPromises);
 
-    // ── Create admin notification (fire-and-forget, never blocks the response) ──
     (async () => {
       try {
         const itemSummary = items.map(i => `${i.qty}× ${i.name}`).join(', ');
@@ -315,7 +286,6 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// Get orders for current user
 router.get('/my', requireAuth, async (req, res) => {
   try {
     const snap = await db.collection('orders')
@@ -342,9 +312,6 @@ router.get('/:id', requireAuth, async (req, res) => {
   }
 });
 
-// ============================================================
-// Helper: restore menu-item stock when order is cancelled
-// ============================================================
 async function restoreMenuStock(order) {
   const restorePromises = (order.items || []).map(async (item) => {
     try {
@@ -367,11 +334,6 @@ async function restoreMenuStock(order) {
   await Promise.all(restorePromises);
 }
 
-// ============================================================
-// PATCH /api/orders/:id/cancel
-// Direct cancel — only for UNPAID orders (pending + not gcash-paid).
-// COD pending or GCash-pending (payment not yet received).
-// ============================================================
 router.patch('/:id/cancel', requireAuth, async (req, res) => {
   const orderId = req.params.id;
   const user = req.session.user;
@@ -428,11 +390,6 @@ router.patch('/:id/cancel', requireAuth, async (req, res) => {
   }
 });
 
-// ============================================================
-// POST /api/orders/:id/cancel-request
-// Cancellation request — for paid GCash orders or confirmed orders.
-// Creates a cancellation_requests record for admin review.
-// ============================================================
 router.post('/:id/cancel-request', requireAuth, async (req, res) => {
   const orderId = req.params.id;
   const user = req.session.user;
@@ -518,10 +475,6 @@ router.post('/:id/cancel-request', requireAuth, async (req, res) => {
   }
 });
 
-// ============================================================
-// GET /api/orders/:id/cancel-request
-// Get cancellation request status for an order (customer view)
-// ============================================================
 router.get('/:id/cancel-request', requireAuth, async (req, res) => {
   const orderId = req.params.id;
   const user = req.session.user;
