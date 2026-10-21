@@ -649,6 +649,22 @@ async function init(){
   loadCart();
   loadMenu();
   initBanner();
+  // Sign-out modal (elements exist in DOM at this point)
+  document.getElementById('btn-logout').onclick=()=>{
+    document.getElementById('signout-modal').style.display='flex';
+    document.body.style.overflow='hidden';
+  };
+  document.getElementById('signout-cancel').onclick=()=>{
+    document.getElementById('signout-modal').style.display='none';
+    document.body.style.overflow='';
+  };
+  document.getElementById('signout-confirm').onclick=async()=>{
+    document.getElementById('signout-confirm').disabled=true;
+    document.getElementById('signout-confirm').textContent='Signing out…';
+    await api('/auth/logout','POST');
+    localStorage.removeItem('thefold_cart');
+    window.location.replace('/login');
+  };
 }
 
 async function loadMenu(){
@@ -1036,21 +1052,6 @@ document.getElementById('btn-place-order').onclick=async()=>{
   }catch(e){toast(e.message,'error');btn.disabled=false;btn.innerHTML='Place order';}
 };
 
-document.getElementById('btn-logout').onclick=()=>{
-  document.getElementById('signout-modal').style.display='flex';
-  document.body.style.overflow='hidden';
-};
-document.getElementById('signout-cancel').onclick=()=>{
-  document.getElementById('signout-modal').style.display='none';
-  document.body.style.overflow='';
-};
-document.getElementById('signout-confirm').onclick=async()=>{
-  document.getElementById('signout-confirm').disabled=true;
-  document.getElementById('signout-confirm').textContent='Signing out…';
-  await api('/auth/logout','POST');
-  localStorage.removeItem('thefold_cart');
-  window.location.replace('/login');
-};
 
 // ===== PIZZA CUSTOMIZER =====
 const FLAVORS = [
@@ -1464,7 +1465,7 @@ function initBanner(){
 init();
 </script>
 
-<! SIGN OUT DESIGN>
+<!-- SIGN OUT MODAL -->
 <div id="signout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;padding:16px;">
   <div style="background:white;border-radius:10px;padding:28px;width:100%;max-width:380px;text-align:center;">
     <div style="width:48px;height:48px;background:#FEF3C7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
