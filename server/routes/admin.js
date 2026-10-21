@@ -11,7 +11,7 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-// ==================== IMAGE UPLOAD ====================
+// upload image
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '../../public/images/menu'));
@@ -43,7 +43,7 @@ router.post('/upload-image', requireAdmin, upload.single('image'), async (req, r
   }
 });
 
-// ==================== ORDERS ====================
+// orders
 router.get('/orders', requireAdmin, async (req, res) => {
   try {
     const snap = await db.collection('orders').get();
@@ -56,22 +56,22 @@ router.get('/orders', requireAdmin, async (req, res) => {
 });
 
 router.patch('/orders/:id/status', requireAdmin, async (req, res) => {
-  const { status } = req.body;
+  const { status, reason } = req.body;
   const validStatuses = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ message: 'Invalid status' });
   }
   try {
-    await db.collection('orders').doc(req.params.id).update({
-      status, updatedAt: new Date().toISOString(),
-    });
+    const update = { status, updatedAt: new Date().toISOString() };
+    if (status === 'cancelled' && reason) update.cancellationReason = reason;
+    await db.collection('orders').doc(req.params.id).update(update);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// ==================== STATS ====================
+// stats
 router.get('/stats', requireAdmin, async (req, res) => {
   try {
     const [ordersSnap, usersSnap, menuSnap] = await Promise.all([
@@ -103,7 +103,7 @@ router.get('/stats', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== USERS ====================
+// users
 router.get('/users', requireAdmin, async (req, res) => {
   try {
     const snap = await db.collection('users').get();
@@ -139,7 +139,7 @@ router.post('/remove-admin', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== MENU ====================
+// menu
 router.post('/menu', requireAdmin, async (req, res) => {
   const { name, category, price, description, available, image, sizes, addons } = req.body;
   try {
@@ -183,7 +183,7 @@ router.delete('/stock/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== STOCK / INVENTORY ====================
+// stock inventory
 router.get('/stock', requireAdmin, async (req, res) => {
   try {
     const [menuSnap, stockSnap] = await Promise.all([
@@ -256,7 +256,7 @@ router.get('/stock/:id/logs', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== CUSTOM PIZZA PRICES ====================
+// custom pizza prices
 router.get('/custom-prices', requireAdmin, async (req, res) => {
   try {
     const doc = await db.collection('settings').doc('custom_pizza_prices').get();
@@ -286,13 +286,12 @@ router.post('/custom-prices', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== CANCELLATION REQUESTS ====================
+// cancellation requests
 router.get('/cancellation-requests', requireAdmin, async (req, res) => {
   try {
     const snap = await db.collection('orders')
       .where('cancellationRequested', '==', true)
       .get();
-    // Also include orders with status 'cancellation_requested' or 'cancelled'
     const snap2 = await db.collection('orders')
       .where('status', 'in', ['cancellation_requested', 'cancelled'])
       .get();
@@ -354,10 +353,9 @@ router.patch('/cancellation-requests/:id/reject', requireAdmin, async (req, res)
   }
 });
 
-// ==================== REFUNDS ====================
+// refunds
 router.get('/refunds', requireAdmin, async (req, res) => {
   try {
-    // Try dedicated refunds collection first, fall back to orders with refund fields
     let refunds = [];
     try {
       const snap = await db.collection('refunds').get();
@@ -386,7 +384,6 @@ router.patch('/refunds/:id/status', requireAdmin, async (req, res) => {
       refundResolvedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    // Try dedicated refunds collection first, fall back to orders
     try {
       const ref = db.collection('refunds').doc(req.params.id);
       const doc = await ref.get();
@@ -399,10 +396,9 @@ router.patch('/refunds/:id/status', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== NOTIFICATIONS ====================
+// notifications
 router.get('/notifications', requireAdmin, async (req, res) => {
   try {
-    // Get recent orders as notifications (last 50, sorted newest first)
     const snap = await db.collection('orders')
       .orderBy('createdAt', 'desc')
       .limit(50)
@@ -461,7 +457,7 @@ router.patch('/notifications/read-all', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== INGREDIENTS ====================
+// ingredients
 router.get('/ingredients', requireAdmin, async (req, res) => {
   try {
     const snap = await db.collection('ingredients').orderBy('name').get();
@@ -507,7 +503,7 @@ router.delete('/ingredients/:id', requireAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// ==================== RECIPES / BOM ====================
+// recipes
 router.get('/recipes', requireAdmin, async (req, res) => {
   try {
     const snap = await db.collection('recipes').get();
