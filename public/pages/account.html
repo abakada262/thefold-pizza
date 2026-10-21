@@ -167,6 +167,13 @@ a{text-decoration:none;color:inherit;}
           <button class="btn btn-primary" id="btn-change-pwd">Update password</button>
         </div>
       </div>
+      <div class="card" style="border-color:#FCA5A5;">
+        <div class="card-head" style="border-color:#FCA5A5;"><div class="card-title" style="color:var(--red);">Delete Account</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px;line-height:1.6;">Permanently delete your account and all associated data. This action <strong>cannot be undone</strong>.</p>
+          <button class="btn btn-danger" id="btn-open-delete">Delete my account</button>
+        </div>
+      </div>
     </div>
 
     <!-- ORDER SUMMARY -->
@@ -262,6 +269,23 @@ a{text-decoration:none;color:inherit;}
   </div>
 </div>
 <div id="toast-container"></div>
+
+<!-- DELETE ACCOUNT MODAL -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:white;border-radius:10px;padding:28px;width:100%;max-width:420px;">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--red);margin-bottom:6px;">Delete Account</div>
+    <p style="font-size:13px;color:var(--text-mid);margin-bottom:20px;line-height:1.6;">This will permanently delete your account, profile, and all data. Enter your password to confirm.</p>
+    <div class="form-group">
+      <label class="form-label">Your password <span style="color:var(--red);">*</span></label>
+      <input type="password" class="form-input" id="delete-pwd" placeholder="Enter your password">
+    </div>
+    <div id="delete-error" style="display:none;margin-bottom:12px;padding:10px 12px;background:#FEE2E2;border-left:3px solid #EF4444;border-radius:0 4px 4px 0;font-size:12px;color:#991B1B;"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button style="flex:1;padding:11px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:white;color:var(--text-mid);border:1px solid var(--border);" onclick="closeDeleteModal()">Cancel</button>
+      <button style="flex:1;padding:11px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:var(--red);color:white;border:none;" id="btn-confirm-delete" onclick="confirmDeleteAccount()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
 
 <nav class="bottom-nav">
   <a href="/dashboard" class="bottom-nav-item">
@@ -386,6 +410,64 @@ async function loadSummary(){
 
 const signout=async()=>{await api('/auth/logout','POST');await auth.signOut();window.location.replace('/login');};
 document.getElementById('btn-logout').onclick=signout;
+
+// Delete account
+document.getElementById('btn-open-delete').onclick = () => {
+  document.getElementById('delete-pwd').value = '';
+  document.getElementById('delete-error').style.display = 'none';
+  document.getElementById('btn-confirm-delete').disabled = false;
+  document.getElementById('btn-confirm-delete').textContent = 'Delete Permanently';
+  document.getElementById('delete-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+function closeDeleteModal() {
+  document.getElementById('delete-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function confirmDeleteAccount() {
+  const pwd = document.getElementById('delete-pwd').value;
+  if (!pwd) { showDeleteError('Please enter your password.'); return; }
+  const btn = document.getElementById('btn-confirm-delete');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    const user = auth.currentUser;
+    if (!user) { showDeleteError('Session expired. Please log in again.'); return; }
+    // Re-authenticate to verify password
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, pwd);
+    await user.reauthenticateWithCredential(cred);
+    // Get fresh ID token to send to server
+    const idToken = await user.getIdToken(true);
+    // Call backend to delete Firestore doc + Firebase Auth user
+    const res = await fetch('/api/auth/delete-account', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+      credentials: 'include'
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to delete account');
+    await auth.signOut();
+    window.location.replace('/login');
+  } catch(e) {
+    const msg = (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')
+      ? 'Incorrect password. Please try again.'
+      : (e.message || 'Failed to delete account.');
+    showDeleteError(msg);
+    btn.disabled = false; btn.textContent = 'Delete Permanently';
+  }
+}
+
+function showDeleteError(msg) {
+  const el = document.getElementById('delete-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+document.getElementById('delete-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+
 init();
 </script>
 </body>

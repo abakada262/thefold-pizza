@@ -163,4 +163,26 @@ router.patch('/update-profile', async (req, res) => {
   }
 });
 
+router.delete('/delete-account', async (req, res) => {
+  if (!req.session.user) return res.status(401).json({ success: false, message: 'Unauthorized' });
+  const { idToken } = req.body;
+  if (!idToken) return res.status(400).json({ success: false, message: 'ID token required' });
+  try {
+    // Verify fresh token to confirm password was just entered
+    const decoded = await auth.verifyIdToken(idToken);
+    if (decoded.uid !== req.session.user.uid) {
+      return res.status(403).json({ success: false, message: 'Token mismatch' });
+    }
+    // Delete Firestore user document
+    await db.collection('users').doc(req.session.user.uid).delete();
+    // Delete Firebase Auth account
+    await auth.deleteUser(req.session.user.uid);
+    // Clear session cookie
+    res.clearCookie('thefold_token');
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
