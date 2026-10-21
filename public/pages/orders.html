@@ -270,7 +270,7 @@ function orderCard(o){
       ${cancelReason ? `<div style="margin-top:10px;padding:10px 14px;background:#FEF2F2;border-left:3px solid #EF4444;border-radius:0 4px 4px 0;font-size:12px;color:#7F1D1D;line-height:1.6;"><strong style="font-weight:600;">Reason:</strong> ${cancelReason}</div>` : ''}
     </div>`:
     `<div class="progress-bar">${steps.map((s,i)=>`
-      <div class="progress-step ${i<curStep?'done':i===curStep?'active':''}">
+      <div class="progress-step ${i<curStep||(i===curStep&&o.status==='delivered')?'done':i===curStep?'active':''}">
         <div class="progress-dot"><svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="progress-label">${s.label}</div>
       </div>`).join('')}</div>`;
