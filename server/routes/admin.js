@@ -95,8 +95,13 @@ async function deductIngredients(db, orderId, order) {
       batch.set(logRef, {
         ingredientId: ing.ingredientId,
         ingredientName: ing.ingredientName || ingDoc.data().name || '',
+        unit: ingDoc.data().unit || '',
         action: 'deducted',
+        qty: -needed,
         amount: needed,
+        balanceBefore: current,
+        balanceAfter: Math.max(0, current - needed),
+        reason: `Order #${orderId.slice(0,8).toUpperCase()} — ${item.name}`,
         orderId,
         menuItem: item.name,
         createdAt: new Date().toISOString(),
@@ -135,12 +140,18 @@ async function restoreIngredients(db, orderId, order) {
       updatedAt: new Date().toISOString(),
     });
 
+    const ingData = ingDoc.data();
     const logRef = db.collection('ingredient_logs').doc();
     batch.set(logRef, {
       ingredientId: d.ingredientId,
       ingredientName: d.ingredientName || '',
-      action: 'restored',
+      unit: ingData.unit || '',
+      action: 'restocked',
+      qty: d.amountDeducted,
       amount: d.amountDeducted,
+      balanceBefore: current,
+      balanceAfter: current + d.amountDeducted,
+      reason: `Cancelled Order #${orderId.slice(0,8).toUpperCase()} — restored`,
       orderId,
       createdAt: new Date().toISOString(),
     });
