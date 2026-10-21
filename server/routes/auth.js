@@ -146,7 +146,7 @@ router.post('/fix-role', async (req, res) => {
   }
 });
 
-router.post('/update-profile', async (req, res) => {
+router.patch('/update-profile', async (req, res) => {
   if (!req.session.user) return res.status(401).json({ message: 'Unauthorized' });
   const { name, phone, address } = req.body;
   try {
