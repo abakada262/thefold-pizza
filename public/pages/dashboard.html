@@ -1036,8 +1036,17 @@ document.getElementById('btn-place-order').onclick=async()=>{
   }catch(e){toast(e.message,'error');btn.disabled=false;btn.innerHTML='Place order';}
 };
 
-document.getElementById('btn-logout').onclick=async()=>{
-  if(!confirm('Sign out of your account?'))return;
+document.getElementById('btn-logout').onclick=()=>{
+  document.getElementById('signout-modal').style.display='flex';
+  document.body.style.overflow='hidden';
+};
+document.getElementById('signout-cancel').onclick=()=>{
+  document.getElementById('signout-modal').style.display='none';
+  document.body.style.overflow='';
+};
+document.getElementById('signout-confirm').onclick=async()=>{
+  document.getElementById('signout-confirm').disabled=true;
+  document.getElementById('signout-confirm').textContent='Signing out…';
   await api('/auth/logout','POST');
   localStorage.removeItem('thefold_cart');
   window.location.replace('/login');
@@ -1454,5 +1463,20 @@ function initBanner(){
 
 init();
 </script>
+
+<! SIGN OUT DESIGN>
+<div id="signout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:white;border-radius:10px;padding:28px;width:100%;max-width:380px;text-align:center;">
+    <div style="width:48px;height:48px;background:#FEF3C7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#1A1714;margin-bottom:8px;">Sign out?</div>
+    <p style="font-size:13px;color:#6B6560;margin-bottom:24px;line-height:1.6;">Are you sure you want to sign out of your account?</p>
+    <div style="display:flex;gap:10px;">
+      <button id="signout-cancel" style="flex:1;padding:11px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:white;color:#6B6560;border:1px solid #E8E2D9;">Stay</button>
+      <button id="signout-confirm" style="flex:1;padding:11px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:#1B5E20;color:white;border:none;">Sign out</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
