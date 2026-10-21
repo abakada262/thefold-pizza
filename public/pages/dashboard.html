@@ -747,6 +747,7 @@ function openModal(id){
         <span class="size-btn-price">₱${Number(sizes[k].price).toLocaleString('en-PH')}</span>
       </button>`).join('');
     if(sizeKeys.length===1){selectSize(sizeKeys[0]);}
+    else{updateAtcPrice();}
   } else {
     document.getElementById('size-section').style.display='none';
     selectedSize={key:'regular',label:'Regular',price:currentItem.price};
