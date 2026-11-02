@@ -387,7 +387,8 @@ async function loadSummary(){
   try{
     const data=await api('/orders/my');const orders=data.orders||[];
     const total=orders.reduce((s,o)=>s+(o.total||0),0);
-    document.getElementById('stat-spent').textContent='₱'+Math.round(total/1000)+'k';
+    document.getElementById('stat-orders').textContent=orders.length;
+    document.getElementById('stat-spent').textContent=total>0?'₱'+Math.round(total/1000)+'k':'₱0';
     document.getElementById('summary-loading').style.display='none';
     if(!orders.length){document.getElementById('summary-content').innerHTML='<div style="text-align:center;padding:48px;color:var(--text-mid);">No orders yet</div>';return;}
     document.getElementById('summary-content').innerHTML=`
