@@ -115,6 +115,20 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.post('/check-phone', async (req, res) => {
+  const { phone } = req.body;
+  if (!phone) return res.status(400).json({ success: false, message: 'Phone number required' });
+  try {
+    const snap = await db.collection('users').where('phone', '==', phone.trim()).get();
+    if (!snap.empty) {
+      return res.json({ success: false, exists: true, message: 'This phone number is already registered.' });
+    }
+    res.json({ success: true, exists: false });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.post('/validate-email', (req, res) => {
   const { email } = req.body;
   if (!isValidEmail(email)) {
