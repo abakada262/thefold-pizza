@@ -1189,8 +1189,8 @@ function renderSaOrders(){
   document.getElementById('sa-orders-tbody').innerHTML=filtered.length?filtered.map(o=>`
     <tr>
       <td data-label="Order ID" style="font-size:12px;font-weight:600;color:var(--text-mid);">#${o.id.slice(0,8).toUpperCase()}</td>
-      <td data-label="Customer"><div style="font-weight:500;">${o.userName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${o.userEmail||''}</div></td>
-      <td data-label="Items" style="font-size:12px;width:240px;max-width:240px;">${buildOrderItemCell(o)}</td>
+      <td data-label="Customer"><div style="font-weight:500;">${o.userName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${o.userEmail||''}</div>${o.address?`<div style="font-size:11px;color:var(--text-mid);margin-top:4px;padding:4px 6px;background:#F5F1EB;border-radius:4px;line-height:1.4;">📍 ${o.address}</div>`:''}</td>
+      <td data-label="Items" style="font-size:12px;width:240px;max-width:240px;">${buildOrderItemCell(o)}${o.notes?`<div style="margin-top:5px;padding:5px 8px;background:#FEF9E7;border-left:3px solid #F9A825;border-radius:0 4px 4px 0;font-size:11px;color:#6B6560;line-height:1.45;"><span style="font-weight:700;color:#1A1714;">Notes: </span>${o.notes}</div>`:''}</td>
       <td data-label="Total" style="font-weight:700;color:var(--red);">${formatCurrency(o.total)}</td>
       <td data-label="Payment">${paymentBadge(o)}</td>
       <td data-label="Status"><span class="badge ${statusColors[o.status]||'badge-pending'}">${statusNames[o.status]||o.status}</span></td>
