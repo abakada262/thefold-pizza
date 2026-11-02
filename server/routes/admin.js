@@ -70,7 +70,6 @@ async function deductIngredients(db, orderId, order) {
     const menuItemId = item.menuItemId || item.id;
     const itemSize = item.size || 'all';
 
-    // Match recipe by menuItemId or by name, prefer size-specific then 'all'
     const recipe = recipes.find(r =>
       (menuItemId && r.menuItemId === menuItemId && (r.size === itemSize || r.size === 'all')) ||
       (!menuItemId && r.menuItemName === item.name && (r.size === itemSize || r.size === 'all'))
@@ -174,12 +173,10 @@ router.patch('/orders/:id/status', requireAdmin, async (req, res) => {
     const update = { status, updatedAt: new Date().toISOString() };
     if (status === 'cancelled' && reason) update.cancellationReason = reason;
 
-    // Auto-deduct ingredients when moving to "preparing" (only once)
     if (status === 'preparing' && order.status !== 'preparing' && !order.ingredientsDeducted) {
       await deductIngredients(db, req.params.id, order);
     }
 
-    // Restore ingredients if cancelled and deduction was done
     if (status === 'cancelled' && order.ingredientsDeducted) {
       await restoreIngredients(db, req.params.id, order);
       update.ingredientsDeducted = false;
@@ -270,7 +267,6 @@ router.post('/make-admin', requireAdmin, async (req, res) => {
 router.post('/remove-admin', requireAdmin, async (req, res) => {
   const { uid } = req.body;
   if (!uid) return res.status(400).json({ success: false, message: 'uid required' });
-  // Only superadmin can remove admins
   if (req.session.user.role !== 'superadmin') {
     return res.status(403).json({ success: false, message: 'Superadmin only' });
   }
@@ -517,6 +513,34 @@ router.get('/refunds', requireAdmin, async (req, res) => {
   }
 });
 
+router.post('/refunds', requireAdmin, async (req, res) => {
+  try {
+    const {
+      orderId, orderShortId, customerName, customerEmail,
+      amount, paymentMethod, paymentRef, reason, refundStatus,
+    } = req.body;
+    if (!orderId) return res.status(400).json({ success: false, message: 'orderId required' });
+    const ref = db.collection('refunds').doc();
+    await ref.set({
+      orderId,
+      orderShortId: orderShortId || orderId.slice(0, 8).toUpperCase(),
+      customerName: customerName || '',
+      customerEmail: customerEmail || '',
+      amount: Number(amount) || 0,
+      paymentMethod: paymentMethod || 'gcash',
+      paymentRef: paymentRef || '',
+      reason: reason || '',
+      status: refundStatus || 'pending_review',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: req.session.user?.email || '',
+    });
+    res.json({ success: true, id: ref.id });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.patch('/refunds/:id/status', requireAdmin, async (req, res) => {
   const { status, refundRef, notes } = req.body;
   try {
@@ -530,7 +554,10 @@ router.patch('/refunds/:id/status', requireAdmin, async (req, res) => {
     try {
       const ref = db.collection('refunds').doc(req.params.id);
       const doc = await ref.get();
-      if (doc.exists) { await ref.update({ status, refundReference: refundRef || '', notes: notes || '', resolvedAt: new Date().toISOString(), updatedAt: new Date().toISOString() }); return res.json({ success: true }); }
+      if (doc.exists) {
+        await ref.update({ status, refundReference: refundRef || '', notes: notes || '', resolvedAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        return res.json({ success: true });
+      }
     } catch (e) {}
     await db.collection('orders').doc(req.params.id).update(update);
     res.json({ success: true });
@@ -583,7 +610,6 @@ router.patch('/notifications/:id/read', requireAdmin, async (req, res) => {
 
 router.patch('/notifications/read-all', requireAdmin, async (req, res) => {
   try {
-    // Fetch recent unread orders and mark them read
     const snap = await db.collection('orders')
       .orderBy('createdAt', 'desc')
       .limit(100)
