@@ -277,6 +277,52 @@ a{text-decoration:none;color:inherit;}
 
 @media(max-width:768px){.layout{padding:16px;padding-bottom:80px;}.cart-drawer{width:100%;}.banner-content{padding:0 24px;}.banner-title{font-size:26px;}.size-grid{grid-template-columns:1fr 1fr;}}
 
+/* CHECKOUT PANEL */
+.checkout-panel{position:absolute;inset:0;background:white;z-index:10;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);overflow:hidden;}
+.checkout-panel.open{transform:translateX(0);}
+.checkout-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.checkout-back{background:none;border:none;cursor:pointer;color:var(--text-mid);padding:4px 6px;display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;border-radius:4px;}
+.checkout-back:hover{background:var(--bg);}
+.checkout-scroll{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:18px;}
+.co-section{display:flex;flex-direction:column;}
+.co-section-label{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;}
+.delivery-opt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.delivery-opt{border:1.5px solid var(--border);border-radius:8px;padding:11px 10px;cursor:pointer;background:white;text-align:left;transition:all 0.15s;font-family:'Inter',sans-serif;width:100%;}
+.delivery-opt.sel{border-color:var(--green);background:#F0F7F0;}
+.delivery-opt-icon{font-size:18px;margin-bottom:5px;display:block;}
+.delivery-opt-name{font-size:12px;font-weight:700;color:var(--text);display:block;margin-bottom:2px;}
+.delivery-opt-desc{font-size:10px;color:var(--text-mid);line-height:1.4;}
+.addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.addr-full{grid-column:1/-1;}
+.co-input{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:white;transition:border-color 0.15s;box-sizing:border-box;}
+.co-input:focus{outline:none;border-color:var(--green);}
+.co-input::placeholder{color:#C8C3BE;}
+.co-label{font-size:11px;font-weight:600;color:var(--text-mid);margin-bottom:4px;display:block;}
+.co-field{display:flex;flex-direction:column;}
+.time-opt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.time-opt{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;background:white;transition:all 0.15s;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px;width:100%;}
+.time-opt.sel{border-color:var(--green);background:#F0F7F0;}
+.time-opt-dot{width:10px;height:10px;border-radius:50%;border:2px solid #C8C3BE;flex-shrink:0;transition:all 0.15s;}
+.time-opt.sel .time-opt-dot{background:var(--green);border-color:var(--green);}
+.time-opt-label{font-size:12px;font-weight:600;color:var(--text);}
+.pay-opt-row{display:flex;flex-direction:column;gap:8px;}
+.pay-opt{border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;cursor:pointer;background:white;transition:all 0.15s;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:10px;width:100%;}
+.pay-opt.sel{border-color:var(--green);background:#F0F7F0;}
+.pay-opt-radio{width:16px;height:16px;border-radius:50%;border:2px solid #C8C3BE;flex-shrink:0;transition:all 0.15s;position:relative;}
+.pay-opt.sel .pay-opt-radio{border-color:var(--green);}
+.pay-opt.sel .pay-opt-radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--green);}
+.pay-opt-icon{font-size:17px;width:24px;text-align:center;flex-shrink:0;}
+.pay-opt-info{flex:1;}
+.pay-opt-name{font-size:13px;font-weight:600;color:var(--text);display:block;}
+.pay-opt-sub{font-size:10px;color:var(--text-mid);}
+.co-footer{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;background:white;}
+.co-summary-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.co-summary-label{font-size:12px;color:var(--text-mid);font-weight:500;}
+.co-summary-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--red);}
+.btn-place-now{width:100%;padding:13px;background:var(--green);color:white;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.15s;letter-spacing:0.02em;}
+.btn-place-now:hover{background:var(--green-mid);}
+.btn-place-now:disabled{opacity:0.55;cursor:not-allowed;}
+
 /* MOBILE BOTTOM NAV */
 .bottom-nav{
   display:none;
@@ -469,7 +515,7 @@ a{text-decoration:none;color:inherit;}
 
 <!-- CART DRAWER -->
 <div class="overlay" id="cart-overlay" onclick="toggleCart()"></div>
-<div class="cart-drawer" id="cart-drawer">
+<div class="cart-drawer" id="cart-drawer" style="position:relative;overflow:hidden;">
   <div class="cart-header">
     <div class="cart-title">Your cart</div>
     <button class="cart-close" onclick="toggleCart()">&#x2715;</button>
@@ -485,23 +531,151 @@ a{text-decoration:none;color:inherit;}
       <span class="cart-total-label">Total</span>
       <span class="cart-total-val" id="cart-total">₱0</span>
     </div>
-    <div class="form-group">
-      <label class="form-label">Delivery address</label>
-      <input type="text" class="form-input" id="order-address" placeholder="Your full delivery address">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Payment method</label>
-      <select class="form-input" id="order-payment">
-        <option value="cash">Cash on delivery</option>
-        <option value="gcash">GCash (PayMongo)</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Special instructions (optional)</label>
-      <input type="text" class="form-input" id="order-notes" placeholder="e.g. Extra napkins, ring the doorbell">
-    </div>
-    <button class="btn-order" id="btn-place-order">Place order</button>
+    <button class="btn-order" id="btn-place-order" onclick="openCheckout()">Proceed to checkout</button>
   </div>
+
+  <!-- CHECKOUT PANEL (slides in over cart) -->
+  <div class="checkout-panel" id="checkout-panel">
+    <div class="checkout-header">
+      <button class="checkout-back" onclick="closeCheckout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to cart
+      </button>
+      <div style="flex:1;text-align:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--text);margin-right:60px;">Delivery Details</div>
+    </div>
+
+    <div class="checkout-scroll">
+
+      <!-- Delivery Type -->
+      <div class="co-section">
+        <div class="co-section-label">Delivery type</div>
+        <div class="delivery-opt-row">
+          <button class="delivery-opt sel" id="dopt-store" onclick="setDeliveryType('store')">
+            <span class="delivery-opt-icon">🛵</span>
+            <span class="delivery-opt-name">Store Delivery</span>
+            <span class="delivery-opt-desc">We deliver to your door</span>
+          </button>
+          <button class="delivery-opt" id="dopt-courier" onclick="setDeliveryType('courier')">
+            <span class="delivery-opt-icon">📦</span>
+            <span class="delivery-opt-name">Book My Courier</span>
+            <span class="delivery-opt-desc">Arrange your own pickup</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Address Fields (shown for store delivery) -->
+      <div class="co-section" id="address-section">
+        <div class="co-section-label">Delivery address</div>
+        <div class="addr-grid">
+          <div class="co-field">
+            <label class="co-label">House / Unit No. <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="co-house" placeholder="e.g. Unit 4B">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Street <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="co-street" placeholder="e.g. Rizal Ave.">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Barangay <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="co-barangay" placeholder="e.g. Brgy. San Jose">
+          </div>
+          <div class="co-field">
+            <label class="co-label">City / Municipality <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="co-city" placeholder="e.g. Caloocan City">
+          </div>
+          <div class="co-field addr-full">
+            <label class="co-label">Landmark <span style="color:var(--text-light);font-weight:400;">(optional)</span></label>
+            <input class="co-input" id="co-landmark" placeholder="e.g. Near 7-Eleven, beside the park">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Road distance from store (km)</label>
+            <input class="co-input" id="co-distance" type="number" min="0" step="0.1" placeholder="e.g. 2.5">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Delivery instructions <span style="color:var(--text-light);font-weight:400;">(optional)</span></label>
+            <input class="co-input" id="co-notes" placeholder="e.g. Ring doorbell twice">
+          </div>
+        </div>
+      </div>
+
+      <!-- Courier note (shown when courier selected) -->
+      <div class="co-section" id="courier-section" style="display:none;">
+        <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:14px 16px;font-size:13px;color:#5D4037;line-height:1.6;">
+          <strong>Pick-up at store:</strong> Please visit our location or have your courier pick up the order. Contact us after placing your order to coordinate pick-up time.
+        </div>
+        <div class="co-field" style="margin-top:12px;">
+          <label class="co-label">Delivery instructions <span style="color:var(--text-light);font-weight:400;">(optional)</span></label>
+          <input class="co-input" id="co-notes-courier" placeholder="e.g. Courier name, special notes">
+        </div>
+      </div>
+
+      <!-- Order Time -->
+      <div class="co-section">
+        <div class="co-section-label">Order time</div>
+        <div class="time-opt-row">
+          <button class="time-opt sel" id="topt-asap" onclick="setOrderTime('asap')">
+            <div class="time-opt-dot"></div>
+            <div>
+              <div class="time-opt-label">ASAP</div>
+              <div style="font-size:10px;color:var(--text-mid);">~30–45 mins</div>
+            </div>
+          </button>
+          <button class="time-opt" id="topt-schedule" onclick="setOrderTime('schedule')">
+            <div class="time-opt-dot"></div>
+            <div>
+              <div class="time-opt-label">Schedule</div>
+              <div style="font-size:10px;color:var(--text-mid);">Pick a time</div>
+            </div>
+          </button>
+        </div>
+        <div id="schedule-time-wrap" style="display:none;margin-top:10px;">
+          <label class="co-label">Preferred date &amp; time</label>
+          <input class="co-input" id="co-schedule-time" type="datetime-local">
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="co-section">
+        <div class="co-section-label">Payment method</div>
+        <div class="pay-opt-row">
+          <button class="pay-opt sel" id="popt-cash" onclick="setPayment('cash')">
+            <div class="pay-opt-radio"></div>
+            <div class="pay-opt-icon">💵</div>
+            <div class="pay-opt-info">
+              <span class="pay-opt-name">Cash on Delivery</span>
+              <span class="pay-opt-sub">Pay when your order arrives</span>
+            </div>
+          </button>
+          <button class="pay-opt" id="popt-gcash" onclick="setPayment('gcash')">
+            <div class="pay-opt-radio"></div>
+            <div class="pay-opt-icon">📱</div>
+            <div class="pay-opt-info">
+              <span class="pay-opt-name">GCash</span>
+              <span class="pay-opt-sub">Via PayMongo secure link</span>
+            </div>
+          </button>
+          <button class="pay-opt" id="popt-maya" onclick="setPayment('maya')">
+            <div class="pay-opt-radio"></div>
+            <div class="pay-opt-icon">💳</div>
+            <div class="pay-opt-info">
+              <span class="pay-opt-name">Maya</span>
+              <span class="pay-opt-sub">Via PayMongo secure link</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end checkout-scroll -->
+
+    <div class="co-footer">
+      <div class="co-summary-row">
+        <span class="co-summary-label">Order total</span>
+        <span class="co-summary-val" id="co-total-display">₱0</span>
+      </div>
+      <button class="btn-place-now" id="btn-place-now" onclick="placeOrder()">Place order</button>
+    </div>
+  </div><!-- end checkout-panel -->
+
 </div>
 
 <!-- BUY NOW MODAL -->
@@ -524,6 +698,7 @@ a{text-decoration:none;color:inherit;}
         <select class="form-input" id="bn-payment">
           <option value="cash">Cash on delivery</option>
           <option value="gcash">GCash (PayMongo)</option>
+          <option value="maya">Maya (PayMongo)</option>
         </select>
       </div>
       <div class="form-group" style="margin:0;">
@@ -913,17 +1088,19 @@ async function placeBuyNow(){
       address,paymentMethod,notes,
     });
     closeBuyNow();
-    if(paymentMethod==='gcash'&&orderData.orderId){
-      btn.textContent='Connecting to GCash...';
+    if((paymentMethod==='gcash'||paymentMethod==='maya')&&orderData.orderId){
+      const endpoint=paymentMethod==='maya'?'/payments/create-maya':'/payments/create-gcash';
+      const label=paymentMethod==='maya'?'Maya':'GCash';
+      btn.textContent='Connecting to '+label+'...';
       try{
-        const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
+        const payment=await api(endpoint,'POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
         if(payment.checkoutUrl){
-          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
+          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem(paymentMethod+'Pending','1');
           window.open(payment.checkoutUrl,'_blank');
-          toast('GCash payment opened in new tab.','info');
+          toast(label+' payment opened in new tab.','info');
           setTimeout(()=>window.location.href='/orders',2000);return;
         }
-      }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
+      }catch(payErr){toast(label+' setup failed: '+payErr.message,'error');}
     }
     toast('Order placed! Redirecting...','success');
     setTimeout(()=>window.location.href='/orders',1800);
@@ -1035,37 +1212,120 @@ function editCartItem(key){
   }, 30);
 }
 
-document.getElementById('btn-place-order').onclick=async()=>{
+// ── CHECKOUT PANEL STATE ─────────────────────────────────────
+let _deliveryType='store';  // 'store' | 'courier'
+let _orderTime='asap';      // 'asap' | 'schedule'
+let _paymentMethod='cash';  // 'cash' | 'gcash' | 'maya'
+
+function openCheckout(){
   const items=Object.values(cart);
   if(!items.length)return toast('Your cart is empty','error');
-  const address=document.getElementById('order-address').value.trim();
-  if(!address)return toast('Please enter your delivery address','error');
-  const paymentMethod=document.getElementById('order-payment').value;
-  const btn=document.getElementById('btn-place-order');btn.disabled=true;btn.textContent='Placing order...';
+  // Sync total display
+  const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('co-total-display').textContent='₱'+Number(total).toLocaleString('en-PH',{minimumFractionDigits:2});
+  // Reset state UI
+  setDeliveryType(_deliveryType);
+  setOrderTime(_orderTime);
+  setPayment(_paymentMethod);
+  document.getElementById('checkout-panel').classList.add('open');
+}
+
+function closeCheckout(){
+  document.getElementById('checkout-panel').classList.remove('open');
+}
+
+function setDeliveryType(type){
+  _deliveryType=type;
+  document.getElementById('dopt-store').classList.toggle('sel',type==='store');
+  document.getElementById('dopt-courier').classList.toggle('sel',type==='courier');
+  document.getElementById('address-section').style.display=type==='store'?'':'none';
+  document.getElementById('courier-section').style.display=type==='courier'?'':'none';
+}
+
+function setOrderTime(time){
+  _orderTime=time;
+  document.getElementById('topt-asap').classList.toggle('sel',time==='asap');
+  document.getElementById('topt-schedule').classList.toggle('sel',time==='schedule');
+  document.getElementById('schedule-time-wrap').style.display=time==='schedule'?'block':'none';
+}
+
+function setPayment(method){
+  _paymentMethod=method;
+  ['cash','gcash','maya'].forEach(m=>{
+    document.getElementById('popt-'+m).classList.toggle('sel',m===method);
+  });
+}
+
+function buildAddress(){
+  if(_deliveryType==='courier'){
+    return 'Customer pick-up / own courier';
+  }
+  const house=document.getElementById('co-house').value.trim();
+  const street=document.getElementById('co-street').value.trim();
+  const brgy=document.getElementById('co-barangay').value.trim();
+  const city=document.getElementById('co-city').value.trim();
+  const landmark=document.getElementById('co-landmark').value.trim();
+  const dist=document.getElementById('co-distance').value.trim();
+  if(!house||!street||!brgy||!city){return null;}
+  let addr=`${house}, ${street}, ${brgy}, ${city}`;
+  if(landmark) addr+=` (Near: ${landmark})`;
+  if(dist) addr+=` [~${dist}km]`;
+  return addr;
+}
+
+async function placeOrder(){
+  const items=Object.values(cart);
+  if(!items.length)return toast('Your cart is empty','error');
+
+  const address=buildAddress();
+  if(!address)return toast('Please fill in all required address fields','error');
+
+  const notes=_deliveryType==='store'
+    ? document.getElementById('co-notes').value.trim()
+    : document.getElementById('co-notes-courier').value.trim();
+
+  let scheduledTime='';
+  if(_orderTime==='schedule'){
+    scheduledTime=document.getElementById('co-schedule-time').value;
+    if(!scheduledTime)return toast('Please pick a scheduled delivery time','error');
+  }
+
+  const btn=document.getElementById('btn-place-now');
+  btn.disabled=true;btn.textContent='Placing order...';
+
   try{
     const total=items.reduce((s,i)=>s+i.price*i.qty,0);
     const orderData=await api('/orders','POST',{
       items:items.map(i=>({id:i.id,name:i.name+(i.sizeName?' ('+i.sizeName+')':''),price:i.price,qty:i.qty,addonNames:i.addonNames||'',isCustom:i.isCustom||false})),
-      address,paymentMethod,notes:document.getElementById('order-notes').value,
+      address,
+      paymentMethod:_paymentMethod,
+      notes:[notes,scheduledTime?'Scheduled: '+scheduledTime:'',_deliveryType==='courier'?'Delivery: Own courier':''].filter(Boolean).join(' | '),
     });
     cart={};saveCart();renderCart();
-    document.getElementById('order-address').value='';document.getElementById('order-notes').value='';
-    if(paymentMethod==='gcash'&&orderData.orderId){
-      btn.textContent='Connecting to GCash...';
+    closeCheckout();
+    // Reset fields
+    ['co-house','co-street','co-barangay','co-city','co-landmark','co-distance','co-notes','co-notes-courier','co-schedule-time'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.value='';
+    });
+    if((_paymentMethod==='gcash'||_paymentMethod==='maya')&&orderData.orderId){
+      const endpoint=_paymentMethod==='maya'?'/payments/create-maya':'/payments/create-gcash';
+      const label=_paymentMethod==='maya'?'Maya':'GCash';
+      btn.textContent='Connecting to '+label+'...';
       try{
-        const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
+        const payment=await api(endpoint,'POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
         if(payment.checkoutUrl){
-          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
+          localStorage.setItem('lastOrderId',orderData.orderId);
+          localStorage.setItem(_paymentMethod+'Pending','1');
           window.open(payment.checkoutUrl,'_blank');
-          toast('GCash payment opened in new tab. Come back here after paying.','info');
+          toast(label+' payment opened in new tab. Come back here after paying.','info');
           setTimeout(()=>window.location.href='/orders',2000);return;
         }
-      }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
+      }catch(payErr){toast(label+' setup failed: '+payErr.message,'error');}
     }
     toast('Order placed! Redirecting to tracking...','success');
     setTimeout(()=>window.location.href='/orders',1800);
-  }catch(e){toast(e.message,'error');btn.disabled=false;btn.innerHTML='Place order';}
-};
+  }catch(e){toast(e.message,'error');btn.disabled=false;btn.textContent='Place order';}
+}
 
 
 // ===== PIZZA CUSTOMIZER =====
