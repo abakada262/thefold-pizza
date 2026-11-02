@@ -640,7 +640,6 @@ a{text-decoration:none;color:inherit;}
         <div class="pay-opt-row">
           <button class="pay-opt sel" id="popt-cash" onclick="setPayment('cash')">
             <div class="pay-opt-radio"></div>
-            <div class="pay-opt-icon">💵</div>
             <div class="pay-opt-info">
               <span class="pay-opt-name">Cash on Delivery</span>
               <span class="pay-opt-sub">Pay when your order arrives</span>
@@ -648,17 +647,8 @@ a{text-decoration:none;color:inherit;}
           </button>
           <button class="pay-opt" id="popt-gcash" onclick="setPayment('gcash')">
             <div class="pay-opt-radio"></div>
-            <div class="pay-opt-icon">📱</div>
             <div class="pay-opt-info">
               <span class="pay-opt-name">GCash</span>
-              <span class="pay-opt-sub">Via PayMongo secure link</span>
-            </div>
-          </button>
-          <button class="pay-opt" id="popt-maya" onclick="setPayment('maya')">
-            <div class="pay-opt-radio"></div>
-            <div class="pay-opt-icon">💳</div>
-            <div class="pay-opt-info">
-              <span class="pay-opt-name">Maya</span>
               <span class="pay-opt-sub">Via PayMongo secure link</span>
             </div>
           </button>
@@ -695,11 +685,22 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="form-group" style="margin:0;">
         <label class="form-label">Payment method</label>
-        <select class="form-input" id="bn-payment">
-          <option value="cash">Cash on delivery</option>
-          <option value="gcash">GCash (PayMongo)</option>
-          <option value="maya">Maya (PayMongo)</option>
-        </select>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <button class="pay-opt sel" id="bn-popt-cash" onclick="setBnPayment('cash')" style="width:100%;">
+            <div class="pay-opt-radio"></div>
+            <div class="pay-opt-info">
+              <span class="pay-opt-name">Cash on Delivery</span>
+              <span class="pay-opt-sub">Pay when your order arrives</span>
+            </div>
+          </button>
+          <button class="pay-opt" id="bn-popt-gcash" onclick="setBnPayment('gcash')" style="width:100%;">
+            <div class="pay-opt-radio"></div>
+            <div class="pay-opt-info">
+              <span class="pay-opt-name">GCash</span>
+              <span class="pay-opt-sub">Via PayMongo secure link</span>
+            </div>
+          </button>
+        </div>
       </div>
       <div class="form-group" style="margin:0;">
         <label class="form-label">Special instructions (optional)</label>
@@ -1049,6 +1050,13 @@ function addToCart(){
 }
 
 let _buyNowItem=null;
+let _bnPayment='cash';
+function setBnPayment(method){
+  _bnPayment=method;
+  ['cash','gcash'].forEach(m=>{
+    document.getElementById('bn-popt-'+m).classList.toggle('sel',m===method);
+  });
+}
 function buyNow(){
   if(!currentItem)return;
   if(Object.keys(currentItem.sizes||{}).length>0&&!selectedSize)return toast('Please select a size','error');
@@ -1066,6 +1074,7 @@ function buyNow(){
   document.getElementById('bn-notes').value='';
   document.getElementById('btn-buy-now-place').disabled=false;
   document.getElementById('btn-buy-now-place').textContent='Place order now';
+  _bnPayment='cash';setBnPayment('cash');
   document.getElementById('buy-now-modal').style.display='flex';
   closeModal();
 }
@@ -1077,7 +1086,7 @@ async function placeBuyNow(){
   if(!_buyNowItem)return;
   const address=document.getElementById('bn-address').value.trim();
   if(!address)return toast('Please enter your delivery address','error');
-  const paymentMethod=document.getElementById('bn-payment').value;
+  const paymentMethod=_bnPayment;
   const notes=document.getElementById('bn-notes').value;
   const btn=document.getElementById('btn-buy-now-place');
   btn.disabled=true;btn.textContent='Placing order...';
@@ -1088,19 +1097,17 @@ async function placeBuyNow(){
       address,paymentMethod,notes,
     });
     closeBuyNow();
-    if((paymentMethod==='gcash'||paymentMethod==='maya')&&orderData.orderId){
-      const endpoint=paymentMethod==='maya'?'/payments/create-maya':'/payments/create-gcash';
-      const label=paymentMethod==='maya'?'Maya':'GCash';
-      btn.textContent='Connecting to '+label+'...';
+    if(paymentMethod==='gcash'&&orderData.orderId){
+      btn.textContent='Connecting to GCash...';
       try{
-        const payment=await api(endpoint,'POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
+        const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
         if(payment.checkoutUrl){
-          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem(paymentMethod+'Pending','1');
+          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
           window.open(payment.checkoutUrl,'_blank');
-          toast(label+' payment opened in new tab.','info');
+          toast('GCash payment opened in new tab.','info');
           setTimeout(()=>window.location.href='/orders',2000);return;
         }
-      }catch(payErr){toast(label+' setup failed: '+payErr.message,'error');}
+      }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
     }
     toast('Order placed! Redirecting...','success');
     setTimeout(()=>window.location.href='/orders',1800);
@@ -1251,7 +1258,7 @@ function setOrderTime(time){
 
 function setPayment(method){
   _paymentMethod=method;
-  ['cash','gcash','maya'].forEach(m=>{
+  ['cash','gcash'].forEach(m=>{
     document.getElementById('popt-'+m).classList.toggle('sel',m===method);
   });
 }
@@ -1307,20 +1314,17 @@ async function placeOrder(){
     ['co-house','co-street','co-barangay','co-city','co-landmark','co-distance','co-notes','co-notes-courier','co-schedule-time'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.value='';
     });
-    if((_paymentMethod==='gcash'||_paymentMethod==='maya')&&orderData.orderId){
-      const endpoint=_paymentMethod==='maya'?'/payments/create-maya':'/payments/create-gcash';
-      const label=_paymentMethod==='maya'?'Maya':'GCash';
-      btn.textContent='Connecting to '+label+'...';
+    if(_paymentMethod==='gcash'&&orderData.orderId){
+      btn.textContent='Connecting to GCash...';
       try{
-        const payment=await api(endpoint,'POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
+        const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
         if(payment.checkoutUrl){
-          localStorage.setItem('lastOrderId',orderData.orderId);
-          localStorage.setItem(_paymentMethod+'Pending','1');
+          localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
           window.open(payment.checkoutUrl,'_blank');
-          toast(label+' payment opened in new tab. Come back here after paying.','info');
+          toast('GCash payment opened in new tab. Come back here after paying.','info');
           setTimeout(()=>window.location.href='/orders',2000);return;
         }
-      }catch(payErr){toast(label+' setup failed: '+payErr.message,'error');}
+      }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
     }
     toast('Order placed! Redirecting to tracking...','success');
     setTimeout(()=>window.location.href='/orders',1800);
