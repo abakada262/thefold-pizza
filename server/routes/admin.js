@@ -235,6 +235,28 @@ router.get('/users', requireAdmin, async (req, res) => {
   }
 });
 
+router.post('/backfill-order-counts', requireAdmin, async (req, res) => {
+  try {
+    const [ordersSnap, usersSnap] = await Promise.all([
+      db.collection('orders').get(),
+      db.collection('users').get(),
+    ]);
+    const counts = {};
+    ordersSnap.docs.forEach(d => {
+      const uid = d.data().userId;
+      if (uid) counts[uid] = (counts[uid] || 0) + 1;
+    });
+    const batch = db.batch();
+    usersSnap.docs.forEach(d => {
+      batch.update(d.ref, { totalOrders: counts[d.id] || 0 });
+    });
+    await batch.commit();
+    res.json({ success: true, updated: usersSnap.size, counts });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.post('/make-admin', requireAdmin, async (req, res) => {
   const { uid } = req.body;
   try {
@@ -668,7 +690,7 @@ router.delete('/recipes/:id', requireAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// ==================== INGREDIENT LOGS ====================
+// ingredient logs
 router.get('/ingredient-logs', requireAdmin, async (req, res) => {
   try {
     const snap = await db.collection('ingredient_logs')
