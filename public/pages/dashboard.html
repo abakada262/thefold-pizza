@@ -704,14 +704,47 @@ a{text-decoration:none;color:inherit;}
       </div>
       <button onclick="closeBuyNow()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1;">✕</button>
     </div>
-    <div style="padding:20px 22px;display:flex;flex-direction:column;gap:14px;">
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Delivery address <span style="color:var(--red);">*</span></label>
-        <input type="text" class="form-input" id="bn-address" placeholder="Your full delivery address">
+    <div style="max-height:calc(100vh - 160px);overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:14px;">
+
+      <!-- Delivery Address -->
+      <div>
+        <div class="co-section-label" style="margin-bottom:10px;">Delivery address</div>
+        <div class="addr-grid">
+          <div class="co-field">
+            <label class="co-label">House / Unit No. <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="bn-house" placeholder="e.g. Unit 4B">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Street <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="bn-street" placeholder="e.g. Rizal Ave.">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Barangay <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="bn-barangay" placeholder="e.g. Brgy. San Jose">
+          </div>
+          <div class="co-field">
+            <label class="co-label">City / Municipality <span style="color:var(--red)">*</span></label>
+            <input class="co-input" id="bn-city" placeholder="e.g. Caloocan City">
+          </div>
+          <div class="co-field addr-full">
+            <label class="co-label">Landmark <span style="color:var(--text-light);font-weight:400;">(optional)</span></label>
+            <input class="co-input" id="bn-landmark" placeholder="e.g. Near 7-Eleven, beside the park">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Road distance from store (km)</label>
+            <input class="co-input" id="bn-distance" placeholder="e.g. 2.5" type="number" min="0" step="0.1">
+          </div>
+          <div class="co-field">
+            <label class="co-label">Delivery instructions <span style="color:var(--text-light);font-weight:400;">(optional)</span></label>
+            <input class="co-input" id="bn-notes" placeholder="e.g. Ring doorbell twice">
+          </div>
+        </div>
       </div>
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Payment method</label>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+
+      <!-- Payment -->
+      <div>
+        <div class="co-section-label" style="margin-bottom:10px;">Payment method</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
           <button class="pay-opt sel" id="bn-popt-cash" onclick="setBnPayment('cash')" style="width:100%;">
             <div class="pay-opt-radio"></div>
             <div class="pay-opt-info">
@@ -728,10 +761,7 @@ a{text-decoration:none;color:inherit;}
           </button>
         </div>
       </div>
-      <div class="form-group" style="margin:0;">
-        <label class="form-label">Special instructions (optional)</label>
-        <input type="text" class="form-input" id="bn-notes" placeholder="e.g. Extra napkins, ring the doorbell">
-      </div>
+
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#FFF5F5;border-radius:6px;border:1px solid #FFCDD2;">
         <span style="font-size:13px;color:var(--text-mid);font-weight:500;">Total</span>
         <span id="bn-total" style="font-size:16px;font-weight:700;color:var(--red);"></span>
@@ -1096,8 +1126,9 @@ function buyNow(){
   const label=currentItem.name+(sizeName?' ('+sizeName+')':'')+(modalQty>1?' × '+modalQty:'');
   document.getElementById('bn-item-label').textContent=label;
   document.getElementById('bn-total').textContent='₱'+(price*modalQty).toLocaleString('en-PH',{minimumFractionDigits:2});
-  document.getElementById('bn-address').value='';
-  document.getElementById('bn-notes').value='';
+  ['bn-house','bn-street','bn-barangay','bn-city','bn-landmark','bn-distance','bn-notes'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
   document.getElementById('btn-buy-now-place').disabled=false;
   document.getElementById('btn-buy-now-place').textContent='Place order now';
   _bnPayment='cash';setBnPayment('cash');
@@ -1110,10 +1141,18 @@ function closeBuyNow(){
 }
 async function placeBuyNow(){
   if(!_buyNowItem)return;
-  const address=document.getElementById('bn-address').value.trim();
-  if(!address)return toast('Please enter your delivery address','error');
+  const house=document.getElementById('bn-house').value.trim();
+  const street=document.getElementById('bn-street').value.trim();
+  const brgy=document.getElementById('bn-barangay').value.trim();
+  const city=document.getElementById('bn-city').value.trim();
+  const landmark=document.getElementById('bn-landmark').value.trim();
+  const dist=document.getElementById('bn-distance').value.trim();
+  if(!house||!street||!brgy||!city)return toast('Please fill in all required address fields','error');
+  let address=`${house}, ${street}, ${brgy}, ${city}`;
+  if(landmark) address+=` (Near: ${landmark})`;
+  if(dist) address+=` [~${dist}km]`;
   const paymentMethod=_bnPayment;
-  const notes=document.getElementById('bn-notes').value;
+  const notes=document.getElementById('bn-notes').value.trim();
   const btn=document.getElementById('btn-buy-now-place');
   btn.disabled=true;btn.textContent='Placing order...';
   try{
