@@ -403,7 +403,7 @@ async function loadSummary(){
         <div class="card" style="margin-bottom:10px;">
           <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
             <div><div style="font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:2px;">#${o.id.slice(0,8).toUpperCase()} &nbsp;·&nbsp; <span style="font-weight:400;">${formatDate(o.createdAt)}</span></div><div style="font-size:13px;color:var(--text);">${(o.items||[]).map(i=>`${i.qty}× ${i.name}`).join(', ')}</div></div>
-            <div style="text-align:right;flex-shrink:0;margin-left:16px;"><div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--red);">${formatCurrency(o.total)}</div><div style="font-size:11px;color:var(--text-light);text-transform:capitalize;">${o.status}</div></div>
+            <div style="text-align:right;flex-shrink:0;margin-left:16px;"><div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--red);">${formatCurrency(o.total)}</div><div style="font-size:11px;text-transform:capitalize;color:${o.status==='delivered'?'var(--green)':o.status==='cancelled'?'var(--red)':'var(--text-light)'}">${o.status}</div></div>
           </div>
         </div>`).join('')}`;
   }catch(e){document.getElementById('summary-loading').innerHTML='<p style="text-align:center;color:var(--text-mid);">Failed to load orders</p>';}
