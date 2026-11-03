@@ -18,7 +18,7 @@
   --shadow-md:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
   --shadow-hover:0 8px 28px rgba(27,94,32,0.13),0 2px 8px rgba(27,94,32,0.06);
 }
-body{font-family:'Inter',sans-serif;background:#2C1A0E;color:var(--text);min-height:100vh;}
+body{font-family:'Inter',sans-serif;background:#1A1A1A;color:var(--text);min-height:100vh;}
 a{text-decoration:none;color:inherit;}
 
 /* NAV */
@@ -57,7 +57,7 @@ a{text-decoration:none;color:inherit;}
 .banner-dot.active{background:var(--gold);width:20px;border-radius:3px;}
 
 /* CATEGORY BAR */
-.cat-bar{background:#2C1A0E;border-bottom:1px solid rgba(255,255,255,0.1);padding:0 32px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.cat-bar{background:#1A1A1A;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 32px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
 .cat-bar::-webkit-scrollbar{display:none;}
 .cat-btn{padding:15px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.75);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.15s;letter-spacing:0.01em;}
 .cat-btn.active{color:white;border-bottom-color:var(--gold);font-weight:600;}
@@ -426,7 +426,7 @@ a{text-decoration:none;color:inherit;}
   <button class="cat-btn" data-cat="desserts">Desserts</button>
 </div>
 <!-- CUSTOMIZE BUTTON - separate from category filter -->
-<div style="background:#2C1A0E;border-bottom:1px solid rgba(255,255,255,0.1);padding:10px 32px;display:flex;align-items:center;justify-content:flex-end;">
+<div style="background:#1A1A1A;border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 32px;display:flex;align-items:center;justify-content:flex-end;">
   <button onclick="openCustomizer()" style="background:var(--red);color:white;border:none;padding:9px 20px;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.15s;box-shadow:0 2px 8px rgba(183,28,28,0.3);" onmouseover="this.style.background='var(--red-mid)'" onmouseout="this.style.background='var(--red)'">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg>
     Build a Custom Pizza
@@ -434,7 +434,7 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <!-- PROMOS STRIP -->
-<div style="background:#2C1A0E;border-bottom:1px solid rgba(255,255,255,0.1);padding:18px 32px;">
+<div style="background:#1A1A1A;border-bottom:1px solid rgba(255,255,255,0.08);padding:18px 32px;">
   <div style="max-width:1240px;margin:0 auto;">
     <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:14px;letter-spacing:0.04em;">Current promotions</div>
     <div style="display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;" id="promos-strip">
