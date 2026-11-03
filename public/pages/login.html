@@ -75,6 +75,12 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;color:var(--te
 @keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(110%);opacity:0}}
 @media(max-width:480px){#toast-container{bottom:16px;right:12px;left:12px;}.toast{max-width:100%;min-width:unset;}}
 @media(max-width:768px){body{flex-direction:column;}.left{width:100%;padding:32px 24px;min-height:auto;}.left::before,.left::after{display:none;}.left-features{display:none;}.left-bottom{display:none;}.left-headline{font-size:28px;}.right{padding:32px 24px;}}
+/* Password toggle */
+.pw-wrap{position:relative;}
+.pw-wrap .form-input{padding-right:42px;}
+.pw-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);padding:0;display:flex;align-items:center;line-height:1;}
+.pw-toggle:hover{color:var(--text-mid);}
+.pw-toggle svg{width:16px;height:16px;}
 </style>
 </head>
 <body>
@@ -125,7 +131,10 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;color:var(--te
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input type="password" class="form-input" id="si-password" placeholder="Your password" autocomplete="current-password">
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="si-password" placeholder="Your password" autocomplete="current-password">
+          <button type="button" class="pw-toggle" onclick="togglePw('si-password',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
       </div>
       <div style="text-align:right;margin-bottom:18px;margin-top:-10px;">
         <a href="/forgot-password" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:500;">Forgot password?</a>
@@ -217,62 +226,68 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;color:var(--te
           <label class="form-label" style="margin-bottom:0;">Password</label>
           <span id="pw-counter" style="font-size:11px;color:#9B9490;font-family:'Inter',sans-serif;">0 / 36</span>
         </div>
-        <input type="password" class="form-input" id="su-password" placeholder="Min 6 chars, 1 uppercase" maxlength="36"
-          oninput="
-            const len=this.value.length;
-            const val=this.value;
-            const counter=document.getElementById('pw-counter');
-            counter.textContent=len+' / 36';
-            const pwHint=document.getElementById('pw-hint');
-            if(len===0){
-              pwHint.style.display='none';this.style.borderColor='';
-              counter.style.color='#9B9490';counter.style.fontWeight='400';
-            } else if(len>=36){
-              counter.style.color='#B71C1C';counter.style.fontWeight='600';
-              pwHint.textContent='Maximum 36 characters reached.';pwHint.style.color='#B71C1C';pwHint.style.display='block';
-              this.style.borderColor='#B71C1C';
-            } else if(len<6){
-              pwHint.textContent='Password must be at least 6 characters.';pwHint.style.color='#B71C1C';pwHint.style.display='block';
-              this.style.borderColor='#B71C1C';
-              counter.style.color='#9B9490';counter.style.fontWeight='400';
-            } else if(!/[A-Z]/.test(val)){
-              pwHint.textContent='Must contain at least 1 uppercase letter (A–Z).';pwHint.style.color='#B71C1C';pwHint.style.display='block';
-              this.style.borderColor='#E65100';
-              counter.style.color='#9B9490';counter.style.fontWeight='400';
-            } else {
-              pwHint.textContent='✓ Password looks good';pwHint.style.color='#2E7D32';pwHint.style.display='block';
-              this.style.borderColor='#2E7D32';
-              counter.style.color='#9B9490';counter.style.fontWeight='400';
-            }
-            // Re-check confirm password field whenever password changes
-            const cpField=document.getElementById('su-confirm-password');
-            const cpHintEl=document.getElementById('confirm-pw-hint');
-            if(cpField.value.length>0){
-              if(cpField.value!==this.value){
-                cpHintEl.textContent='Passwords do not match.';cpHintEl.style.color='#B71C1C';cpHintEl.style.display='block';
-                cpField.style.borderColor='#B71C1C';
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="su-password" placeholder="Min 6 chars, 1 uppercase" maxlength="36"
+            oninput="
+              const len=this.value.length;
+              const val=this.value;
+              const counter=document.getElementById('pw-counter');
+              counter.textContent=len+' / 36';
+              const pwHint=document.getElementById('pw-hint');
+              if(len===0){
+                pwHint.style.display='none';this.style.borderColor='';
+                counter.style.color='#9B9490';counter.style.fontWeight='400';
+              } else if(len>=36){
+                counter.style.color='#B71C1C';counter.style.fontWeight='600';
+                pwHint.textContent='Maximum 36 characters reached.';pwHint.style.color='#B71C1C';pwHint.style.display='block';
+                this.style.borderColor='#B71C1C';
+              } else if(len<6){
+                pwHint.textContent='Password must be at least 6 characters.';pwHint.style.color='#B71C1C';pwHint.style.display='block';
+                this.style.borderColor='#B71C1C';
+                counter.style.color='#9B9490';counter.style.fontWeight='400';
+              } else if(!/[A-Z]/.test(val)){
+                pwHint.textContent='Must contain at least 1 uppercase letter (A–Z).';pwHint.style.color='#B71C1C';pwHint.style.display='block';
+                this.style.borderColor='#E65100';
+                counter.style.color='#9B9490';counter.style.fontWeight='400';
               } else {
-                cpHintEl.textContent='✓ Passwords match';cpHintEl.style.color='#2E7D32';cpHintEl.style.display='block';
-                cpField.style.borderColor='#2E7D32';
+                pwHint.textContent='✓ Password looks good';pwHint.style.color='#2E7D32';pwHint.style.display='block';
+                this.style.borderColor='#2E7D32';
+                counter.style.color='#9B9490';counter.style.fontWeight='400';
               }
-            }">
+              // Re-check confirm password field whenever password changes
+              const cpField=document.getElementById('su-confirm-password');
+              const cpHintEl=document.getElementById('confirm-pw-hint');
+              if(cpField.value.length>0){
+                if(cpField.value!==this.value){
+                  cpHintEl.textContent='Passwords do not match.';cpHintEl.style.color='#B71C1C';cpHintEl.style.display='block';
+                  cpField.style.borderColor='#B71C1C';
+                } else {
+                  cpHintEl.textContent='✓ Passwords match';cpHintEl.style.color='#2E7D32';cpHintEl.style.display='block';
+                  cpField.style.borderColor='#2E7D32';
+                }
+              }">
+          <button type="button" class="pw-toggle" onclick="togglePw('su-password',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
         <div id="pw-hint" style="display:none;font-size:11px;margin-top:5px;font-family:'Inter',sans-serif;"></div>
       </div>
       <div class="form-group">
         <label class="form-label">Confirm Password</label>
-        <input type="password" class="form-input" id="su-confirm-password" placeholder="Re-enter your password" maxlength="36"
-          oninput="
-            const cpHint=document.getElementById('confirm-pw-hint');
-            const pw=document.getElementById('su-password').value;
-            if(this.value.length>0&&this.value!==pw){
-              cpHint.textContent='Passwords do not match.';cpHint.style.color='#B71C1C';cpHint.style.display='block';
-              this.style.borderColor='#B71C1C';
-            } else if(this.value.length>0&&this.value===pw){
-              cpHint.textContent='✓ Passwords match';cpHint.style.color='#2E7D32';cpHint.style.display='block';
-              this.style.borderColor='#2E7D32';
-            } else {
-              cpHint.style.display='none';this.style.borderColor='';
-            }">
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="su-confirm-password" placeholder="Re-enter your password" maxlength="36"
+            oninput="
+              const cpHint=document.getElementById('confirm-pw-hint');
+              const pw=document.getElementById('su-password').value;
+              if(this.value.length>0&&this.value!==pw){
+                cpHint.textContent='Passwords do not match.';cpHint.style.color='#B71C1C';cpHint.style.display='block';
+                this.style.borderColor='#B71C1C';
+              } else if(this.value.length>0&&this.value===pw){
+                cpHint.textContent='✓ Passwords match';cpHint.style.color='#2E7D32';cpHint.style.display='block';
+                this.style.borderColor='#2E7D32';
+              } else {
+                cpHint.style.display='none';this.style.borderColor='';
+              }">
+          <button type="button" class="pw-toggle" onclick="togglePw('su-confirm-password',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
         <div id="confirm-pw-hint" style="display:none;font-size:11px;margin-top:5px;color:#B71C1C;font-family:'Inter',sans-serif;"></div>
       </div>
       <!-- Terms & Conditions -->
@@ -311,7 +326,10 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;color:var(--te
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input type="password" class="form-input" id="ad-password" placeholder="Your password" autocomplete="off">
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="ad-password" placeholder="Your password" autocomplete="off">
+          <button type="button" class="pw-toggle" onclick="togglePw('ad-password',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
       </div>
       <button class="btn-submit" id="btn-admin">Access dashboard</button>
       <div class="divider" style="margin:16px 0 12px;">or</div>
@@ -346,7 +364,10 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;color:var(--te
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input type="password" class="form-input" id="sa-password" placeholder="Your password" autocomplete="off">
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="sa-password" placeholder="Your password" autocomplete="off">
+          <button type="button" class="pw-toggle" onclick="togglePw('sa-password',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
       </div>
       <button class="btn-submit" id="btn-superadmin" style="background:#2E7D32;">Access Super Admin Dashboard</button>
       <button class="back-btn" id="btn-back-superadmin">← Back to Admin portal</button>
@@ -358,6 +379,14 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;color:var(--te
 <div id="toast-container"></div>
 
 <script>
+function togglePw(id,btn){
+  const el=document.getElementById(id);
+  const show=el.type==='password';
+  el.type=show?'text':'password';
+  btn.innerHTML=show
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
 firebase.initializeApp({apiKey:"AIzaSyAsXZxD59Igs9oYOC5VR566lfE9VHhbszM",authDomain:"thefold-pizza.firebaseapp.com",projectId:"thefold-pizza",storageBucket:"thefold-pizza.firebasestorage.app",messagingSenderId:"75022777499",appId:"1:75022777499:web:e08d59f9e51d6dcaf05a3e"});
 const auth = firebase.auth();
 function showTab(t){['signin','signup','admin','superadmin'].forEach(n=>document.getElementById('form-'+n).style.display=n===t?'':'none');}
