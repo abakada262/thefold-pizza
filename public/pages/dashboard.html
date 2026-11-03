@@ -1165,13 +1165,15 @@ async function placeBuyNow(){
     if(paymentMethod==='gcash'&&orderData.orderId){
       btn.textContent='Connecting to GCash...';
       try{
+        const gcashWin=window.open('','_blank');
         const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
         if(payment.checkoutUrl){
           localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
-          window.open(payment.checkoutUrl,'_blank');
+          if(gcashWin)gcashWin.location.href=payment.checkoutUrl;
+          else window.open(payment.checkoutUrl,'_blank');
           toast('GCash payment opened in new tab.','info');
           setTimeout(()=>window.location.href='/orders',2000);return;
-        }
+        } else { if(gcashWin)gcashWin.close(); }
       }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
     }
     toast('Order placed! Redirecting...','success');
@@ -1386,13 +1388,15 @@ async function placeOrder(){
     if(_paymentMethod==='gcash'&&orderData.orderId){
       btn.textContent='Connecting to GCash...';
       try{
+        const gcashWin=window.open('','_blank');
         const payment=await api('/payments/create-gcash','POST',{orderId:orderData.orderId,amount:total,description:'The Fold Pizza Order #'+orderData.orderId.slice(0,8).toUpperCase()});
         if(payment.checkoutUrl){
           localStorage.setItem('lastOrderId',orderData.orderId);localStorage.setItem('gcashPending','1');
-          window.open(payment.checkoutUrl,'_blank');
+          if(gcashWin)gcashWin.location.href=payment.checkoutUrl;
+          else window.open(payment.checkoutUrl,'_blank');
           toast('GCash payment opened in new tab. Come back here after paying.','info');
           setTimeout(()=>window.location.href='/orders',2000);return;
-        }
+        } else { if(gcashWin)gcashWin.close(); }
       }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
     }
     toast('Order placed! Redirecting to tracking...','success');
