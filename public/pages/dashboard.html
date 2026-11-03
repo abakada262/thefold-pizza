@@ -578,6 +578,14 @@ a{text-decoration:none;color:inherit;}
       <!-- Address Fields (shown for store delivery) -->
       <div class="co-section" id="address-section">
         <div class="co-section-label">Delivery address</div>
+        <!-- Saved address quick-fill -->
+        <div id="saved-addr-banner" style="display:none;background:#F0F7F0;border:1px solid #C8E6C9;border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Saved address</div>
+            <div id="saved-addr-text" style="font-size:12px;color:var(--text);line-height:1.4;"></div>
+          </div>
+          <button onclick="fillSavedAddress()" style="background:var(--green);color:white;border:none;border-radius:5px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">Use this</button>
+        </div>
         <div class="addr-grid">
           <div class="co-field">
             <label class="co-label">House / Unit No. <span style="color:var(--red)">*</span></label>
@@ -862,6 +870,7 @@ a{text-decoration:none;color:inherit;}
 <script>
 let allItems=[], cart={}, currentItem=null, selectedSize=null, selectedAddons={}, modalQty=1, currentCat='all';
 let _editingCartKey=null; // tracks which cart key is being edited
+let _currentUser=null; // stored after login for address pre-fill
 
 // ── localStorage persistence ──────────────────────────────────
 const CART_KEY='thefold_cart';
@@ -877,6 +886,7 @@ function loadCart(){
 
 async function init(){
   const user=await requireLogin();if(!user)return;
+  _currentUser=user;
   document.getElementById('user-avatar').textContent=(user.name||'?').charAt(0).toUpperCase();
   document.getElementById('user-name').textContent=user.name||'';
   loadCart();
@@ -1281,12 +1291,41 @@ let _deliveryType='store';  // 'store' | 'courier'
 let _orderTime='asap';      // 'asap' | 'schedule'
 let _paymentMethod='cash';  // 'cash' | 'gcash' | 'maya'
 
+function fillSavedAddress(){
+  if(!_currentUser||!_currentUser.address)return;
+  try{
+    const obj=JSON.parse(_currentUser.address);
+    if(obj.house) document.getElementById('co-house').value=obj.house;
+    if(obj.street) document.getElementById('co-street').value=obj.street;
+    if(obj.barangay) document.getElementById('co-barangay').value=obj.barangay;
+    if(obj.city) document.getElementById('co-city').value=obj.city;
+    if(obj.landmark) document.getElementById('co-landmark').value=obj.landmark;
+  }catch(e){
+    // Legacy plain text
+    document.getElementById('co-street').value=_currentUser.address;
+  }
+}
+
 function openCheckout(){
   const items=Object.values(cart);
   if(!items.length)return toast('Your cart is empty','error');
   // Sync total display
   const total=items.reduce((s,i)=>s+i.price*i.qty,0);
   document.getElementById('co-total-display').textContent='₱'+Number(total).toLocaleString('en-PH',{minimumFractionDigits:2});
+  // Show saved address banner if user has one
+  const banner=document.getElementById('saved-addr-banner');
+  if(_currentUser&&_currentUser.address){
+    let addrDisplay=_currentUser.address;
+    try{
+      const obj=JSON.parse(_currentUser.address);
+      addrDisplay=[obj.house,obj.street,obj.barangay,obj.city].filter(Boolean).join(', ');
+      if(obj.landmark) addrDisplay+=' ('+obj.landmark+')';
+    }catch(e){}
+    document.getElementById('saved-addr-text').textContent=addrDisplay;
+    banner.style.display='flex';
+  } else {
+    banner.style.display='none';
+  }
   // Reset state UI
   setDeliveryType(_deliveryType);
   setOrderTime(_orderTime);

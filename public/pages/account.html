@@ -147,7 +147,14 @@ a{text-decoration:none;color:inherit;}
             <div class="form-group"><label class="form-label">Full name</label><input type="text" class="form-input" id="edit-name" placeholder="Your full name"></div>
             <div class="form-group"><label class="form-label">Phone number</label><input type="text" class="form-input" id="edit-phone" placeholder="09xxxxxxxxx"></div>
           </div>
-          <div class="form-group"><label class="form-label">Default delivery address</label><input type="text" class="form-input" id="edit-address" placeholder="Your full delivery address"></div>
+          <div class="form-group" style="grid-column:1/-1;"><label class="form-label" style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-light);">Default delivery address</label></div>
+          <div class="grid-2" style="gap:10px;">
+            <div class="form-group"><label class="form-label">House / Unit No.</label><input type="text" class="form-input" id="edit-addr-house" placeholder="e.g. Unit 4B"></div>
+            <div class="form-group"><label class="form-label">Street</label><input type="text" class="form-input" id="edit-addr-street" placeholder="e.g. Rizal Ave."></div>
+            <div class="form-group"><label class="form-label">Barangay</label><input type="text" class="form-input" id="edit-addr-barangay" placeholder="e.g. Brgy. San Jose"></div>
+            <div class="form-group"><label class="form-label">City / Municipality</label><input type="text" class="form-input" id="edit-addr-city" placeholder="e.g. Caloocan City"></div>
+            <div class="form-group" style="grid-column:1/-1;"><label class="form-label">Landmark <span style="font-weight:400;color:var(--text-light)">(optional)</span></label><input type="text" class="form-input" id="edit-addr-landmark" placeholder="e.g. Near 7-Eleven, beside the park"></div>
+          </div>
           <div class="form-group"><label class="form-label">Email address</label><input type="email" class="form-input" id="edit-email" disabled style="background:#FDFAF5;color:var(--text-mid);"></div>
           <button class="btn btn-primary" id="btn-save-profile">Save changes</button>
         </div>
@@ -313,7 +320,21 @@ async function init(){
   document.getElementById('user-avatar').textContent=(user.name||'?').charAt(0).toUpperCase();
   document.getElementById('edit-name').value=user.name||'';
   document.getElementById('edit-phone').value=user.phone||'';
-  document.getElementById('edit-address').value=user.address||'';
+  // Parse saved address back into fields (format: "house | street, barangay, city || landmark")
+  const saved=user.address||'';
+  if(saved){
+    try{
+      const obj=JSON.parse(saved);
+      document.getElementById('edit-addr-house').value=obj.house||'';
+      document.getElementById('edit-addr-street').value=obj.street||'';
+      document.getElementById('edit-addr-barangay').value=obj.barangay||'';
+      document.getElementById('edit-addr-city').value=obj.city||'';
+      document.getElementById('edit-addr-landmark').value=obj.landmark||'';
+    }catch(e){
+      // Legacy plain text — put in street field
+      document.getElementById('edit-addr-street').value=saved;
+    }
+  }
   document.getElementById('edit-email').value=user.email||'';
   document.getElementById('stat-member').textContent=new Date(user.createdAt||Date.now()).getFullYear();
   document.getElementById('stat-orders').textContent=user.totalOrders||0;
@@ -332,7 +353,14 @@ document.querySelectorAll('.sidebar-item').forEach(item=>{
 document.getElementById('btn-save-profile').onclick=async()=>{
   const name=document.getElementById('edit-name').value.trim();
   const phone=document.getElementById('edit-phone').value.trim();
-  const address=document.getElementById('edit-address').value.trim();
+  const addrObj={
+    house:document.getElementById('edit-addr-house').value.trim(),
+    street:document.getElementById('edit-addr-street').value.trim(),
+    barangay:document.getElementById('edit-addr-barangay').value.trim(),
+    city:document.getElementById('edit-addr-city').value.trim(),
+    landmark:document.getElementById('edit-addr-landmark').value.trim(),
+  };
+  const address=JSON.stringify(addrObj);
   if(!name)return toast('Name cannot be empty','error');
   const btn=document.getElementById('btn-save-profile');
   btn.disabled=true;btn.textContent='Saving...';
