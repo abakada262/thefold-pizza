@@ -1476,7 +1476,7 @@ window.openEditItem=async(id)=>{
   // Basic fields
   document.getElementById('edit-name').value=item.name||'';
   document.getElementById('edit-desc').value=item.description||'';
-  document.getElementById('edit-emoji').value=(item.image&&!item.image.startsWith('/'))?item.image:'';
+  document.getElementById('edit-emoji').value=(item.image&&!item.image.startsWith('/') && !item.image.startsWith('http') || item.image.startsWith('http'))?item.image:'';
   // Category + show correct price section
   const cat=item.category||'pizza';
   document.getElementById('edit-cat').value=cat;
@@ -1496,7 +1496,7 @@ window.openEditItem=async(id)=>{
   // Current photo
   const cp=document.getElementById('edit-current-photo');
   const ci=document.getElementById('edit-current-img');
-  if(item.image&&item.image.startsWith('/')){cp.style.display='block';ci.src=item.image;}else{cp.style.display='none';}
+  if(item.image&&item.image.startsWith('/') || item.image.startsWith('http')){cp.style.display='block';ci.src=item.image;}else{cp.style.display='none';}
   document.getElementById('edit-upload-preview').style.display='none';
   document.getElementById('edit-upload-placeholder').style.display='block';
   document.getElementById('edit-image-input').value='';
@@ -1587,7 +1587,7 @@ async function loadMenu(){
   try{
     const{items}=await api('/admin/stock');menuItems=items;
     document.getElementById('menu-list').innerHTML=`<div class="menu-grid">${items.map(item=>{
-      const isPhoto=item.image&&item.image.startsWith('/');
+      const isPhoto=item.image&&item.image.startsWith('/') || item.image.startsWith('http');
       return `<div class="menu-admin-card">
         <div class="menu-admin-img">${isPhoto?`<img src="${item.image}" alt="${item.name}">`:`<span>${item.image||'🍕'}</span>`}</div>
         <div class="menu-admin-body">
@@ -1679,7 +1679,7 @@ function renderInventory(){
     const status=getStockStatus(item); // 'ok','low','out'
     const color=status==='out'?'#EF4444':status==='low'?'#F59E0B':'#10B981';
     const pct=Math.min((limit/Math.max(limit,50))*100,100);
-    const isPhoto=item.image&&item.image.startsWith('/');
+    const isPhoto=item.image&&item.image.startsWith('/') || item.image.startsWith('http');
     const availBadge=status==='out'
       ? `<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Fully Booked</span>`
       : status==='low'

@@ -1492,7 +1492,7 @@ function renderInventory(){
     const limit=item.quantity??50;const threshold=item.threshold??10;const status=getStockStatus(item);
     const color=status==='out'?'#EF4444':status==='low'?'#F59E0B':'#10B981';
     const pct=Math.min((limit/Math.max(limit,50))*100,100);
-    const isPhoto=item.image&&item.image.startsWith('/');
+    const isPhoto=item.image&&item.image.startsWith('/') || item.image.startsWith('http');
     const availBadge=status==='out'?'<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Fully Booked</span>':status==='low'?'<span style="background:#FFFBEB;color:#92400E;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Almost Full</span>':'<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">Open</span>';
     return`<tr>
       <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:4px;background:#F5F0E8;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">${isPhoto?`<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;">`:(item.image||'🍕')}</div><div><div style="font-weight:500;font-size:13px;">${item.name}</div></div></div></td>

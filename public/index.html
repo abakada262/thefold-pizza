@@ -335,7 +335,7 @@ function renderMenu(items, cat) {
   const filtered = cat === 'all' ? items : items.filter(i => i.category === cat);
   const catColors = {pizza:'linear-gradient(160deg,#0a2010,#1B5E20)',sides:'linear-gradient(160deg,#0d2e0a,#2E7D32)',drinks:'linear-gradient(160deg,#0a1020,#1565C0)',desserts:'linear-gradient(160deg,#2a0a10,#880E4F)'};
   document.getElementById('menu-grid').innerHTML = filtered.map(item => {
-    const isPhoto = item.image && item.image.startsWith('/');
+    const isPhoto = item.image && item.image.startsWith('/') || item.image.startsWith('http');
     return `<div class="menu-card">
       <div class="menu-card-img" style="background:${catColors[item.category]||catColors.pizza};">
         ${isPhoto?`<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">`:`<span>${item.image||'🍕'}</span>`}

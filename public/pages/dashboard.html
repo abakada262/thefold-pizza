@@ -931,7 +931,7 @@ function renderMenu(cat){
   const available=filtered.filter(i=>i.available!==false);
   const unavailable=filtered.filter(i=>i.available===false);
   const cards=(items,faded)=>items.map(item=>{
-    const isPhoto=item.image&&item.image.startsWith('/');
+    const isPhoto=item.image&&item.image.startsWith('/') || item.image.startsWith('http');
     return `<div class="menu-card ${faded?'menu-unavailable':''}" onclick="${faded?'':'openModal(\''+item.id+'\')'}">
       <div class="menu-card-img" style="background:${catColors[item.category]||catColors.pizza};">
         ${isPhoto?`<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">`:`<span>${item.image||''}</span>`}
@@ -980,7 +980,7 @@ function openModal(id){
   const heroImg=document.getElementById('modal-hero-img');
   const heroFallback=document.getElementById('modal-hero-fallback');
   const catBg={pizza:'linear-gradient(160deg,#0a2010,#1B5E20)',sides:'linear-gradient(160deg,#0d2e0a,#2E7D32)',drinks:'linear-gradient(160deg,#0a1020,#1565C0)',desserts:'linear-gradient(160deg,#2a0a10,#880E4F)'};
-  if(currentItem.image&&currentItem.image.startsWith('/')){
+  if(currentItem.image&&currentitem.image.startsWith('/') || item.image.startsWith('http')){
     heroImg.style.opacity='0';
     heroImg.src=currentItem.image;
     heroImg.alt=currentItem.name;
@@ -1198,7 +1198,7 @@ function renderCart(){
   }
   const catColors={pizza:'linear-gradient(160deg,#0a2010,#1B5E20)',sides:'linear-gradient(160deg,#0d2e0a,#2E7D32)',drinks:'linear-gradient(160deg,#0a1020,#1565C0)',desserts:'linear-gradient(160deg,#2a0a10,#880E4F)'};
   document.getElementById('cart-body').innerHTML=items.map(([key,item])=>{
-    const isPhoto=item.image&&item.image.startsWith('/');
+    const isPhoto=item.image&&item.image.startsWith('/') || item.image.startsWith('http');
     const menuItem=allItems.find(i=>i.id===item.id);
     const bg=catColors[menuItem?.category]||catColors.pizza;
     return `<div class="cart-item">
