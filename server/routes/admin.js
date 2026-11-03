@@ -72,16 +72,24 @@ async function deductIngredients(db, orderId, order) {
 
   for (const item of items) {
     const menuItemId = item.menuItemId || item.id;
-    const itemSize = item.size || 'all';
 
-    const recipe = recipes.find(r =>
-      (menuItemId && r.menuItemId === menuItemId && (r.size === itemSize || r.size === 'all')) ||
-      (!menuItemId && r.menuItemName === item.name && (r.size === itemSize || r.size === 'all'))
-    );
+    // FIX: extract size from item name (e.g. 'BBQ Chicken (30")') because
+    // order items don't store a separate .size field — the size is in the name.
+    const sizeMatch = item.name && item.name.match(/\((\d+)[""]/);
+    const itemSize = item.size || (sizeMatch ? sizeMatch[1] : null);
+
+    const recipe = recipes.find(r => {
+      if (menuItemId && r.menuItemId !== menuItemId) return false;
+      if (!menuItemId && r.menuItemName !== item.name) return false;
+      if (itemSize && r.size !== 'all' && r.size !== itemSize) return false;
+      return true;
+    });
     if (!recipe) continue;
 
     for (const ing of (recipe.ingredients || [])) {
-      const needed = (parseFloat(ing.amount) || 0) * (parseInt(item.qty) || 1);
+      // FIX: recipes store qty as `ing.qty` (not `ing.amount`).
+      // Support both field names for backwards-compatibility.
+      const needed = (parseFloat(ing.qty) || parseFloat(ing.amount) || 0) * (parseInt(item.qty) || 1);
       if (!needed || !ing.ingredientId) continue;
 
       const ingRef = db.collection('ingredients').doc(ing.ingredientId);
