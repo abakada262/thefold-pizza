@@ -57,11 +57,12 @@ a{text-decoration:none;color:inherit;}
 .banner-dot.active{background:var(--gold);width:20px;border-radius:3px;}
 
 /* CATEGORY BAR */
-.cat-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.cat-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
 .cat-bar::-webkit-scrollbar{display:none;}
-.cat-btn{padding:15px 18px;font-size:13px;font-weight:500;color:var(--text-mid);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.15s;letter-spacing:0.01em;}
-.cat-btn.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
-.cat-btn:hover{color:var(--text);}
+.cat-bar-inner{display:flex;gap:6px;background:#E8E4DE;border-radius:50px;padding:4px;width:fit-content;}
+.cat-btn{padding:9px 20px;font-size:13px;font-weight:500;color:var(--text-mid);white-space:nowrap;cursor:pointer;background:none;border:none;border-radius:50px;transition:all 0.2s;letter-spacing:0.01em;}
+.cat-btn.active{background:var(--green);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(27,94,32,0.25);}
+.cat-btn:hover:not(.active){background:rgba(0,0,0,0.06);color:var(--text);}
 
 /* MAIN LAYOUT */
 .layout{display:flex;gap:0;max-width:1240px;margin:0 auto;padding:32px;}
@@ -388,15 +389,6 @@ a{text-decoration:none;color:inherit;}
 <!-- BANNER -->
 <div class="banner" id="banner">
   <div class="banner-slide active" id="slide-0">
-    <img src="/images/promo1.png" alt="Promo" onerror="this.style.display='none'">
-    <div class="banner-overlay"></div>
-    <div class="banner-content">
-      <div class="banner-eyebrow">Limited time</div>
-      <div class="banner-title">Celebration deals from ₱640</div>
-      <div class="banner-sub">Free custom message on all celebration orders</div>
-    </div>
-  </div>
-  <div class="banner-slide" id="slide-1">
     <img src="/images/promo3.png" alt="Happy Hour" onerror="this.style.display='none'">
     <div class="banner-overlay"></div>
     <div class="banner-content">
@@ -419,11 +411,13 @@ a{text-decoration:none;color:inherit;}
 
 <!-- CATEGORY BAR -->
 <div class="cat-bar">
-  <button class="cat-btn active" data-cat="all">All items</button>
-  <button class="cat-btn" data-cat="pizza">Pizza</button>
-  <button class="cat-btn" data-cat="sides">Sides</button>
-  <button class="cat-btn" data-cat="drinks">Drinks</button>
-  <button class="cat-btn" data-cat="desserts">Desserts</button>
+  <div class="cat-bar-inner">
+    <button class="cat-btn active" data-cat="all">All items</button>
+    <button class="cat-btn" data-cat="pizza">Pizza</button>
+    <button class="cat-btn" data-cat="sides">Sides</button>
+    <button class="cat-btn" data-cat="drinks">Drinks</button>
+    <button class="cat-btn" data-cat="desserts">Desserts</button>
+  </div>
 </div>
 <!-- CUSTOMIZE BUTTON - separate from category filter -->
 <div style="background:var(--bg);border-bottom:1px solid var(--border);padding:10px 32px;display:flex;align-items:center;justify-content:flex-end;">
