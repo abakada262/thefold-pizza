@@ -3,7 +3,13 @@ const router = express.Router();
 const { db } = require('../../config/firebase');
 const multer = require('multer');
 const path = require('path');
-const { getStorage } = require('firebase-admin/storage');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const requireAdmin = (req, res, next) => {
   if (!req.session.user || (req.session.user.role !== 'admin' && req.session.user.role !== 'superadmin')) {
@@ -12,7 +18,7 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-// Upload image — uses memory storage so it works on Vercel (no local disk write)
+// Upload image — uses memory storage, uploads to Cloudinary (works on Vercel)
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -27,20 +33,15 @@ router.post('/upload-image', requireAdmin, upload.single('image'), async (req, r
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
-    const ext = path.extname(req.file.originalname);
-    const filename = `menu/${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-
-    const bucket = getStorage().bucket();
-    const fileRef = bucket.file(filename);
-
-    await fileRef.save(req.file.buffer, {
-      metadata: { contentType: req.file.mimetype },
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'thefold-pizza/menu' },
+        (error, result) => error ? reject(error) : resolve(result)
+      );
+      stream.end(req.file.buffer);
     });
 
-    await fileRef.makePublic();
-
-    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
-    res.json({ success: true, imageUrl });
+    res.json({ success: true, imageUrl: result.secure_url });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
