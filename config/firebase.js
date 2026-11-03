@@ -9,6 +9,7 @@ if (!admin.apps.length) {
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
     }),
     projectId: 'thefold-pizza',
+    storageBucket: 'thefold-pizza.appspot.com',
   });
 }
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../../config/firebase');
 const multer = require('multer');
 const path = require('path');
+const { getStorage } = require('firebase-admin/storage');
 
 const requireAdmin = (req, res, next) => {
   if (!req.session.user || (req.session.user.role !== 'admin' && req.session.user.role !== 'superadmin')) {
@@ -11,20 +12,9 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-// upload image
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../public/images/menu'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = Date.now() + '-' + Math.random().toString(36).slice(2) + ext;
-    cb(null, name);
-  }
-});
-
+// Upload image — uses memory storage so it works on Vercel (no local disk write)
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /jpeg|jpg|png|gif|webp/;
@@ -36,7 +26,20 @@ const upload = multer({
 router.post('/upload-image', requireAdmin, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
-    const imageUrl = '/images/menu/' + req.file.filename;
+
+    const ext = path.extname(req.file.originalname);
+    const filename = `menu/${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
+
+    const bucket = getStorage().bucket();
+    const fileRef = bucket.file(filename);
+
+    await fileRef.save(req.file.buffer, {
+      metadata: { contentType: req.file.mimetype },
+    });
+
+    await fileRef.makePublic();
+
+    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
     res.json({ success: true, imageUrl });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
