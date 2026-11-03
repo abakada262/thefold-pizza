@@ -57,9 +57,7 @@ a{text-decoration:none;color:inherit;}
 .banner-dot.active{background:var(--gold);width:20px;border-radius:3px;}
 
 /* CATEGORY BAR */
-.cat-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
-.cat-bar::-webkit-scrollbar{display:none;}
-.cat-bar-inner{display:flex;gap:6px;background:#E8E4DE;border-radius:50px;padding:5px;width:fit-content;}
+.cat-bar-inner{display:flex;gap:6px;background:#E8E4DE;border-radius:50px;padding:5px;width:fit-content;overflow-x:auto;scrollbar-width:none;}
 .cat-btn{padding:12px 26px;font-size:14px;font-weight:500;color:var(--text-mid);white-space:nowrap;cursor:pointer;background:none;border:none;border-radius:50px;transition:all 0.2s;letter-spacing:0.01em;}
 .cat-btn.active{background:var(--green);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(27,94,32,0.25);}
 .cat-btn:hover:not(.active){background:rgba(0,0,0,0.06);color:var(--text);}
@@ -409,16 +407,6 @@ a{text-decoration:none;color:inherit;}
   <div class="banner-dots" id="banner-dots"></div>
 </div>
 
-<!-- CATEGORY BAR -->
-<div class="cat-bar">
-  <div class="cat-bar-inner">
-    <button class="cat-btn active" data-cat="all">All items</button>
-    <button class="cat-btn" data-cat="pizza">Pizza</button>
-    <button class="cat-btn" data-cat="sides">Sides</button>
-    <button class="cat-btn" data-cat="drinks">Drinks</button>
-    <button class="cat-btn" data-cat="desserts">Desserts</button>
-  </div>
-</div>
 <!-- CUSTOMIZE BUTTON - separate from category filter -->
 <div style="background:linear-gradient(to right,#071a09,#1B5E20);border-bottom:1px solid rgba(0,0,0,0.2);padding:10px 32px;display:flex;align-items:center;justify-content:flex-end;">
   <button onclick="openCustomizer()" style="background:var(--red);color:white;border:none;padding:9px 20px;border-radius:5px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.15s;box-shadow:0 2px 8px rgba(183,28,28,0.3);" onmouseover="this.style.background='var(--red-mid)'" onmouseout="this.style.background='var(--red)'">
@@ -459,6 +447,16 @@ a{text-decoration:none;color:inherit;}
 <div class="layout">
   <div class="menu-col">
     <div id="menu-loading"><div class="spinner"></div></div>
+    <!-- CATEGORY BAR - sits above menu grid -->
+    <div id="cat-bar-inline" style="display:none;margin-bottom:20px;">
+      <div class="cat-bar-inner">
+        <button class="cat-btn active" data-cat="all">All items</button>
+        <button class="cat-btn" data-cat="pizza">Pizza</button>
+        <button class="cat-btn" data-cat="sides">Sides</button>
+        <button class="cat-btn" data-cat="drinks">Drinks</button>
+        <button class="cat-btn" data-cat="desserts">Desserts</button>
+      </div>
+    </div>
     <div id="menu-sections" style="display:none;"></div>
   </div>
 </div>
@@ -915,6 +913,7 @@ async function loadMenu(){
     const{items}=await api('/menu');
     allItems=items;
     document.getElementById('menu-loading').style.display='none';
+    document.getElementById('cat-bar-inline').style.display='block';
     document.getElementById('menu-sections').style.display='block';
     renderMenu('all');
     renderCart(); // re-render now that allItems is loaded (resolves images after refresh)
