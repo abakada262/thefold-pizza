@@ -1172,7 +1172,7 @@ async function placeBuyNow(){
           if(gcashWin)gcashWin.location.href=payment.checkoutUrl;
           else window.open(payment.checkoutUrl,'_blank');
           toast('GCash payment opened in new tab.','info');
-          setTimeout(()=>window.location.href='/orders',2000);return;
+          setTimeout(()=>window.location.href='/payment-result?orderId='+orderData.orderId,2000);return;
         } else { if(gcashWin)gcashWin.close(); }
       }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
     }
@@ -1395,7 +1395,7 @@ async function placeOrder(){
           if(gcashWin)gcashWin.location.href=payment.checkoutUrl;
           else window.open(payment.checkoutUrl,'_blank');
           toast('GCash payment opened in new tab. Come back here after paying.','info');
-          setTimeout(()=>window.location.href='/orders',2000);return;
+          setTimeout(()=>window.location.href='/payment-result?orderId='+orderData.orderId,2000);return;
         } else { if(gcashWin)gcashWin.close(); }
       }catch(payErr){toast('GCash setup failed: '+payErr.message,'error');}
     }
