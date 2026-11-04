@@ -1668,8 +1668,8 @@ const TOPPING_IMGS = {
 };
 // Display size in SVG units for each topping (pizza cheese area ≈ 176 units wide)
 const TOPPING_SZ = {
-  'Pepperoni':28,'All Meat':26,'Hawaiian':26,'Jalapeño':22,'Spinach':22,
-  'Shrimp':26,'Veggies':26,'Four Cheese':24,'BBQ Chicken':28,'Luau Chicken':26,'Fold Special':26,
+  'Pepperoni':18,'All Meat':16,'Hawaiian':16,'Jalapeño':14,'Spinach':14,
+  'Shrimp':16,'Veggies':16,'Four Cheese':15,'BBQ Chicken':17,'Luau Chicken':16,'Fold Special':16,
 };
 
 function seededRand(n) {
@@ -1677,27 +1677,44 @@ function seededRand(n) {
   return x - Math.floor(x);
 }
 
-// Scatter positions inside a pie-wedge sector (polar → cartesian)
+// Scatter positions inside a pie-wedge sector using jittered grid for even spread
 function slicePositions(sliceIdx, count, aStart, aEnd, minR, maxR) {
   const pts = [], span = aEnd - aStart;
-  for (let i = 0; i < count; i++) {
-    const s1 = sliceIdx * 500 + i * 97 + 13, s2 = sliceIdx * 500 + i * 97 + 71;
-    const a = aStart + 0.14 * span + seededRand(s1) * 0.72 * span;
-    const r = minR + seededRand(s2) * (maxR - minR);
-    pts.push({ x: r * Math.cos(a), y: r * Math.sin(a), rot: seededRand(s1 + s2) * 360 });
+  // Divide wedge into a grid of (rings × angularCells) and place one topping per cell
+  const rings = Math.ceil(Math.sqrt(count));
+  const perRing = Math.ceil(count / rings);
+  let placed = 0;
+  for (let ri = 0; ri < rings && placed < count; ri++) {
+    for (let ci = 0; ci < perRing && placed < count; ci++) {
+      const seed = sliceIdx * 1000 + placed * 97 + 13;
+      // Even band within radial range, avoid very centre and very edge
+      const rMin = minR + (ri / rings) * (maxR - minR);
+      const rMax = minR + ((ri + 1) / rings) * (maxR - minR);
+      const r = rMin + (0.2 + seededRand(seed) * 0.6) * (rMax - rMin);
+      // Even angular band, small jitter
+      const aMin = aStart + 0.08 * span + (ci / perRing) * 0.84 * span;
+      const aMax = aStart + 0.08 * span + ((ci + 1) / perRing) * 0.84 * span;
+      const a = aMin + (0.1 + seededRand(seed + 7) * 0.8) * (aMax - aMin);
+      pts.push({ x: r * Math.cos(a), y: r * Math.sin(a), rot: seededRand(seed + 3) * 360 });
+      placed++;
+    }
   }
   return pts;
 }
 
-// Scatter positions inside a rectangle cell
+// Scatter positions inside a rectangle cell using jittered grid
 function rectPositions(sliceIdx, count, rx, ry, rw, rh) {
-  const pts = [], mg = 13;
+  const pts = [], mg = 10;
+  const cols = Math.ceil(Math.sqrt(count));
+  const rows = Math.ceil(count / cols);
+  const uw = (rw - mg * 2) / cols, uh = (rh - mg * 2) / rows;
   for (let i = 0; i < count; i++) {
-    const s1 = sliceIdx * 500 + i * 97 + 13, s2 = sliceIdx * 500 + i * 97 + 71;
+    const col = i % cols, row = Math.floor(i / cols);
+    const seed = sliceIdx * 1000 + i * 97 + 13;
     pts.push({
-      x: rx + mg + seededRand(s1) * Math.max(1, rw - mg * 2),
-      y: ry + mg + seededRand(s2) * Math.max(1, rh - mg * 2),
-      rot: seededRand(s1 + s2) * 360
+      x: rx + mg + col * uw + (0.15 + seededRand(seed) * 0.7) * uw,
+      y: ry + mg + row * uh + (0.15 + seededRand(seed + 5) * 0.7) * uh,
+      rot: seededRand(seed + 3) * 360
     });
   }
   return pts;
@@ -1733,7 +1750,7 @@ function renderSectionToppings(previewIdx, flavor, shape, n, IR) {
   if (!flavor) return '';
   const imgs = TOPPING_IMGS[flavor];
   if (!imgs || !imgs.length) return '';
-  const tpp = n <= 1 ? 14 : n <= 2 ? 10 : n <= 4 ? 7 : n <= 6 ? 5 : 4;
+  const tpp = n <= 1 ? 10 : n <= 2 ? 7 : n <= 4 ? 5 : n <= 6 ? 4 : 3;
   const sz = TOPPING_SZ[flavor] || 26, half = sz / 2;
   const f = v => v.toFixed(1);
 
@@ -1749,7 +1766,7 @@ function renderSectionToppings(previewIdx, flavor, shape, n, IR) {
   } else {
     const sa = n === 1 ? Math.PI * 2 : (2 * Math.PI) / n;
     const aStart = n === 1 ? -Math.PI : previewIdx * sa - Math.PI / 2;
-    positions = slicePositions(previewIdx, tpp, aStart, aStart + sa, 12, IR * 0.83);
+    positions = slicePositions(previewIdx, tpp, aStart, aStart + sa, IR * 0.18, IR * 0.88);
   }
 
   return positions.map((p, pi) => {
