@@ -1677,43 +1677,61 @@ function seededRand(n) {
   return x - Math.floor(x);
 }
 
-// Scatter positions inside a pie-wedge sector using jittered grid for even spread
+// Scatter positions inside a pie-wedge — adapts layout to wedge shape
 function slicePositions(sliceIdx, count, aStart, aEnd, minR, maxR) {
-  const pts = [], span = aEnd - aStart;
-  // Divide wedge into a grid of (rings × angularCells) and place one topping per cell
-  const rings = Math.ceil(Math.sqrt(count));
-  const perRing = Math.ceil(count / rings);
+  const pts = [];
+  const span = aEnd - aStart;
+  const radialDepth = maxR - minR;
+  // Arc length at mid-radius: determines if wedge is wide or narrow
+  const arcLen = span * ((minR + maxR) / 2);
+
+  // Decide grid: for narrow wedges use a single radial column,
+  // for wide wedges use rows × columns in polar space
+  let aSteps, rSteps;
+  if (arcLen < 30) {
+    aSteps = 1; rSteps = count;          // very narrow: one column
+  } else if (arcLen < 55) {
+    aSteps = 2; rSteps = Math.ceil(count / 2);
+  } else if (arcLen < 90) {
+    aSteps = 2; rSteps = Math.ceil(count / 2);
+  } else {
+    aSteps = Math.max(2, Math.round(Math.sqrt(count * arcLen / radialDepth)));
+    rSteps = Math.ceil(count / aSteps);
+  }
+
+  const aPad = 0.1, rPad = 0.08; // fraction kept clear at edges
   let placed = 0;
-  for (let ri = 0; ri < rings && placed < count; ri++) {
-    for (let ci = 0; ci < perRing && placed < count; ci++) {
-      const seed = sliceIdx * 1000 + placed * 97 + 13;
-      // Even band within radial range, avoid very centre and very edge
-      const rMin = minR + (ri / rings) * (maxR - minR);
-      const rMax = minR + ((ri + 1) / rings) * (maxR - minR);
-      const r = rMin + (0.2 + seededRand(seed) * 0.6) * (rMax - rMin);
-      // Even angular band, small jitter
-      const aMin = aStart + 0.08 * span + (ci / perRing) * 0.84 * span;
-      const aMax = aStart + 0.08 * span + ((ci + 1) / perRing) * 0.84 * span;
-      const a = aMin + (0.1 + seededRand(seed + 7) * 0.8) * (aMax - aMin);
-      pts.push({ x: r * Math.cos(a), y: r * Math.sin(a), rot: seededRand(seed + 3) * 360 });
+  for (let ri = 0; ri < rSteps && placed < count; ri++) {
+    for (let ai = 0; ai < aSteps && placed < count; ai++) {
+      const seed = sliceIdx * 1000 + placed * 97;
+      // Cell centre + small jitter (≤ 20% of cell size)
+      const rFrac = rPad + ((ri + 0.5) / rSteps) * (1 - 2 * rPad);
+      const aFrac = aPad + ((ai + 0.5) / aSteps) * (1 - 2 * aPad);
+      const jR = (seededRand(seed)     - 0.5) * 0.2 * (radialDepth / rSteps);
+      const jA = (seededRand(seed + 1) - 0.5) * 0.2 * (span / aSteps);
+      const r = minR + rFrac * radialDepth + jR;
+      const a = aStart + aFrac * span + jA;
+      pts.push({ x: r * Math.cos(a), y: r * Math.sin(a), rot: seededRand(seed + 2) * 360 });
       placed++;
     }
   }
   return pts;
 }
 
-// Scatter positions inside a rectangle cell using jittered grid
+// Scatter positions inside a rectangle cell — jittered grid
 function rectPositions(sliceIdx, count, rx, ry, rw, rh) {
-  const pts = [], mg = 10;
-  const cols = Math.ceil(Math.sqrt(count));
+  const pts = [];
+  const mg = 8; // margin from cell edge
+  const uw = rw - mg * 2, uh = rh - mg * 2;
+  const cols = Math.max(1, Math.round(Math.sqrt(count * uw / Math.max(1, uh))));
   const rows = Math.ceil(count / cols);
-  const uw = (rw - mg * 2) / cols, uh = (rh - mg * 2) / rows;
+  const cw = uw / cols, ch = uh / rows;
   for (let i = 0; i < count; i++) {
     const col = i % cols, row = Math.floor(i / cols);
     const seed = sliceIdx * 1000 + i * 97 + 13;
     pts.push({
-      x: rx + mg + col * uw + (0.15 + seededRand(seed) * 0.7) * uw,
-      y: ry + mg + row * uh + (0.15 + seededRand(seed + 5) * 0.7) * uh,
+      x: rx + mg + (col + 0.15 + seededRand(seed)     * 0.7) * cw,
+      y: ry + mg + (row + 0.15 + seededRand(seed + 5) * 0.7) * ch,
       rot: seededRand(seed + 3) * 360
     });
   }
@@ -1750,8 +1768,12 @@ function renderSectionToppings(previewIdx, flavor, shape, n, IR) {
   if (!flavor) return '';
   const imgs = TOPPING_IMGS[flavor];
   if (!imgs || !imgs.length) return '';
-  const tpp = n <= 1 ? 10 : n <= 2 ? 7 : n <= 4 ? 5 : n <= 6 ? 4 : 3;
-  const sz = TOPPING_SZ[flavor] || 26, half = sz / 2;
+  // Count and size both shrink as sections multiply so each wedge always looks right
+  const tpp = n <= 1 ? 9 : n <= 2 ? 7 : n <= 3 ? 5 : n <= 5 ? 4 : n <= 7 ? 3 : 2;
+  const baseSz = TOPPING_SZ[flavor] || 16;
+  // Scale size down for many sections so toppings fit their wedge/cell
+  const sz = Math.max(10, Math.round(baseSz * Math.min(1, 2.0 / Math.sqrt(Math.max(1, n)))));
+  const half = sz / 2;
   const f = v => v.toFixed(1);
 
   let positions;
@@ -1766,7 +1788,9 @@ function renderSectionToppings(previewIdx, flavor, shape, n, IR) {
   } else {
     const sa = n === 1 ? Math.PI * 2 : (2 * Math.PI) / n;
     const aStart = n === 1 ? -Math.PI : previewIdx * sa - Math.PI / 2;
-    positions = slicePositions(previewIdx, tpp, aStart, aStart + sa, IR * 0.18, IR * 0.88);
+    // minR pushes toppings clear of center dot; maxR keeps them inside crust
+    const minR = n <= 2 ? IR * 0.14 : IR * 0.20;
+    positions = slicePositions(previewIdx, tpp, aStart, aStart + sa, minR, IR * 0.90);
   }
 
   return positions.map((p, pi) => {
