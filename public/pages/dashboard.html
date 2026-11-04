@@ -1545,6 +1545,16 @@ window.setCustShape = (shape) => {
   ['circle','square','heart'].forEach(s => {
     document.getElementById('shape-'+s)?.classList.toggle('sel', s === shape);
   });
+  // Heart pizza is limited to 2 flavor sections
+  if (shape === 'heart' && custPreset) {
+    const maxAllowed = 2;
+    if (custSlots.length > maxAllowed) {
+      custSlots = custSlots.slice(0, maxAllowed);
+      document.getElementById('flavor-info').textContent =
+        `Heart pizza supports up to 2 flavor sections.`;
+      renderSlots();
+    }
+  }
   renderPizzaPreview();
 };
 
@@ -1568,11 +1578,15 @@ window.selectPreset = (id) => {
   const preset = PRESETS[custSize].find(p => p.id === id);
   if (!preset) return;
   activeFlavorList = preset.flavors;
-  custSlots = Array(preset.slots).fill('');
-  renderPresets(); // FIX: renderPresets already sets .sel via custPreset — removed redundant manual loops
+  // Heart pizza capped at 2 sections
+  const heartCap = custShape === 'heart' ? 2 : Infinity;
+  const slotCount = Math.min(preset.slots, heartCap);
+  custSlots = Array(slotCount).fill('');
+  renderPresets();
   updateCustPrice();
+  const heartNote = custShape === 'heart' && preset.slots > 2 ? ' (heart shape: max 2)' : '';
   document.getElementById('flavor-info').textContent =
-    `Assign up to ${preset.slots} flavor sections for your ${SIZE_CONFIG[custSize].label} pizza.`;
+    `Assign up to ${slotCount} flavor sections for your ${SIZE_CONFIG[custSize].label} pizza${heartNote}.`;
   renderSlots();
   renderPizzaPreview();
 };
