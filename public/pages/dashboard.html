@@ -2030,7 +2030,7 @@ function renderPizzaPreview() {
   if (shape === 'square') {
     const sp = getPizzaShapePath('square', IR);
     base += `<image href="/images/toppings/dough-square.webp" x="-${R}" y="-${R}" width="${R*2}" height="${R*2}" clip-path="url(#crustclip)" preserveAspectRatio="xMidYMid slice"/>`;
-    base += `<image href="/images/toppings/sauce.webp" x="-72" y="-72" width="144" height="144" clip-path="url(#pclip)" preserveAspectRatio="xMidYMid slice" opacity="0.95"/>`;
+    base += `<image href="/images/toppings/sauce.webp" x="-${IR}" y="-${IR}" width="${IR*2}" height="${IR*2}" clip-path="url(#pclip)" preserveAspectRatio="xMidYMid slice" opacity="0.95"/>`;
     base += `<path d="${sp}" fill="url(#cheeseG)" opacity="0.15" clip-path="url(#pclip)"/>`;
   } else if (shape === 'circle') {
     base += `<image href="/images/toppings/dough-circle.webp" x="-${R}" y="-${R}" width="${R*2}" height="${R*2}" clip-path="url(#pclip)" preserveAspectRatio="xMidYMid slice"/>`;
