@@ -1545,32 +1545,42 @@ window.setCustShape = (shape) => {
   ['circle','square','heart'].forEach(s => {
     document.getElementById('shape-'+s)?.classList.toggle('sel', s === shape);
   });
-  // Heart pizza is limited to 2 flavor sections
-  if (shape === 'heart' && custPreset) {
-    const maxAllowed = 2;
-    if (custSlots.length > maxAllowed) {
-      custSlots = custSlots.slice(0, maxAllowed);
-      document.getElementById('flavor-info').textContent =
-        `Heart pizza supports up to 2 flavor sections.`;
-      renderSlots();
+  // Heart pizza is limited to 2 flavor sections — re-filter package list
+  if (shape === 'heart') {
+    // If currently selected preset has >2 slots, deselect it
+    if (custPreset) {
+      const preset = PRESETS[custSize]?.find(p => p.id === custPreset);
+      if (preset && preset.slots > 2) {
+        custPreset = null;
+        custSlots = [];
+        document.getElementById('flavor-info').textContent = 'Heart pizza supports up to 2 flavor sections. Choose a package below.';
+        renderSlots();
+      } else if (custSlots.length > 2) {
+        custSlots = custSlots.slice(0, 2);
+        renderSlots();
+      }
     }
   }
+  renderPresets();
   renderPizzaPreview();
 };
 
 function renderPresets() {
   const presets = PRESETS[custSize];
-  document.getElementById('flavor-presets').innerHTML = presets.map(p => {
-    const price = getPackagePrice(custSize, p.id);
-    return `<button class="preset-btn ${custPreset===p.id?'sel':''}" onclick="selectPreset('${p.id}')">
-      <div class="preset-dot"></div>
-      <div style="flex:1;">
-        <span class="preset-name">${p.name}</span>
-        <span class="preset-desc">${p.desc}</span>
-      </div>
-      <span style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--red);flex-shrink:0;margin-left:8px;">₱${price.toLocaleString('en-PH')}</span>
-    </button>`;
-  }).join('');
+  const isHeart = custShape === 'heart';
+  document.getElementById('flavor-presets').innerHTML = presets
+    .filter(p => !isHeart || p.slots <= 2)
+    .map(p => {
+      const price = getPackagePrice(custSize, p.id);
+      return `<button class="preset-btn ${custPreset===p.id?'sel':''}" onclick="selectPreset('${p.id}')">
+        <div class="preset-dot"></div>
+        <div style="flex:1;">
+          <span class="preset-name">${p.name}</span>
+          <span class="preset-desc">${p.desc}</span>
+        </div>
+        <span style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--red);flex-shrink:0;margin-left:8px;">₱${price.toLocaleString('en-PH')}</span>
+      </button>`;
+    }).join('');
 }
 
 window.selectPreset = (id) => {
