@@ -1769,10 +1769,10 @@ function renderSectionToppings(previewIdx, flavor, shape, n, IR) {
   const imgs = TOPPING_IMGS[flavor];
   if (!imgs || !imgs.length) return '';
   // Count and size both shrink as sections multiply so each wedge always looks right
-  const tpp = n <= 1 ? 9 : n <= 2 ? 7 : n <= 3 ? 5 : n <= 5 ? 4 : n <= 7 ? 3 : 2;
+  const tpp = n <= 1 ? 9 : n <= 2 ? 7 : n <= 3 ? 6 : n <= 5 ? 5 : n <= 7 ? 4 : 3;
   const baseSz = TOPPING_SZ[flavor] || 16;
   // Scale size down for many sections so toppings fit their wedge/cell
-  const sz = Math.max(10, Math.round(baseSz * Math.min(1, 2.0 / Math.sqrt(Math.max(1, n)))));
+  const sz = Math.max(13, Math.round(baseSz * 1.3 * Math.min(1, 2.0 / Math.sqrt(Math.max(1, n)))));
   const half = sz / 2;
   const f = v => v.toFixed(1);
 
@@ -1795,7 +1795,7 @@ function renderSectionToppings(previewIdx, flavor, shape, n, IR) {
 
   return positions.map((p, pi) => {
     const img = imgs[Math.floor(seededRand(previewIdx * 1000 + pi * 73) * imgs.length)];
-    return `<image href="${img}" x="${f(p.x-half)}" y="${f(p.y-half)}" width="${sz}" height="${sz}" transform="rotate(${Math.round(p.rot)},${f(p.x)},${f(p.y)})"/>`;
+    return `<image href="${img}" x="${f(p.x-half)}" y="${f(p.y-half)}" width="${sz}" height="${sz}" transform="rotate(${Math.round(p.rot)},${f(p.x)},${f(p.y)})" filter="url(#tshadow)"/>`;
   }).join('');
 }
 
@@ -2019,6 +2019,8 @@ function renderPizzaPreview() {
     defs += `<radialGradient id="crustG" cx="50%" cy="50%" r="50%"><stop offset="72%" stop-color="#D4921A"/><stop offset="88%" stop-color="#A05C10"/><stop offset="100%" stop-color="#6A2E06"/></radialGradient>`;
   }
   defs += `<radialGradient id="cheeseG" cx="40%" cy="38%" r="65%"><stop offset="0%" stop-color="#FBD84A"/><stop offset="55%" stop-color="#F0B820"/><stop offset="100%" stop-color="${shape==='square'?'#D08A10':'#C88010'}"/></radialGradient>`;
+  // Drop-shadow filter to make toppings pop off the sauce
+  defs += `<filter id="tshadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="rgba(0,0,0,0.65)"/></filter>`;
 
   // Per-section clip paths
   for (let i = 0; i < n; i++) {
