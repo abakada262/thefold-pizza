@@ -1460,6 +1460,11 @@ const PRESETS = {
     { id:'eleven', name:'11 Flavors', desc:'All 11 flavor sections — the full experience!', slots:11, flavors:FLAVORS },
   ]
 };
+// Heart-only preset (2 flavors, one per half)
+const HEART_PRESETS = {
+  30: [{ id:'heart2', name:'2 Flavors — Heart', desc:'One flavor per half. Perfect for sharing with someone special.', slots:2, flavors:FLAVORS }],
+  36: [{ id:'heart2', name:'2 Flavors — Heart', desc:'One flavor per half. Perfect for sharing with someone special.', slots:2, flavors:FLAVORS }],
+};
 
 let custSize = 30;
 let custSlots = [];
@@ -1476,6 +1481,8 @@ const PACKAGE_PRICES = {
   '36_nopork': 1150,
   '36_nine':   1200,
   '36_eleven': 1300,
+  '30_heart2': 830,
+  '36_heart2': 1100,
 };
 
 const SIZE_CONFIG = {
@@ -1566,10 +1573,9 @@ window.setCustShape = (shape) => {
 };
 
 function renderPresets() {
-  const presets = PRESETS[custSize];
   const isHeart = custShape === 'heart';
+  const presets = isHeart ? HEART_PRESETS[custSize] : PRESETS[custSize];
   document.getElementById('flavor-presets').innerHTML = presets
-    .filter(p => !isHeart || p.slots <= 2)
     .map(p => {
       const price = getPackagePrice(custSize, p.id);
       return `<button class="preset-btn ${custPreset===p.id?'sel':''}" onclick="selectPreset('${p.id}')">
