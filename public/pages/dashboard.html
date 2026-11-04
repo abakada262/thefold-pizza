@@ -2010,6 +2010,10 @@ function renderPizzaPreview() {
       ? `<circle cx="0" cy="0" r="${IR}"/>`
       : `<path d="${getPizzaShapePath(shape, IR)}"/>`;
     defs += `<clipPath id="pclip">${clipShape}</clipPath>`;
+    // Outer clip for heart dough photo (full R=100 so crust photo shows edge-to-edge)
+    if (shape === 'heart') {
+      defs += `<clipPath id="outerclip"><path d="${getPizzaShapePath('heart', R)}"/></clipPath>`;
+    }
     // Sauce clip — smaller than pizza so crust ring stays visible (76 = IR*0.86)
     const SR = 76;
     const sauceClipShape = shape === 'circle'
@@ -2039,7 +2043,8 @@ function renderPizzaPreview() {
     base += `<image href="/images/toppings/sauce.webp" x="-76" y="-76" width="152" height="152" clip-path="url(#sauceclip)" preserveAspectRatio="xMidYMid slice" opacity="0.95"/>`;
     base += `<circle cx="0" cy="0" r="76" fill="url(#cheeseG)" opacity="0.15" clip-path="url(#sauceclip)"/>`;
   } else {
-    base += `<image href="/images/toppings/dough-heart.webp" x="-${R}" y="-${R}" width="${R*2}" height="${R*2}" clip-path="url(#pclip)" preserveAspectRatio="xMidYMid slice"/>`;
+    // Heart: show full dough photo (crust included) clipped to outer heart shape
+    base += `<image href="/images/toppings/dough-heart.webp" x="-110" y="-110" width="220" height="220" clip-path="url(#outerclip)" preserveAspectRatio="xMidYMid meet"/>`;
     base += `<image href="/images/toppings/sauce.webp" x="-76" y="-76" width="152" height="152" clip-path="url(#sauceclip)" preserveAspectRatio="xMidYMid slice" opacity="0.95"/>`;
     base += `<path d="${getPizzaShapePath(shape, 76)}" fill="url(#cheeseG)" opacity="0.15" clip-path="url(#sauceclip)"/>`;
   }
