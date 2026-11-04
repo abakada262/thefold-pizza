@@ -1599,10 +1599,20 @@ function renderSlots() {
 }
 
 function onSlotChange(i, val) {
+  const wasEmpty = custSlots[i] === '';
+  const willBeEmpty = val === '';
   custSlots[i] = val;
   const dot = document.getElementById('slot-color-' + i);
   if (dot) dot.style.background = val ? flavorColorMap[val] : 'var(--border)';
-  renderPizzaPreview();
+  if (wasEmpty !== willBeEmpty) {
+    // Section count changed — full re-render
+    renderPizzaPreview();
+  } else if (!willBeEmpty) {
+    // Flavor swap only — update just this section's topping images
+    const previewIdx = custSlots.slice(0, i).filter(s => s !== '').length;
+    updatePizzaSection(previewIdx, val);
+  }
+  // empty→empty: nothing to do
 }
 
 function getPizzaShapePath(shape, size) {
@@ -1639,147 +1649,453 @@ function getPizzaShapePath(shape, size) {
   return null; // circle
 }
 
+// ─── PIZZA PREVIEW — IMAGE-BASED TOPPINGS ────────────────────────
+// Add 128×128 transparent PNG/WebP files at the paths below (public folder or Cloudinary URLs).
+// Required files: pepperoni, ham, pineapple, jalapeno, spinach, shrimp,
+//   mushroom, bellpepper, onion, tomato, cheese, chicken, sausage, beef
+const TOPPING_IMGS = {
+  'Pepperoni':    ['/images/toppings/pepperoni.webp'],
+  'All Meat':     ['/images/toppings/pepperoni.webp','/images/toppings/sausage.webp','/images/toppings/beef.webp'],
+  'Hawaiian':     ['/images/toppings/ham.webp','/images/toppings/pineapple.webp'],
+  'Jalapeño':     ['/images/toppings/jalapeno.webp'],
+  'Spinach':      ['/images/toppings/spinach.webp'],
+  'Shrimp':       ['/images/toppings/shrimp.webp'],
+  'Veggies':      ['/images/toppings/mushroom.webp','/images/toppings/bellpepper.webp','/images/toppings/onion.webp','/images/toppings/tomato.webp'],
+  'Four Cheese':  ['/images/toppings/cheese.webp'],
+  'BBQ Chicken':  ['/images/toppings/chicken.webp'],
+  'Luau Chicken': ['/images/toppings/chicken.webp','/images/toppings/pineapple.webp'],
+  'Fold Special': ['/images/toppings/pepperoni.webp','/images/toppings/ham.webp','/images/toppings/jalapeno.webp'],
+};
+// Display size in SVG units for each topping (pizza cheese area ≈ 176 units wide)
+const TOPPING_SZ = {
+  'Pepperoni':28,'All Meat':26,'Hawaiian':26,'Jalapeño':22,'Spinach':22,
+  'Shrimp':26,'Veggies':26,'Four Cheese':24,'BBQ Chicken':28,'Luau Chicken':26,'Fold Special':26,
+};
+
+function seededRand(n) {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+// Scatter positions inside a pie-wedge sector (polar → cartesian)
+function slicePositions(sliceIdx, count, aStart, aEnd, minR, maxR) {
+  const pts = [], span = aEnd - aStart;
+  for (let i = 0; i < count; i++) {
+    const s1 = sliceIdx * 500 + i * 97 + 13, s2 = sliceIdx * 500 + i * 97 + 71;
+    const a = aStart + 0.14 * span + seededRand(s1) * 0.72 * span;
+    const r = minR + seededRand(s2) * (maxR - minR);
+    pts.push({ x: r * Math.cos(a), y: r * Math.sin(a), rot: seededRand(s1 + s2) * 360 });
+  }
+  return pts;
+}
+
+// Scatter positions inside a rectangle cell
+function rectPositions(sliceIdx, count, rx, ry, rw, rh) {
+  const pts = [], mg = 13;
+  for (let i = 0; i < count; i++) {
+    const s1 = sliceIdx * 500 + i * 97 + 13, s2 = sliceIdx * 500 + i * 97 + 71;
+    pts.push({
+      x: rx + mg + seededRand(s1) * Math.max(1, rw - mg * 2),
+      y: ry + mg + seededRand(s2) * Math.max(1, rh - mg * 2),
+      rot: seededRand(s1 + s2) * 360
+    });
+  }
+  return pts;
+}
+
+// SVG clipPath element for one section (wedge or rect depending on shape)
+function sectionClipPath(previewIdx, shape, n, IR) {
+  if (shape === 'square') {
+    const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+    const cellH = (IR * 2) / rows;
+    const row = Math.floor(previewIdx / cols);
+    const colInRow = previewIdx - row * cols;
+    const itemsInRow = row === rows - 1 ? n - row * cols : cols;
+    const cellW = (IR * 2) / itemsInRow;
+    const rx = (-IR + colInRow * cellW).toFixed(1), ry = (-IR + row * cellH).toFixed(1);
+    return `<clipPath id="sec-${previewIdx}"><rect x="${rx}" y="${ry}" width="${cellW.toFixed(1)}" height="${cellH.toFixed(1)}"/></clipPath>`;
+  }
+  if (n === 1) {
+    return shape === 'circle'
+      ? `<clipPath id="sec-0"><circle cx="0" cy="0" r="${IR}"/></clipPath>`
+      : `<clipPath id="sec-0"><path d="${getPizzaShapePath(shape, IR)}"/></clipPath>`;
+  }
+  const sa = (2 * Math.PI) / n;
+  const a = previewIdx * sa - Math.PI / 2, e = a + sa;
+  const bigR = 220, la = sa > Math.PI ? 1 : 0;
+  const x1 = (bigR * Math.cos(a)).toFixed(2), y1 = (bigR * Math.sin(a)).toFixed(2);
+  const x2 = (bigR * Math.cos(e)).toFixed(2), y2 = (bigR * Math.sin(e)).toFixed(2);
+  return `<clipPath id="sec-${previewIdx}"><path d="M 0 0 L ${x1} ${y1} A ${bigR} ${bigR} 0 ${la} 1 ${x2} ${y2} Z"/></clipPath>`;
+}
+
+// SVG <image> elements for one section's toppings, clipped to sec-{previewIdx}
+function renderSectionToppings(previewIdx, flavor, shape, n, IR) {
+  if (!flavor) return '';
+  const imgs = TOPPING_IMGS[flavor];
+  if (!imgs || !imgs.length) return '';
+  const tpp = n <= 1 ? 14 : n <= 2 ? 10 : n <= 4 ? 7 : n <= 6 ? 5 : 4;
+  const sz = TOPPING_SZ[flavor] || 26, half = sz / 2;
+  const f = v => v.toFixed(1);
+
+  let positions;
+  if (shape === 'square') {
+    const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+    const cellH = (IR * 2) / rows;
+    const row = Math.floor(previewIdx / cols);
+    const colInRow = previewIdx - row * cols;
+    const itemsInRow = row === rows - 1 ? n - row * cols : cols;
+    const cellW = (IR * 2) / itemsInRow;
+    positions = rectPositions(previewIdx, tpp, -IR + colInRow * cellW, -IR + row * cellH, cellW, cellH);
+  } else {
+    const sa = n === 1 ? Math.PI * 2 : (2 * Math.PI) / n;
+    const aStart = n === 1 ? -Math.PI : previewIdx * sa - Math.PI / 2;
+    positions = slicePositions(previewIdx, tpp, aStart, aStart + sa, 12, IR * 0.83);
+  }
+
+  return positions.map((p, pi) => {
+    const img = imgs[Math.floor(seededRand(previewIdx * 1000 + pi * 73) * imgs.length)];
+    return `<image href="${img}" x="${f(p.x-half)}" y="${f(p.y-half)}" width="${sz}" height="${sz}" transform="rotate(${Math.round(p.rot)},${f(p.x)},${f(p.y)})" clip-path="url(#sec-${previewIdx})"/>`;
+  }).join('');
+}
+
+// (drawTopping removed — toppings are now real PNG/WebP images via renderSectionToppings)
+
+// Keep this stub so any stray call doesn't crash
+function drawTopping(flavor, px, py, rot) {
+  switch (flavor) {
+    case 'Pepperoni': {
+      // Large glossy pepperoni disc — dark edge, bright red center, fat spots, sheen
+      const id = `pg${Math.abs(Math.round(px*7+py*13))}`;
+      return `<defs><radialGradient id="${id}" cx="38%" cy="32%" r="58%"><stop offset="0%" stop-color="#E8362A"/><stop offset="60%" stop-color="#BE2020"/><stop offset="100%" stop-color="#7A0808"/></radialGradient></defs>`+
+             `<circle cx="${f(px)}" cy="${f(py)}" r="13" fill="#5A0808"/>`+
+             `<circle cx="${f(px)}" cy="${f(py)}" r="12" fill="url(#${id})"/>`+
+             `<circle cx="${f(px-3.5)}" cy="${f(py-2)}" r="2.2" fill="#D95040" opacity="0.6"/>`+
+             `<circle cx="${f(px+3)}" cy="${f(py+3.5)}" r="1.6" fill="#D95040" opacity="0.5"/>`+
+             `<circle cx="${f(px-1)}" cy="${f(py+5)}" r="1.4" fill="#D95040" opacity="0.45"/>`+
+             `<circle cx="${f(px+5)}" cy="${f(py-3)}" r="1.2" fill="#D95040" opacity="0.4"/>`+
+             `<ellipse cx="${f(px-4)}" cy="${f(py-4)}" rx="3.5" ry="2" fill="rgba(255,210,190,0.28)"/>`;
+    }
+    case 'All Meat': {
+      // Mix: some pepperoni + some sausage nuggets
+      const id2 = `ag${Math.abs(Math.round(px*5+py*11))}`;
+      return rot > 200
+        ? `<defs><radialGradient id="${id2}" cx="38%" cy="32%" r="58%"><stop offset="0%" stop-color="#E8362A"/><stop offset="100%" stop-color="#7A0808"/></radialGradient></defs>`+
+          `<circle cx="${f(px)}" cy="${f(py)}" r="12" fill="#5A0808"/>`+
+          `<circle cx="${f(px)}" cy="${f(py)}" r="11" fill="url(#${id2})"/>`+
+          `<circle cx="${f(px-3)}" cy="${f(py-2)}" r="2" fill="#D95040" opacity="0.55"/>`+
+          `<ellipse cx="${f(px-3.5)}" cy="${f(py-3.5)}" rx="3" ry="2" fill="rgba(255,210,190,0.25)"/>`
+        : `<ellipse cx="${f(px)}" cy="${f(py)}" rx="10" ry="8" fill="#7B3520" transform="${tr}"/>`+
+          `<ellipse cx="${f(px)}" cy="${f(py)}" rx="8" ry="6.5" fill="#A04530" transform="${tr}"/>`+
+          `<ellipse cx="${f(px-2)}" cy="${f(py-1.5)}" rx="2.5" ry="1.5" fill="rgba(220,170,130,0.4)" transform="${tr}"/>`;
+    }
+    case 'Hawaiian': {
+      // Alternate: thick ham slice OR chunky pineapple piece
+      if (rot % 70 < 35) {
+        // Ham slice — pink with white fat streaks
+        return `<rect x="${f(px-9)}" y="${f(py-6)}" width="18" height="12" rx="4" fill="#D4607A" transform="${tr}"/>`+
+               `<rect x="${f(px-9)}" y="${f(py-6)}" width="18" height="12" rx="4" fill="none" stroke="#B84060" stroke-width="0.8" transform="${tr}"/>`+
+               `<line x1="${f(px-7)}" y1="${f(py-2)}" x2="${f(px+7)}" y2="${f(py-2)}" stroke="rgba(255,230,230,0.5)" stroke-width="1.5" transform="${tr}"/>`+
+               `<line x1="${f(px-7)}" y1="${f(py+1)}" x2="${f(px+4)}" y2="${f(py+1)}" stroke="rgba(255,230,230,0.35)" stroke-width="1" transform="${tr}"/>`;
+      } else {
+        // Pineapple chunk — golden yellow with crosshatch
+        return `<rect x="${f(px-7)}" y="${f(py-7)}" width="14" height="14" rx="3" fill="#E8B820" transform="${tr}"/>`+
+               `<rect x="${f(px-5)}" y="${f(py-5)}" width="10" height="10" rx="2" fill="#FFD840" transform="${tr}"/>`+
+               `<line x1="${f(px-5)}" y1="${f(py-1.5)}" x2="${f(px+5)}" y2="${f(py-1.5)}" stroke="#C89010" stroke-width="0.9" transform="${tr}"/>`+
+               `<line x1="${f(px-5)}" y1="${f(py+2)}" x2="${f(px+5)}" y2="${f(py+2)}" stroke="#C89010" stroke-width="0.9" transform="${tr}"/>`+
+               `<line x1="${f(px-1.5)}" y1="${f(py-5)}" x2="${f(px-1.5)}" y2="${f(py+5)}" stroke="#C89010" stroke-width="0.9" transform="${tr}"/>`+
+               `<line x1="${f(px+2)}" y1="${f(py-5)}" x2="${f(px+2)}" y2="${f(py+5)}" stroke="#C89010" stroke-width="0.9" transform="${tr}"/>`;
+      }
+    }
+    case 'Jalapeño': {
+      // Jalapeño ring — hollow green oval with seeds
+      return `<ellipse cx="${f(px)}" cy="${f(py)}" rx="5" ry="8.5" fill="#2E7D32" transform="${tr}"/>`+
+             `<ellipse cx="${f(px)}" cy="${f(py)}" rx="3" ry="6" fill="#66BB6A" transform="${tr}"/>`+
+             `<ellipse cx="${f(px)}" cy="${f(py)}" rx="1.5" ry="3" fill="#C8E6C9" opacity="0.7" transform="${tr}"/>`+
+             `<circle cx="${f(px-1)}" cy="${f(py-2)}" r="1" fill="#F9FBE7" opacity="0.8"/>`+
+             `<circle cx="${f(px+1)}" cy="${f(py+2)}" r="0.9" fill="#F9FBE7" opacity="0.7"/>`;
+    }
+    case 'Spinach': {
+      // Dark green leaf with vein lines
+      return `<ellipse cx="${f(px)}" cy="${f(py)}" rx="5.5" ry="9" fill="#1B5E20" opacity="0.95" transform="${tr}"/>`+
+             `<ellipse cx="${f(px)}" cy="${f(py)}" rx="4" ry="7.5" fill="#2E7D32" opacity="0.85" transform="${tr}"/>`+
+             `<line x1="${f(px)}" y1="${f(py-8)}" x2="${f(px)}" y2="${f(py+8)}" stroke="#1A4A1A" stroke-width="1" transform="${tr}"/>`+
+             `<line x1="${f(px-3.5)}" y1="${f(py-3)}" x2="${f(px)}" y2="${f(py-1)}" stroke="#1A4A1A" stroke-width="0.7" transform="${tr}"/>`+
+             `<line x1="${f(px+3.5)}" y1="${f(py+2)}" x2="${f(px)}" y2="${f(py+0.5)}" stroke="#1A4A1A" stroke-width="0.7" transform="${tr}"/>`;
+    }
+    case 'Shrimp': {
+      // Pink curved shrimp with tail
+      const id3 = `sh${Math.abs(Math.round(px*3+py*17))}`;
+      return `<defs><linearGradient id="${id3}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFB8A0"/><stop offset="100%" stop-color="#FF6E50"/></linearGradient></defs>`+
+             `<path d="M${f(px-5)},${f(py+5)} C${f(px-9)},${f(py+1)} ${f(px-9)},${f(py-5)} ${f(px-4)},${f(py-8)} C${f(px)},${f(py-11)} ${f(px+5)},${f(py-9)} ${f(px+8)},${f(py-5)} C${f(px+11)},${f(py-1)} ${f(px+9)},${f(py+5)} ${f(px+5)},${f(py+8)} C${f(px+2)},${f(py+10)} ${f(px-2)},${f(py+10)} ${f(px-5)},${f(py+5)} Z" fill="url(#${id3})" transform="${tr}"/>`+
+             `<path d="M${f(px-3)},${f(py+3)} C${f(px-6)},${f(py)} ${f(px-6)},${f(py-3.5)} ${f(px-2.5)},${f(py-6)} C${f(px)},${f(py-7.5)} ${f(px+3)},${f(py-7)} ${f(px+5.5)},${f(py-4)}" fill="none" stroke="#C04830" stroke-width="1.2" transform="${tr}"/>`+
+             `<ellipse cx="${f(px-3.5)}" cy="${f(py-3.5)}" rx="2.5" ry="1.5" fill="rgba(255,235,220,0.5)" transform="${tr}"/>`;
+    }
+    case 'Veggies': {
+      // Rotating through: mushroom, bell pepper ring, onion ring, tomato slice
+      const v = Math.round(rot / 90) % 4;
+      if (v === 0) {
+        // Mushroom
+        return `<ellipse cx="${f(px)}" cy="${f(py-3)}" rx="9" ry="6.5" fill="#A1887F" transform="${tr}"/>`+
+               `<ellipse cx="${f(px)}" cy="${f(py-3)}" rx="7.5" ry="5" fill="#BCAAA4" transform="${tr}"/>`+
+               `<rect x="${f(px-2.5)}" y="${f(py-3)}" width="5" height="8" rx="1.5" fill="#D7CCC8" transform="${tr}"/>`;
+      } else if (v === 1) {
+        // Bell pepper ring
+        return `<ellipse cx="${f(px)}" cy="${f(py)}" rx="8.5" ry="7" fill="#2E7D32" transform="${tr}"/>`+
+               `<ellipse cx="${f(px)}" cy="${f(py)}" rx="5.5" ry="4.5" fill="#66BB6A" transform="${tr}"/>`+
+               `<ellipse cx="${f(px)}" cy="${f(py)}" rx="3" ry="2.5" fill="rgba(200,230,200,0.5)" transform="${tr}"/>`;
+      } else if (v === 2) {
+        // Onion ring
+        return `<ellipse cx="${f(px)}" cy="${f(py)}" rx="8" ry="6.5" fill="rgba(240,210,180,0.75)" transform="${tr}"/>`+
+               `<ellipse cx="${f(px)}" cy="${f(py)}" rx="5" ry="4" fill="rgba(255,245,230,0.6)" transform="${tr}"/>`+
+               `<ellipse cx="${f(px)}" cy="${f(py)}" rx="2.5" ry="2" fill="rgba(255,230,200,0.3)" transform="${tr}"/>`;
+      } else {
+        // Tomato slice
+        return `<circle cx="${f(px)}" cy="${f(py)}" r="8" fill="#C62828" opacity="0.9"/>`+
+               `<circle cx="${f(px)}" cy="${f(py)}" r="6.5" fill="#E53935" opacity="0.9"/>`+
+               `<line x1="${f(px)}" y1="${f(py-6)}" x2="${f(px)}" y2="${f(py+6)}" stroke="rgba(255,255,220,0.4)" stroke-width="1.2"/>`+
+               `<line x1="${f(px-6)}" y1="${f(py)}" x2="${f(px+6)}" y2="${f(py)}" stroke="rgba(255,255,220,0.4)" stroke-width="1.2"/>`;
+      }
+    }
+    case 'Four Cheese': {
+      // Melted cheese blob / pull
+      const rr = 4 + Math.round(rot) % 5, ry2 = 3 + Math.round(rot) % 4;
+      return `<ellipse cx="${f(px)}" cy="${f(py)}" rx="${rr}" ry="${ry2}" fill="#FFF8DC" opacity="0.95" stroke="#D4A020" stroke-width="0.7" transform="${tr}"/>`+
+             `<ellipse cx="${f(px)}" cy="${f(py)}" rx="${rr-1.5}" ry="${ry2-1}" fill="rgba(255,255,230,0.6)" transform="${tr}"/>`;
+    }
+    case 'BBQ Chicken': {
+      // Chicken chunk with BBQ drizzle
+      const id4 = `bc${Math.abs(Math.round(px*9+py*7))}`;
+      return `<defs><radialGradient id="${id4}" cx="40%" cy="35%" r="55%"><stop offset="0%" stop-color="#E8C090"/><stop offset="100%" stop-color="#A0601A"/></radialGradient></defs>`+
+             `<path d="M${f(px-7)},${f(py-4)} C${f(px-9)},${f(py-1)} ${f(px-8)},${f(py+4)} ${f(px-4)},${f(py+7)} C${f(px-1)},${f(py+9)} ${f(px+3)},${f(py+8)} ${f(px+6)},${f(py+5)} C${f(px+9)},${f(py+2)} ${f(px+9)},${f(py-3)} ${f(px+6)},${f(py-6)} C${f(px+3)},${f(py-9)} ${f(px-3)},${f(py-7)} ${f(px-7)},${f(py-4)} Z" fill="url(#${id4})" transform="${tr}"/>`+
+             `<path d="M${f(px-4)},${f(py+1)} C${f(px-2)},${f(py+4)} ${f(px+2)},${f(py+3)} ${f(px+5)},${f(py)}" fill="none" stroke="#8B2500" stroke-width="1.5" opacity="0.65" transform="${tr}"/>`;
+    }
+    case 'Luau Chicken': {
+      // Chicken chunk + pineapple mixed
+      return rot > 180
+        ? `<rect x="${f(px-6)}" y="${f(py-6)}" width="12" height="12" rx="3" fill="#E8B820" transform="${tr}"/>`+
+          `<rect x="${f(px-4)}" y="${f(py-4)}" width="8" height="8" rx="2" fill="#FFD840" transform="${tr}"/>`+
+          `<line x1="${f(px-4)}" y1="${f(py)}" x2="${f(px+4)}" y2="${f(py)}" stroke="#C89010" stroke-width="0.9" transform="${tr}"/>`+
+          `<line x1="${f(px)}" y1="${f(py-4)}" x2="${f(px)}" y2="${f(py+4)}" stroke="#C89010" stroke-width="0.9" transform="${tr}"/>`
+        : `<path d="M${f(px-6)},${f(py-3)} C${f(px-9)},${f(py)} ${f(px-8)},${f(py+4)} ${f(px-4)},${f(py+6)} C${f(px)},${f(py+8)} ${f(px+4)},${f(py+6)} ${f(px+7)},${f(py+3)} C${f(px+9)},${f(py)} ${f(px+8)},${f(py-4)} ${f(px+5)},${f(py-6)} C${f(px+2)},${f(py-8)} ${f(px-3)},${f(py-7)} ${f(px-6)},${f(py-3)} Z" fill="#D4A373" transform="${tr}"/>`+
+          `<path d="M${f(px-3)},${f(py+1)} C${f(px)},${f(py+4)} ${f(px+3)},${f(py+2)} ${f(px+4.5)},${f(py-1)}" fill="none" stroke="#A47040" stroke-width="1.2" transform="${tr}"/>`;
+    }
+    case 'Fold Special': {
+      // Mix of toppings: pepperoni + jalapeño + ham
+      const v2 = Math.round(rot / 120) % 3;
+      if (v2 === 0) {
+        const id5 = `fs${Math.abs(Math.round(px*11+py*5))}`;
+        return `<defs><radialGradient id="${id5}" cx="38%" cy="32%" r="58%"><stop offset="0%" stop-color="#E8362A"/><stop offset="100%" stop-color="#7A0808"/></radialGradient></defs>`+
+               `<circle cx="${f(px)}" cy="${f(py)}" r="11" fill="#5A0808"/>`+
+               `<circle cx="${f(px)}" cy="${f(py)}" r="10" fill="url(#${id5})"/>`+
+               `<circle cx="${f(px-3)}" cy="${f(py-2)}" r="2" fill="#D95040" opacity="0.55"/>`;
+      } else if (v2 === 1) {
+        return `<ellipse cx="${f(px)}" cy="${f(py)}" rx="4.5" ry="8" fill="#2E7D32" transform="${tr}"/>`+
+               `<ellipse cx="${f(px)}" cy="${f(py)}" rx="2.5" ry="5.5" fill="#66BB6A" transform="${tr}"/>`;
+      } else {
+        return `<rect x="${f(px-8)}" y="${f(py-5)}" width="16" height="10" rx="3.5" fill="#D4607A" transform="${tr}"/>`+
+               `<line x1="${f(px-6)}" y1="${f(py-1)}" x2="${f(px+6)}" y2="${f(py-1)}" stroke="rgba(255,230,230,0.45)" stroke-width="1.5" transform="${tr}"/>`;
+      }
+    }
+    default:
+      return `<circle cx="${f(px)}" cy="${f(py)}" r="6" fill="rgba(255,255,255,0.4)"/>`;
+  }
+}
+
+// Generate photorealistic bubbly melted cheese texture using seeded positions
+function cheeseTexture(clipId) {
+  // Brown bubble marks (char spots where cheese browned)
+  const brownSpots = [
+    [15,20,5.5],[−31,8,4.5],[41,−26,6],[−22,−37,5],[26,41,4.5],
+    [−46,29,7],[10,−14,4],[37,14,5.5],[−16,46,4.5],[−41,−21,6],
+    [1,31,4],[21,−42,5],[−36,4,4.5],[46,−11,5],[−11,24,6],
+    [31,−31,4.5],[−26,−11,5.5],[14,51,4],[−51,−4,4.5],[41,34,5],
+    [−5,−28,4],[55,10,5],[−18,−55,4.5],[−60,15,4],[30,55,4],
+    [60,−25,4.5],[−55,−40,5],[10,65,4],[−65,−10,4],[48,48,4.5],
+  ];
+  // Bright highlight peaks (shiny melted cheese)
+  const peaks = [
+    [22,13,3.5],[−26,−22,2.5],[12,36,2.5],[−41,11,3.5],[31,−36,2.5],
+    [−11,−10,2.5],[46,21,2.5],[−31,41,2.5],[4,−46,3],[36,−4,2.5],
+    [−56,−16,2.5],[19,−57,2.5],[−15,56,2],[56,30,2.5],[−2,2,3],
+  ];
+  let s = '';
+  brownSpots.forEach(([x,y,r]) => {
+    s += `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${(r*0.75).toFixed(1)}" fill="#B87018" opacity="0.38" clip-path="url(#${clipId})"/>`;
+  });
+  peaks.forEach(([x,y,r]) => {
+    s += `<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(255,255,230,0.55)" clip-path="url(#${clipId})"/>`;
+  });
+  return s;
+}
+
+// Update legend + add-to-cart button (called on every change)
+function updateLegend() {
+  const filledSlots = custSlots.filter(sl => sl !== '');
+  const usedFlavors = [...new Set(filledSlots)];
+  document.getElementById('preview-legend').innerHTML = usedFlavors.length
+    ? usedFlavors.map(f => {
+        const sliceNums = custSlots.map((sl,i) => sl===f ? i+1 : null).filter(Boolean);
+        return `<div class="legend-item"><div class="legend-dot" style="background:${flavorColorMap[f]||'#999'}"></div><span class="legend-name">${f}</span><span class="legend-slot">Sections ${sliceNums.join(', ')}</span></div>`;
+      }).join('')
+    : `<div style="font-size:12px;color:var(--text-light);text-align:center;padding:12px 0;">Assign flavors to see your pizza</div>`;
+  document.getElementById('btn-cust-add').disabled = filledSlots.length === 0;
+}
+
+// Partial update — swap topping images for one section only (base pizza untouched)
+function updatePizzaSection(previewIdx, flavor) {
+  const el = document.getElementById('pizza-section-' + previewIdx);
+  if (!el) { renderPizzaPreview(); return; }
+  const n = custSlots.filter(s => s !== '').length;
+  el.innerHTML = renderSectionToppings(previewIdx, flavor, custShape || 'circle', n, 88);
+  updateLegend();
+}
+
 function renderPizzaPreview() {
   const filledSlots = custSlots.filter(sl => sl !== '');
   const n = filledSlots.length;
   const R = 100, IR = 88;
   const shape = custShape || 'circle';
-  const clipId = 'pclip';
 
-  let s = '';
+  // ── DEFS ──────────────────────────────────────────────────────────────────
+  let defs = '';
 
-  // --- SQUARE: grid slices ---
+  // Pizza outer shape clip (cheese/topping area)
   if (shape === 'square') {
-    const shapePath = getPizzaShapePath('square', IR);
-    const crustPath = getPizzaShapePath('square', R);
-
-    s += '<defs><clipPath id="' + clipId + '"><path d="' + shapePath + '"/></clipPath></defs>';
-    // Shadow
-    s += '<path d="' + crustPath + '" fill="rgba(0,0,0,0.08)" transform="translate(2,4)"/>';
-    // Crust
-    s += '<path d="' + crustPath + '" fill="#D4A017"/>';
-
-    if (n === 0) {
-      s += '<path d="' + shapePath + '" fill="#F5C842" opacity="0.85"/>';
-      s += '<text x="0" y="6" text-anchor="middle" font-size="13" fill="rgba(180,130,0,0.7)" font-family="Inter,sans-serif" font-weight="500">Assign flavors</text>';
-    } else {
-      // Calculate grid dimensions
-      const cols = Math.ceil(Math.sqrt(n));
-      const rows = Math.ceil(n / cols);
-      const cellW = (IR * 2) / cols;
-      const cellH = (IR * 2) / rows;
-
-      s += '<g clip-path="url(#' + clipId + ')">';
-      for (let idx2 = 0; idx2 < n; idx2++) {
-        const row = Math.floor(idx2 / cols);
-        const col = idx2 % cols;
-        // Last row: if fewer items, make cells wider
-        const itemsInRow = (row === rows - 1) ? (n - row * cols) : cols;
-        const cellWRow = (IR * 2) / itemsInRow;
-        const colInRow = idx2 - row * cols;
-
-        const x = -IR + colInRow * cellWRow;
-        const y = -IR + row * cellH;
-        const col2 = flavorColorMap[filledSlots[idx2]] || '#999';
-
-        s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) +
-             '" width="' + cellWRow.toFixed(1) + '" height="' + cellH.toFixed(1) +
-             '" fill="' + col2 + '" opacity="0.85"/>';
-
-        // Grid lines
-        if (colInRow > 0) {
-          s += '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) +
-               '" x2="' + x.toFixed(1) + '" y2="' + (y + cellH).toFixed(1) +
-               '" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>';
-        }
-        if (row > 0) {
-          s += '<line x1="' + (-IR) + '" y1="' + y.toFixed(1) +
-               '" x2="' + IR + '" y2="' + y.toFixed(1) +
-               '" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>';
-        }
-
-        // Section label
-        const lx = (x + cellWRow / 2).toFixed(1);
-        const ly = (y + cellH / 2 + 4).toFixed(1);
-        s += '<text x="' + lx + '" y="' + ly +
-             '" text-anchor="middle" font-size="13" font-weight="700"' +
-             ' fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif">' + (idx2 + 1) + '</text>';
-      }
-      // Cheese overlay
-      s += '<path d="' + shapePath + '" fill="#F5C842" opacity="0.08"/>';
-      s += '</g>';
-    }
-
-    s += '<circle cx="0" cy="0" r="7" fill="#A52020" opacity="0.7"/>';
-
+    defs += `<clipPath id="pclip"><path d="${getPizzaShapePath('square', IR)}"/></clipPath>`;
+    defs += `<linearGradient id="crustG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D4921A"/><stop offset="50%" stop-color="#C07010"/><stop offset="100%" stop-color="#7A3A08"/></linearGradient>`;
   } else {
-    // --- CIRCLE / HEART: radial pie slices ---
-    const clipPath = shape === 'circle'
-      ? '<circle cx="0" cy="0" r="' + IR + '"/>'
-      : '<path d="' + getPizzaShapePath(shape, IR) + '"/>';
+    const clipShape = shape === 'circle'
+      ? `<circle cx="0" cy="0" r="${IR}"/>`
+      : `<path d="${getPizzaShapePath(shape, IR)}"/>`;
+    defs += `<clipPath id="pclip">${clipShape}</clipPath>`;
+    defs += `<radialGradient id="crustG" cx="50%" cy="50%" r="50%"><stop offset="72%" stop-color="#D4921A"/><stop offset="88%" stop-color="#A05C10"/><stop offset="100%" stop-color="#6A2E06"/></radialGradient>`;
+  }
+  defs += `<radialGradient id="cheeseG" cx="40%" cy="38%" r="65%"><stop offset="0%" stop-color="#FBD84A"/><stop offset="55%" stop-color="#F0B820"/><stop offset="100%" stop-color="${shape==='square'?'#D08A10':'#C88010'}"/></radialGradient>`;
 
-    s += '<defs><clipPath id="' + clipId + '">' + clipPath + '</clipPath></defs>';
-
-    // Shadow
-    if (shape === 'circle') s += '<ellipse cx="2" cy="4" rx="102" ry="102" fill="rgba(0,0,0,0.08)"/>';
-    else s += '<path d="' + getPizzaShapePath(shape, R+2) + '" fill="rgba(0,0,0,0.08)" transform="translate(2,4)"/>';
-
-    // Crust
-    if (shape === 'circle') s += '<circle cx="0" cy="0" r="' + R + '" fill="#D4A017"/>';
-    else s += '<path d="' + getPizzaShapePath(shape, R) + '" fill="#D4A017"/>';
-
-    if (n === 0) {
-      if (shape === 'circle') s += '<circle cx="0" cy="0" r="' + IR + '" fill="#F5C842" opacity="0.85"/>';
-      else s += '<path d="' + getPizzaShapePath(shape, IR) + '" fill="#F5C842" opacity="0.85"/>';
-      s += '<text x="0" y="6" text-anchor="middle" font-size="13" fill="rgba(180,130,0,0.7)" font-family="Inter,sans-serif" font-weight="500">Assign flavors</text>';
-    } else if (n === 1) {
-      const col = flavorColorMap[filledSlots[0]] || '#C62828';
-      if (shape === 'circle') s += '<circle cx="0" cy="0" r="' + IR + '" fill="' + col + '" opacity="0.85"/>';
-      else s += '<path d="' + getPizzaShapePath(shape, IR) + '" fill="' + col + '" opacity="0.85"/>';
-    } else {
-      const sa = (2 * Math.PI) / n;
-      s += '<g clip-path="url(#' + clipId + ')">';
-      for (let idx2 = 0; idx2 < n; idx2++) {
-        const a = idx2 * sa - Math.PI / 2;
-        const e = a + sa;
-        const bigR = 220;
-        const x1 = (bigR * Math.cos(a)).toFixed(2);
-        const y1 = (bigR * Math.sin(a)).toFixed(2);
-        const x2 = (bigR * Math.cos(e)).toFixed(2);
-        const y2 = (bigR * Math.sin(e)).toFixed(2);
-        const la = sa > Math.PI ? 1 : 0;
-        const col = flavorColorMap[filledSlots[idx2]] || '#999';
-        s += '<path d="M 0 0 L ' + x1 + ' ' + y1 + ' A ' + bigR + ' ' + bigR + ' 0 ' + la + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + col + '" opacity="0.85"/>';
-        s += '<line x1="0" y1="0" x2="' + (bigR*Math.cos(a)).toFixed(2) + '" y2="' + (bigR*Math.sin(a)).toFixed(2) + '" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>';
-      }
-      s += '<rect x="-220" y="-220" width="440" height="440" fill="#F5C842" opacity="0.08"/>';
-      s += '</g>';
-      // Slice number labels
-      for (let idx2 = 0; idx2 < n; idx2++) {
-        const m = idx2 * sa - Math.PI / 2 + sa / 2;
-        const lr = shape === 'circle' ? IR * 0.62 : IR * 0.52;
-        s += '<text x="' + (lr*Math.cos(m)).toFixed(1) + '" y="' + (lr*Math.sin(m)+4).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="700" fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif">' + (idx2+1) + '</text>';
-      }
-    }
-    s += '<circle cx="0" cy="0" r="8" fill="#A52020" opacity="0.7"/>';
+  // Per-section clip paths
+  for (let i = 0; i < n; i++) {
+    defs += sectionClipPath(i, shape, n, IR);
   }
 
-  document.getElementById('pizza-svg').innerHTML = s;
+  // ── BASE LAYER ─────────────────────────────────────────────────────────────
+  let base = '';
+  if (shape === 'square') {
+    const cp = getPizzaShapePath('square', R);
+    const sp = getPizzaShapePath('square', IR);
+    base += `<path d="${cp}" fill="rgba(0,0,0,0.15)" transform="translate(4,6)"/>`;
+    base += `<path d="${cp}" fill="url(#crustG)"/>`;
+    base += `<path d="${sp}" fill="#8B1A10"/>`;
+    base += `<path d="${sp}" fill="url(#cheeseG)" opacity="0.90" clip-path="url(#pclip)"/>`;
+  } else if (shape === 'circle') {
+    base += `<ellipse cx="4" cy="6" rx="104" ry="104" fill="rgba(0,0,0,0.15)"/>`;
+    base += `<circle cx="0" cy="0" r="${R}" fill="url(#crustG)"/>`;
+    base += `<circle cx="0" cy="0" r="${IR}" fill="#8B1A10"/>`;
+    base += `<circle cx="0" cy="0" r="${IR}" fill="url(#cheeseG)" opacity="0.90" clip-path="url(#pclip)"/>`;
+  } else {
+    base += `<path d="${getPizzaShapePath(shape, R+2)}" fill="rgba(0,0,0,0.15)" transform="translate(4,6)"/>`;
+    base += `<path d="${getPizzaShapePath(shape, R)}" fill="url(#crustG)"/>`;
+    base += `<path d="${getPizzaShapePath(shape, IR)}" fill="#8B1A10"/>`;
+    base += `<path d="${getPizzaShapePath(shape, IR)}" fill="url(#cheeseG)" opacity="0.90" clip-path="url(#pclip)"/>`;
+  }
+  base += cheeseTexture('pclip');
 
-  // Legend
-  const usedFlavors = [...new Set(filledSlots)];
-  document.getElementById('preview-legend').innerHTML = usedFlavors.length ?
-    usedFlavors.map(f => {
-      const sliceNums = custSlots.map((sl,i) => sl===f ? i+1 : null).filter(Boolean);
-      return '<div class="legend-item">' +
-        '<div class="legend-dot" style="background:' + (flavorColorMap[f]||'#999') + ';"></div>' +
-        '<span class="legend-name">' + f + '</span>' +
-        '<span class="legend-slot">Sections ' + sliceNums.join(', ') + '</span>' +
-        '</div>';
-    }).join('') :
-    '<div style="font-size:12px;color:var(--text-light);text-align:center;padding:12px 0;">Assign flavors to see your pizza</div>';
+  // Placeholder text when no flavors assigned
+  if (n === 0) {
+    base += `<text x="0" y="6" text-anchor="middle" font-size="12" fill="rgba(100,60,0,0.6)" font-family="Inter,sans-serif" font-weight="500">Assign flavors</text>`;
+  }
 
-  document.getElementById('btn-cust-add').disabled = filledSlots.length === 0;
+  // ── SECTION FLAVOR TINTS ───────────────────────────────────────────────────
+  let tints = '';
+  for (let i = 0; i < n; i++) {
+    const fc = flavorColorMap[filledSlots[i]] || '#999';
+    if (shape === 'square') {
+      const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+      const cellH = (IR * 2) / rows;
+      const row = Math.floor(i / cols), colInRow = i - row * cols;
+      const itemsInRow = row === rows - 1 ? n - row * cols : cols;
+      const cellW = (IR * 2) / itemsInRow;
+      const rx = (-IR + colInRow * cellW).toFixed(1), ry = (-IR + row * cellH).toFixed(1);
+      tints += `<rect x="${rx}" y="${ry}" width="${cellW.toFixed(1)}" height="${cellH.toFixed(1)}" fill="${fc}" opacity="0.17" clip-path="url(#pclip)"/>`;
+    } else if (n === 1) {
+      tints += shape === 'circle'
+        ? `<circle cx="0" cy="0" r="${IR}" fill="${fc}" opacity="0.17" clip-path="url(#pclip)"/>`
+        : `<path d="${getPizzaShapePath(shape, IR)}" fill="${fc}" opacity="0.17" clip-path="url(#pclip)"/>`;
+    } else {
+      const sa = (2 * Math.PI) / n;
+      const a = i * sa - Math.PI / 2, e = a + sa;
+      const bigR = 220, la = sa > Math.PI ? 1 : 0;
+      const x1 = (bigR*Math.cos(a)).toFixed(2), y1 = (bigR*Math.sin(a)).toFixed(2);
+      const x2 = (bigR*Math.cos(e)).toFixed(2), y2 = (bigR*Math.sin(e)).toFixed(2);
+      tints += `<path d="M 0 0 L ${x1} ${y1} A ${bigR} ${bigR} 0 ${la} 1 ${x2} ${y2} Z" fill="${fc}" opacity="0.15" clip-path="url(#pclip)"/>`;
+    }
+  }
+
+  // ── TOPPING SECTIONS (independently updatable) ────────────────────────────
+  let sectionsHtml = '';
+  for (let i = 0; i < n; i++) {
+    sectionsHtml += `<g id="pizza-section-${i}">${renderSectionToppings(i, filledSlots[i], shape, n, IR)}</g>`;
+  }
+
+  // ── DIVIDERS ───────────────────────────────────────────────────────────────
+  let dividers = '';
+  if (n > 1) {
+    if (shape === 'square') {
+      const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+      const cellH = (IR * 2) / rows;
+      for (let i = 0; i < n; i++) {
+        const row = Math.floor(i / cols), colInRow = i - row * cols;
+        const itemsInRow = row === rows - 1 ? n - row * cols : cols;
+        const cellW = (IR * 2) / itemsInRow;
+        const rx = -IR + colInRow * cellW, ry = -IR + row * cellH;
+        if (colInRow > 0) dividers += `<line x1="${rx.toFixed(1)}" y1="${ry.toFixed(1)}" x2="${rx.toFixed(1)}" y2="${(ry+cellH).toFixed(1)}" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>`;
+        if (row > 0 && colInRow === 0) dividers += `<line x1="${(-IR).toFixed(1)}" y1="${ry.toFixed(1)}" x2="${IR.toFixed(1)}" y2="${ry.toFixed(1)}" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>`;
+      }
+    } else {
+      const sa = (2 * Math.PI) / n;
+      const bigR = 220;
+      for (let i = 0; i < n; i++) {
+        const a = i * sa - Math.PI / 2;
+        dividers += `<line x1="0" y1="0" x2="${(bigR*Math.cos(a)).toFixed(2)}" y2="${(bigR*Math.sin(a)).toFixed(2)}" stroke="rgba(0,0,0,0.3)" stroke-width="1.5" clip-path="url(#pclip)"/>`;
+      }
+    }
+  }
+
+  // ── LABELS ─────────────────────────────────────────────────────────────────
+  let labels = '';
+  if (n > 0) {
+    if (shape === 'square') {
+      const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+      const cellH = (IR * 2) / rows;
+      for (let i = 0; i < n; i++) {
+        const row = Math.floor(i / cols), colInRow = i - row * cols;
+        const itemsInRow = row === rows - 1 ? n - row * cols : cols;
+        const cellW = (IR * 2) / itemsInRow;
+        const rx = -IR + colInRow * cellW, ry = -IR + row * cellH;
+        labels += `<text x="${(rx+cellW/2).toFixed(1)}" y="${(ry+cellH/2+5).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="700" fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,0.65))">${i+1}</text>`;
+      }
+    } else if (n === 1) {
+      labels += `<text x="0" y="5" text-anchor="middle" font-size="13" font-weight="700" fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,0.7))">1</text>`;
+    } else {
+      const sa = (2 * Math.PI) / n;
+      for (let i = 0; i < n; i++) {
+        const m = i * sa - Math.PI / 2 + sa / 2;
+        const lr = IR * (shape === 'circle' ? 0.60 : 0.50);
+        labels += `<text x="${(lr*Math.cos(m)).toFixed(1)}" y="${(lr*Math.sin(m)+4).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="rgba(255,255,255,0.95)" font-family="Inter,sans-serif" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,0.7))">${i+1}</text>`;
+      }
+    }
+    labels += `<circle cx="0" cy="0" r="6" fill="#8B2010" opacity="0.80"/>`;
+  }
+
+  // ── ASSEMBLE ───────────────────────────────────────────────────────────────
+  document.getElementById('pizza-svg').innerHTML =
+    `<defs>${defs}</defs>` +
+    `<g id="pizza-base">${base}</g>` +
+    `<g id="pizza-tints" clip-path="url(#pclip)">${tints}</g>` +
+    `<g id="pizza-toppings" clip-path="url(#pclip)">${sectionsHtml}</g>` +
+    `<g id="pizza-dividers">${dividers}</g>` +
+    `<g id="pizza-labels">${labels}</g>`;
+
+  updateLegend();
 }
 
 window.addCustomPizzaToCart = () => {
