@@ -817,7 +817,8 @@ tr:hover td{background:#FDFAF5;}
       <input type="hidden" id="frec-flavor-name">
       <input type="hidden" id="frec-recipe-id">
 
-      <div class="form-label" style="margin-bottom:8px;">Ingredients used per flavor section</div>
+      <div class="form-label" style="margin-bottom:4px;">Ingredients used (whole-pizza amounts — auto-divided by slot count)</div>
+      <div style="font-size:11px;color:var(--text-mid);margin-bottom:8px;">Enter the full pizza amount for 30" and 36". The system divides by number of sections automatically.</div>
       <div id="frec-ing-list" style="margin-bottom:10px;"></div>
       <button onclick="addFlavorRecipeRow()" style="background:none;border:1px dashed var(--border);border-radius:4px;width:100%;padding:9px;font-size:13px;color:var(--text-mid);cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-mid)';">+ Add ingredient row</button>
 
@@ -2439,13 +2440,14 @@ window.closeFlavorRecipeModal = () => {
 window.addFlavorRecipeRow = (ing) => {
   ing = ing || {};
   const div = document.createElement('div');
-  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;margin-bottom:8px;align-items:center;';
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 72px 72px 60px auto;gap:6px;margin-bottom:8px;align-items:center;';
   div.innerHTML = `
     <select class="form-input" style="font-size:12px;" data-field="ingId">
       <option value="">Select ingredient...</option>
       ${ingItems.map(i => `<option value="${i.id}" data-name="${escHtml(i.name)}" data-unit="${i.unit}"${ing.ingredientId===i.id?' selected':''}>${escHtml(i.name)}</option>`).join('')}
     </select>
-    <input type="number" class="form-input" placeholder="Qty" min="0" step="0.01" value="${ing.qty||''}" data-field="qty" style="font-size:12px;text-align:center;">
+    <input type="number" class="form-input" placeholder='30"' min="0" step="0.01" value="${ing.qty_30??ing.qty??''}" data-field="qty_30" style="font-size:12px;text-align:center;" title='30" amount'>
+    <input type="number" class="form-input" placeholder='36"' min="0" step="0.01" value="${ing.qty_36??''}" data-field="qty_36" style="font-size:12px;text-align:center;" title='36" amount'>
     <input type="text" class="form-input" placeholder="Unit" value="${ing.unit||''}" data-field="unit" style="font-size:12px;" readonly>
     <button onclick="this.parentElement.remove()" style="background:#FEE2E2;color:#991B1B;border:none;border-radius:4px;width:28px;height:36px;cursor:pointer;font-size:14px;">✕</button>`;
   div.querySelector('[data-field="ingId"]').onchange = function() {
@@ -2465,11 +2467,12 @@ window.saveFlavorRecipe = async () => {
   const ingredients = [];
   rows.forEach(row => {
     const sel = row.querySelector('[data-field="ingId"]');
-    const qty = parseFloat(row.querySelector('[data-field="qty"]').value);
+    const qty_30 = parseFloat(row.querySelector('[data-field="qty_30"]').value) || 0;
+    const qty_36 = parseFloat(row.querySelector('[data-field="qty_36"]').value) || 0;
     const unit = row.querySelector('[data-field="unit"]').value;
-    if (sel.value && qty > 0) {
+    if (sel.value && (qty_30 > 0 || qty_36 > 0)) {
       const opt = sel.options[sel.selectedIndex];
-      ingredients.push({ ingredientId: sel.value, name: opt.dataset.name || opt.textContent, qty, unit });
+      ingredients.push({ ingredientId: sel.value, name: opt.dataset.name || opt.textContent, qty_30, qty_36, unit });
     }
   });
   if (!ingredients.length) return toast('Add at least one ingredient', 'error');

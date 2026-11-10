@@ -117,15 +117,29 @@ async function deductIngredients(db, orderId, order) {
   for (const item of items) {
     const itemQty = parseInt(item.qty) || 1;
 
-    // ── CUSTOM PIZZA: deduct per flavor ──
+    // ── CUSTOM PIZZA: deduct per flavor (size-aware, divided by slot count) ──
     if (item.isCustom && Array.isArray(item.customFlavors) && item.customFlavors.length) {
+      // Determine pizza size in inches from sizeKey ('30in'/'36in') or id ('custom_pizza_30')
+      const pizzaInches = item.sizeKey
+        ? parseInt(item.sizeKey)
+        : (item.id ? parseInt((item.id.match(/\d+$/) || ['30'])[0]) : 30);
+      const is36 = pizzaInches >= 36;
+      const slotCount = Math.max(1, item.customFlavors.length);
+
       for (const flavorName of item.customFlavors) {
         if (!flavorName) continue;
         const fRecipe = flavorRecipes.find(r =>
           r.flavorName && r.flavorName.toLowerCase() === flavorName.toLowerCase()
         );
         if (!fRecipe) continue;
-        await deductIngList(fRecipe.ingredients || [], itemQty, `${item.name} · ${flavorName}`);
+        // Scale each ingredient: use size-specific qty, divide by number of slots
+        const scaledIngs = (fRecipe.ingredients || []).map(ing => {
+          const rawQty = is36
+            ? (ing.qty_36 ?? ing.qty ?? 0)
+            : (ing.qty_30 ?? ing.qty ?? 0);
+          return { ...ing, qty: rawQty / slotCount };
+        });
+        await deductIngList(scaledIngs, itemQty, `${item.name} · ${flavorName}`);
       }
       continue; // skip regular recipe lookup for custom pizza
     }
@@ -287,6 +301,47 @@ router.post('/backfill-order-counts', requireAdmin, async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+});
+
+// ── BAN / UNBAN ─────────────────────────────────────────────────────────────
+router.post('/users/:id/ban', requireAdmin, async (req, res) => {
+  // Superadmin only
+  if (req.session.user.role !== 'superadmin') {
+    return res.status(403).json({ success: false, message: 'Superadmin only' });
+  }
+  const { reason } = req.body;
+  try {
+    const userRef = db.collection('users').doc(req.params.id);
+    const userDoc = await userRef.get();
+    if (!userDoc.exists) return res.status(404).json({ success: false, message: 'User not found' });
+    const userData = userDoc.data();
+    // Prevent banning admins
+    if (userData.role === 'admin' || userData.role === 'superadmin') {
+      return res.status(400).json({ success: false, message: 'Cannot ban admin accounts' });
+    }
+    await userRef.update({
+      isBanned: true,
+      banReason: reason || '',
+      bannedAt: new Date().toISOString(),
+      bannedBy: req.session.user.email,
+    });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+router.post('/users/:id/unban', requireAdmin, async (req, res) => {
+  if (req.session.user.role !== 'superadmin') {
+    return res.status(403).json({ success: false, message: 'Superadmin only' });
+  }
+  try {
+    await db.collection('users').doc(req.params.id).update({
+      isBanned: false,
+      banReason: '',
+      unbannedAt: new Date().toISOString(),
+      unbannedBy: req.session.user.email,
+    });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 router.post('/make-admin', requireAdmin, async (req, res) => {
