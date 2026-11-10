@@ -67,29 +67,17 @@ async function deductIngredients(db, orderId, order) {
   const recipesSnap = await db.collection('recipes').get();
   const recipes = recipesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
+  // Split into regular recipes and flavor recipes for quick lookup
+  const regularRecipes = recipes.filter(r => r.type !== 'flavor');
+  const flavorRecipes = recipes.filter(r => r.type === 'flavor');
+
   const deductionLog = [];
   const batch = db.batch();
 
-  for (const item of items) {
-    const menuItemId = item.menuItemId || item.id;
-
-    // FIX: extract size from item name (e.g. 'BBQ Chicken (30")') because
-    // order items don't store a separate .size field — the size is in the name.
-    const sizeMatch = item.name && item.name.match(/\((\d+)[""]/);
-    const itemSize = item.size || (sizeMatch ? sizeMatch[1] : null);
-
-    const recipe = recipes.find(r => {
-      if (menuItemId && r.menuItemId !== menuItemId) return false;
-      if (!menuItemId && r.menuItemName !== item.name) return false;
-      if (itemSize && r.size !== 'all' && r.size !== itemSize) return false;
-      return true;
-    });
-    if (!recipe) continue;
-
-    for (const ing of (recipe.ingredients || [])) {
-      // FIX: recipes store qty as `ing.qty` (not `ing.amount`).
-      // Support both field names for backwards-compatibility.
-      const needed = (parseFloat(ing.qty) || parseFloat(ing.amount) || 0) * (parseInt(item.qty) || 1);
+  // Helper: deduct a list of ingredients for a given qty multiplier
+  const deductIngList = async (ingList, qty, reasonLabel) => {
+    for (const ing of ingList) {
+      const needed = (parseFloat(ing.qty) || parseFloat(ing.amount) || 0) * qty;
       if (!needed || !ing.ingredientId) continue;
 
       const ingRef = db.collection('ingredients').doc(ing.ingredientId);
@@ -112,9 +100,9 @@ async function deductIngredients(db, orderId, order) {
         amount: needed,
         balanceBefore: current,
         balanceAfter: Math.max(0, current - needed),
-        reason: `Order #${orderId.slice(0,8).toUpperCase()} — ${item.name}`,
+        reason: `Order #${orderId.slice(0,8).toUpperCase()} — ${reasonLabel}`,
         orderId,
-        menuItem: item.name,
+        menuItem: reasonLabel,
         createdAt: new Date().toISOString(),
       });
 
@@ -124,6 +112,41 @@ async function deductIngredients(db, orderId, order) {
         amountDeducted: needed,
       });
     }
+  };
+
+  for (const item of items) {
+    const itemQty = parseInt(item.qty) || 1;
+
+    // ── CUSTOM PIZZA: deduct per flavor ──
+    if (item.isCustom && Array.isArray(item.customFlavors) && item.customFlavors.length) {
+      for (const flavorName of item.customFlavors) {
+        if (!flavorName) continue;
+        const fRecipe = flavorRecipes.find(r =>
+          r.flavorName && r.flavorName.toLowerCase() === flavorName.toLowerCase()
+        );
+        if (!fRecipe) continue;
+        await deductIngList(fRecipe.ingredients || [], itemQty, `${item.name} · ${flavorName}`);
+      }
+      continue; // skip regular recipe lookup for custom pizza
+    }
+
+    // ── REGULAR MENU ITEM ──
+    const menuItemId = item.menuItemId || item.id;
+
+    // FIX: extract size from item name (e.g. 'BBQ Chicken (30")') because
+    // order items don't store a separate .size field — the size is in the name.
+    const sizeMatch = item.name && item.name.match(/\((\d+)[""]/);
+    const itemSize = item.size || (sizeMatch ? sizeMatch[1] : null);
+
+    const recipe = regularRecipes.find(r => {
+      if (menuItemId && r.menuItemId !== menuItemId) return false;
+      if (!menuItemId && r.menuItemName !== item.name) return false;
+      if (itemSize && r.size !== 'all' && r.size !== itemSize) return false;
+      return true;
+    });
+    if (!recipe) continue;
+
+    await deductIngList(recipe.ingredients || [], itemQty, item.name);
   }
 
   await batch.commit();
@@ -722,6 +745,104 @@ router.patch('/recipes/:id', requireAdmin, async (req, res) => {
 });
 
 router.delete('/recipes/:id', requireAdmin, async (req, res) => {
+  try {
+    await db.collection('recipes').doc(req.params.id).delete();
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// ── PIZZA FLAVORS ──────────────────────────────────────────────────────────
+// GET is intentionally public (no requireAdmin) so the customer dashboard
+// can fetch the live flavor list without being logged-in as admin.
+router.get('/flavors', async (req, res) => {
+  try {
+    const snap = await db.collection('flavors').orderBy('sortOrder').get();
+    const flavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Fall back to unsorted if no sortOrder field exists yet
+    if (!flavors.length) {
+      const snap2 = await db.collection('flavors').get();
+      return res.json({ success: true, flavors: snap2.docs.map(d => ({ id: d.id, ...d.data() })) });
+    }
+    res.json({ success: true, flavors });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+router.post('/flavors', requireAdmin, async (req, res) => {
+  const { name, color, isPorkFree, active, sortOrder } = req.body;
+  if (!name) return res.status(400).json({ message: 'Name required' });
+  try {
+    const ref = db.collection('flavors').doc();
+    await ref.set({
+      name,
+      color: color || '#C62828',
+      isPorkFree: isPorkFree === true || isPorkFree === 'true',
+      active: active !== false && active !== 'false',
+      sortOrder: parseInt(sortOrder) || 99,
+      createdAt: new Date().toISOString(),
+    });
+    res.json({ success: true, id: ref.id });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+router.patch('/flavors/:id', requireAdmin, async (req, res) => {
+  const { name, color, isPorkFree, active, sortOrder } = req.body;
+  try {
+    const update = { updatedAt: new Date().toISOString() };
+    if (name !== undefined) update.name = name;
+    if (color !== undefined) update.color = color;
+    if (isPorkFree !== undefined) update.isPorkFree = isPorkFree === true || isPorkFree === 'true';
+    if (active !== undefined) update.active = active === true || active === 'true';
+    if (sortOrder !== undefined) update.sortOrder = parseInt(sortOrder) || 99;
+    await db.collection('flavors').doc(req.params.id).update(update);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+router.delete('/flavors/:id', requireAdmin, async (req, res) => {
+  try {
+    await db.collection('flavors').doc(req.params.id).delete();
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+// ── FLAVOR RECIPES ─────────────────────────────────────────────────────────
+// Stored in the same 'recipes' collection with type:'flavor' for unified
+// deduction. The admin UI uses these separate endpoints for clarity.
+router.get('/flavor-recipes', requireAdmin, async (req, res) => {
+  try {
+    const snap = await db.collection('recipes').where('type', '==', 'flavor').get();
+    const recipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    res.json({ success: true, recipes });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+router.post('/flavor-recipes', requireAdmin, async (req, res) => {
+  const { flavorId, flavorName, ingredients } = req.body;
+  if (!flavorName || !ingredients?.length) return res.status(400).json({ message: 'Flavor and ingredients required' });
+  try {
+    // Upsert: one recipe per flavor name
+    const existing = await db.collection('recipes').where('type', '==', 'flavor').where('flavorName', '==', flavorName).get();
+    if (!existing.empty) {
+      await existing.docs[0].ref.update({ flavorId: flavorId || '', flavorName, ingredients, updatedAt: new Date().toISOString() });
+      return res.json({ success: true, id: existing.docs[0].id });
+    }
+    const ref = db.collection('recipes').doc();
+    await ref.set({ type: 'flavor', flavorId: flavorId || '', flavorName, ingredients, createdAt: new Date().toISOString() });
+    res.json({ success: true, id: ref.id });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+router.patch('/flavor-recipes/:id', requireAdmin, async (req, res) => {
+  const { flavorId, flavorName, ingredients } = req.body;
+  try {
+    await db.collection('recipes').doc(req.params.id).update({
+      type: 'flavor', flavorId: flavorId || '', flavorName, ingredients, updatedAt: new Date().toISOString(),
+    });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+router.delete('/flavor-recipes/:id', requireAdmin, async (req, res) => {
   try {
     await db.collection('recipes').doc(req.params.id).delete();
     res.json({ success: true });

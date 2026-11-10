@@ -890,6 +890,7 @@ async function init(){
   document.getElementById('user-name').textContent=user.name||'';
   loadCart();
   loadMenu();
+  loadFlavors(); // fetch live flavors from admin; silently falls back to hardcoded
   initBanner();
   // Sign-out modal (elements exist in DOM at this point)
   document.getElementById('btn-logout').onclick=()=>{
@@ -1431,20 +1432,43 @@ async function placeOrder(){
 
 
 // ===== PIZZA CUSTOMIZER =====
-const FLAVORS = [
+// Hardcoded fallback — overwritten by loadFlavors() on init
+let FLAVORS = [
   'BBQ Chicken','Hawaiian','Veggies','Jalapeño','All Meat',
   'Pepperoni','Four Cheese','Shrimp','Spinach','Fold Special','Luau Chicken'
 ];
-const FLAVORS_NO_PORK = [
+let FLAVORS_NO_PORK = [
   'BBQ Chicken','Hawaiian','Veggies','Jalapeño',
   'Four Cheese','Shrimp','Spinach','Fold Special','Luau Chicken'
 ];
-const FLAVOR_COLORS = [
+let FLAVOR_COLORS = [
   '#C62828','#1565C0','#2E7D32','#E65100','#4A148C',
   '#00695C','#F57F17','#880E4F','#33691E','#BF360C','#0D47A1'
 ];
-const flavorColorMap = {};
+let flavorColorMap = {};
 FLAVORS.forEach((f,i) => flavorColorMap[f] = FLAVOR_COLORS[i]);
+
+// Load flavors from admin API; silently falls back to hardcoded if unavailable
+async function loadFlavors() {
+  try {
+    const data = await api('/admin/flavors');
+    if (!data?.flavors?.length) return;
+    const active = data.flavors.filter(f => f.active !== false);
+    if (!active.length) return;
+    FLAVORS = active.map(f => f.name);
+    FLAVORS_NO_PORK = active.filter(f => f.isPorkFree).map(f => f.name);
+    FLAVOR_COLORS = active.map(f => f.color || '#999');
+    flavorColorMap = {};
+    active.forEach(f => { flavorColorMap[f.name] = f.color || '#999'; });
+    // Refresh PRESETS flavor lists with the new arrays
+    Object.values(PRESETS).forEach(presetArr => presetArr.forEach(p => {
+      if (p.id === 'nopork') p.flavors = FLAVORS_NO_PORK;
+      else p.flavors = FLAVORS;
+    }));
+  } catch(e) {
+    // Silently use hardcoded fallback
+  }
+}
 
 // PRESETS per size
 const PRESETS = {
