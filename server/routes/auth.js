@@ -28,6 +28,18 @@ router.post('/session', async (req, res) => {
     const userData = userDoc.exists ? userDoc.data() : {};
     const role     = userData.role || 'customer';
 
+    // ── Ban check (customers only) ───────────────────────────────
+    if (userData.isBanned) {
+      return res.status(403).json({
+        success: false,
+        banned: true,
+        message: userData.banReason
+          ? `Your account has been suspended: ${userData.banReason}`
+          : 'Your account has been suspended. Please contact support.',
+        bannedAt: userData.bannedAt || null,
+      });
+    }
+
     if (loginType === 'customer') {
       if (role !== 'customer') {
         return res.status(403).json({
@@ -101,10 +113,36 @@ router.post('/register', async (req, res) => {
   }
 
   try {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = (phone || '').trim();
+
+    // ── Ban check: block registration with banned email or phone ──
+    const banChecks = [
+      db.collection('users').where('email', '==', cleanEmail).where('isBanned', '==', true).limit(1).get(),
+    ];
+    if (cleanPhone) {
+      banChecks.push(
+        db.collection('users').where('phone', '==', cleanPhone).where('isBanned', '==', true).limit(1).get()
+      );
+    }
+    const banResults = await Promise.all(banChecks);
+    for (const snap of banResults) {
+      if (!snap.empty) {
+        const banned = snap.docs[0].data();
+        return res.status(403).json({
+          success: false,
+          banned: true,
+          message: banned.banReason
+            ? `Registration blocked: ${banned.banReason}`
+            : 'Registration blocked. This account has been suspended.',
+        });
+      }
+    }
+
     await db.collection('users').doc(uid).set({
       name:        name.trim(),
-      email:       email.trim().toLowerCase(),
-      phone:       (phone || '').trim(),
+      email:       cleanEmail,
+      phone:       cleanPhone,
       role:        'customer',
       createdAt:   new Date().toISOString(),
       totalOrders: 0,
@@ -121,6 +159,10 @@ router.post('/check-phone', async (req, res) => {
   try {
     const snap = await db.collection('users').where('phone', '==', phone.trim()).get();
     if (!snap.empty) {
+      const user = snap.docs[0].data();
+      if (user.isBanned) {
+        return res.status(403).json({ success: false, banned: true, message: 'This phone number is associated with a suspended account.' });
+      }
       return res.json({ success: false, exists: true, message: 'This phone number is already registered.' });
     }
     res.json({ success: true, exists: false });

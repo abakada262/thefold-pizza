@@ -513,14 +513,23 @@ tr:hover td{background:#FDFAF5;}
     <div class="panel" id="panel-all-users">
       <div class="page-title">All users</div>
       <div class="page-sub">Complete user registry</div>
-      <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
         <div class="stat-card"><div class="stat-label">Total customers</div><div class="stat-value" id="u-total">—</div></div>
         <div class="stat-card"><div class="stat-label">Admin accounts</div><div class="stat-value" id="u-admins">—</div></div>
         <div class="stat-card"><div class="stat-label">Have ordered</div><div class="stat-value" id="u-customers">—</div></div>
+        <div class="stat-card"><div class="stat-label">Banned</div><div class="stat-value" style="color:var(--red);" id="u-banned">—</div></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <input id="users-search" type="text" placeholder="Search by name, email or phone…" oninput="renderUsersList()" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+        <select id="users-filter" onchange="renderUsersList()" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;background:white;outline:none;">
+          <option value="">All customers</option>
+          <option value="active">Active</option>
+          <option value="banned">Banned</option>
+        </select>
       </div>
       <div class="card">
         <div class="table-wrap" style="overflow-x:auto;"><table>
-          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Joined</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Joined</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="sa-users-tbody"><tr><td colspan="7" style="text-align:center;padding:32px;"><div class="spinner"></div></td></tr></tbody>
         </table></div>
       </div>
@@ -1224,26 +1233,7 @@ async function updateStatus(id,status,selectEl){
   }
 }
 
-async function loadAllUsers(){
-  try{
-    const{users}=await api('/admin/users');allUsers=users;
-    const admins=users.filter(u=>u.role==='admin'||u.role==='superadmin').length;
-    const customers=users.filter(u=>u.role==='customer'||!u.role).length;
-    document.getElementById('u-total').textContent=customers;
-    document.getElementById('u-admins').textContent=admins;
-    document.getElementById('u-customers').textContent=users.filter(u=>u.totalOrders>0).length;
-    // Only show customers in All Users
-    const customerList = users.filter(u => u.role === 'customer' || !u.role);
-    document.getElementById('sa-users-tbody').innerHTML=customerList.map(u=>`
-      <tr>
-        <td data-label="Name"><div style="display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;">${(u.name||'?').charAt(0).toUpperCase()}</div><span style="font-weight:500;">${u.name||'—'}</span></div></td>
-        <td data-label="Email" style="font-size:13px;">${u.email||'—'}</td>
-        <td data-label="Phone" style="font-size:13px;">${u.phone||'—'}</td>
-        <td data-label="Orders" style="font-weight:600;">${u.totalOrders||0}</td>
-        <td data-label="Joined" style="font-size:12px;color:var(--text-mid);">${formatDate(u.createdAt)}</td>
-      </tr>`).join('')||`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-mid);">No customers yet</td></tr>`;
-  }catch(e){toast('Failed to load users','error');}
-}
+// loadAllUsers is defined below (ban system section) — calls renderUsersList for filtering
 
 async function changeRole(uid,role){
   try{await api('/admin/make-admin','POST',{uid,role});toast('Role updated','success');}
@@ -2743,6 +2733,121 @@ function startNotifPolling(){fetchNotifications();_notifPollTimer=setInterval(fe
 setTimeout(startNotifPolling,1500);
 
 init();
+
+// ══════════════════════════════════════════════════════════════════
+// BAN SYSTEM
+// ══════════════════════════════════════════════════════════════════
+let _allUsersCache = [];
+
+async function loadAllUsers() {
+  try {
+    const { users } = await api('/admin/users');
+    _allUsersCache = users;
+    const admins    = users.filter(u => u.role === 'admin' || u.role === 'superadmin').length;
+    const customers = users.filter(u => u.role === 'customer' || !u.role);
+    const banned    = customers.filter(u => u.isBanned).length;
+    document.getElementById('u-total').textContent    = customers.length;
+    document.getElementById('u-admins').textContent   = admins;
+    document.getElementById('u-customers').textContent = users.filter(u => u.totalOrders > 0).length;
+    document.getElementById('u-banned').textContent   = banned;
+    renderUsersList();
+  } catch(e) { toast('Failed to load users', 'error'); }
+}
+
+function renderUsersList() {
+  const q      = (document.getElementById('users-search')?.value || '').toLowerCase();
+  const filter = document.getElementById('users-filter')?.value || '';
+  let list = _allUsersCache.filter(u => u.role === 'customer' || !u.role);
+  if (filter === 'active')  list = list.filter(u => !u.isBanned);
+  if (filter === 'banned')  list = list.filter(u => u.isBanned);
+  if (q) list = list.filter(u =>
+    (u.name||'').toLowerCase().includes(q) ||
+    (u.email||'').toLowerCase().includes(q) ||
+    (u.phone||'').toLowerCase().includes(q)
+  );
+  document.getElementById('sa-users-tbody').innerHTML = list.length ? list.map(u => `
+    <tr style="${u.isBanned ? 'opacity:0.7;background:#FFF5F5;' : ''}">
+      <td data-label="Name">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:30px;height:30px;border-radius:50%;background:${u.isBanned ? 'var(--red)' : 'var(--green)'};color:white;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;">${(u.name||'?').charAt(0).toUpperCase()}</div>
+          <span style="font-weight:500;">${u.name||'—'}</span>
+        </div>
+      </td>
+      <td data-label="Email" style="font-size:13px;">${u.email||'—'}</td>
+      <td data-label="Phone" style="font-size:13px;">${u.phone||'—'}</td>
+      <td data-label="Orders" style="font-weight:600;">${u.totalOrders||0}</td>
+      <td data-label="Joined" style="font-size:12px;color:var(--text-mid);">${formatDate(u.createdAt)}</td>
+      <td data-label="Status">
+        ${u.isBanned
+          ? `<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;">BANNED</span>`
+          : `<span style="background:#ECFDF5;color:#065F46;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;">Active</span>`}
+      </td>
+      <td data-label="Action">
+        ${u.isBanned
+          ? `<button class="btn btn-outline btn-sm" onclick="unbanUser('${u.id}','${(u.name||'').replace(/'/g,"\\'")}')">Unban</button>`
+          : `<button class="btn btn-sm" style="background:#FEE2E2;color:#991B1B;border:none;" onclick="openBanModal('${u.id}','${(u.name||'').replace(/'/g,"\\'")}')">Ban</button>`}
+      </td>
+    </tr>`).join('') :
+    `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-mid);">No customers found</td></tr>`;
+}
+
+window.openBanModal = (uid, name) => {
+  document.getElementById('ban-uid').value = uid;
+  document.getElementById('ban-name-label').textContent = name;
+  document.getElementById('ban-reason').value = '';
+  document.getElementById('ban-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeBanModal = () => {
+  document.getElementById('ban-modal').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.confirmBan = async () => {
+  const uid    = document.getElementById('ban-uid').value;
+  const reason = document.getElementById('ban-reason').value.trim();
+  const btn    = document.getElementById('btn-confirm-ban');
+  btn.disabled = true; btn.textContent = 'Banning…';
+  try {
+    await api(`/admin/users/${uid}/ban`, 'POST', { reason });
+    toast('Customer banned', 'info');
+    closeBanModal();
+    loadAllUsers();
+  } catch(e) { toast(e.message || 'Failed to ban', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Confirm ban'; }
+};
+
+window.unbanUser = (uid, name) => {
+  showConfirm(`Unban "${name}"?`, 'The customer will be able to log in and register again.', async () => {
+    await api(`/admin/users/${uid}/unban`, 'POST');
+    toast('Customer unbanned', 'success');
+    loadAllUsers();
+  });
+};
 </script>
+
+<!-- BAN MODAL -->
+<div id="ban-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:8px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div style="padding:18px 24px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--red);">Ban customer</div>
+      <button onclick="closeBanModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <input type="hidden" id="ban-uid">
+      <p style="margin:0 0 16px;font-size:14px;color:var(--text-mid);">You are about to ban <strong id="ban-name-label"></strong>. They will be blocked from logging in and creating new accounts with the same email or phone number.</p>
+      <div class="form-group">
+        <label class="form-label">Reason <span style="color:var(--text-light);font-weight:300;">(shown to customer)</span></label>
+        <textarea id="ban-reason" class="form-input" placeholder="e.g. Repeated order abuse, fraudulent activity…" rows="3" style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button id="btn-confirm-ban" onclick="confirmBan()" class="btn btn-danger" style="flex:1;">Confirm ban</button>
+        <button onclick="closeBanModal()" class="btn btn-outline">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

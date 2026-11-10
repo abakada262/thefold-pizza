@@ -1615,7 +1615,8 @@ function renderPresets() {
 
 window.selectPreset = (id) => {
   custPreset = id;
-  const preset = PRESETS[custSize].find(p => p.id === id);
+  const preset = PRESETS[custSize]?.find(p => p.id === id)
+             || HEART_PRESETS[custSize]?.find(p => p.id === id);
   if (!preset) return;
   activeFlavorList = preset.flavors;
   // Heart pizza capped at 2 sections
