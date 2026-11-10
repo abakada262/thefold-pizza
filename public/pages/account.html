@@ -107,7 +107,7 @@ a{text-decoration:none;color:inherit;}
   <div class="nav-center">
     <a href="/dashboard" class="nav-link">Order</a>
     <a href="/orders" class="nav-link">My orders</a>
-    <a href="/account" class="nav-link active">Account</a>
+    <a href="/account" class="nav-link active" ondblclick="return false;">Account</a>
   </div>
   <div class="nav-right">
     <div class="nav-avatar" id="user-avatar">?</div>
@@ -303,7 +303,7 @@ a{text-decoration:none;color:inherit;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
     My Orders
   </a>
-  <a href="/account" class="bottom-nav-item active">
+  <a href="/account" class="bottom-nav-item active" ondblclick="return false;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     Account
   </a>
@@ -316,7 +316,14 @@ firebase.initializeApp({apiKey:"AIzaSyAsXZxD59Igs9oYOC5VR566lfE9VHhbszM",authDom
 const auth=firebase.auth();
 
 async function init(){
-  const user=await requireLogin();if(!user)return;
+  // Use a direct auth check so admin users viewing the account page aren't
+  // redirected to /admin by requireLogin()'s role guard.
+  let user;
+  try {
+    const r = await api('/auth/me');
+    if (!r || !r.user) { window.location.replace('/login'); return; }
+    user = r.user;
+  } catch(e) { window.location.replace('/login'); return; }
   document.getElementById('user-avatar').textContent=(user.name||'?').charAt(0).toUpperCase();
   document.getElementById('edit-name').value=user.name||'';
   document.getElementById('edit-phone').value=user.phone||'';
@@ -414,15 +421,16 @@ document.getElementById('btn-change-pwd').onclick=async()=>{
 async function loadSummary(){
   try{
     const data=await api('/orders/my');const orders=data.orders||[];
-    const total=orders.reduce((s,o)=>s+(o.total||0),0);
-    document.getElementById('stat-orders').textContent=orders.length;
+    const completedOrders=orders.filter(o=>o.status!=='cancelled');
+    const total=completedOrders.reduce((s,o)=>s+(o.total||0),0);
+    document.getElementById('stat-orders').textContent=completedOrders.length;
     document.getElementById('stat-spent').textContent=total>0?'₱'+Math.round(total/1000)+'k':'₱0';
     document.getElementById('summary-loading').style.display='none';
     if(!orders.length){document.getElementById('summary-content').innerHTML='<div style="text-align:center;padding:48px;color:var(--text-mid);">No orders yet</div>';return;}
     document.getElementById('summary-content').innerHTML=`
       <div class="card" style="margin-bottom:16px;">
         <div style="display:grid;grid-template-columns:repeat(3,1fr);">
-          <div style="padding:20px;text-align:center;border-right:1px solid var(--border);"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--green);">${orders.length}</div><div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-top:4px;">Total orders</div></div>
+          <div style="padding:20px;text-align:center;border-right:1px solid var(--border);"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--green);">${completedOrders.length}</div><div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-top:4px;">Total orders</div></div>
           <div style="padding:20px;text-align:center;border-right:1px solid var(--border);"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--green);">${formatCurrency(total)}</div><div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-top:4px;">Total spent</div></div>
           <div style="padding:20px;text-align:center;"><div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--green);">${orders.filter(o=>o.status==='delivered').length}</div><div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-top:4px;">Delivered</div></div>
         </div>
