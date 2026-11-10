@@ -147,11 +147,29 @@ async function deductIngredients(db, orderId, order) {
     // ── REGULAR MENU ITEM ──
     const menuItemId = item.menuItemId || item.id;
 
-    // FIX: extract size from item name (e.g. 'BBQ Chicken (30")') because
-    // order items don't store a separate .size field — the size is in the name.
+    // Extract size from item name (e.g. 'BBQ Chicken (30")')
     const sizeMatch = item.name && item.name.match(/\((\d+)[""]/);
     const itemSize = item.size || (sizeMatch ? sizeMatch[1] : null);
+    const itemIs36 = itemSize ? parseInt(itemSize) >= 36 : false;
 
+    // ── Try flavor recipe first (single source of truth for pizza flavors) ──
+    // Strip size/variant suffixes to get base flavor name e.g. "BBQ Chicken (30\" Party)" → "BBQ Chicken"
+    const baseName = item.name ? item.name.replace(/\s*\(.*\).*$/, '').trim() : '';
+    const flavorRecipeForItem = baseName
+      ? flavorRecipes.find(r => r.flavorName && r.flavorName.toLowerCase() === baseName.toLowerCase())
+      : null;
+
+    if (flavorRecipeForItem) {
+      // Use size-specific qty — no slot division (this is a whole pizza)
+      const scaledIngs = (flavorRecipeForItem.ingredients || []).map(ing => ({
+        ...ing,
+        qty: itemIs36 ? (ing.qty_36 ?? ing.qty ?? 0) : (ing.qty_30 ?? ing.qty ?? 0),
+      }));
+      await deductIngList(scaledIngs, itemQty, item.name);
+      continue;
+    }
+
+    // ── Fall back to Recipes/BOM if no flavor recipe found ──
     const recipe = regularRecipes.find(r => {
       if (menuItemId && r.menuItemId !== menuItemId) return false;
       if (!menuItemId && r.menuItemName !== item.name) return false;
