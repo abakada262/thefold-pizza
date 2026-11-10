@@ -267,7 +267,7 @@ tr:hover td{background:#FDFAF5;}
     </div>
     <div class="sidebar-item" data-panel="flavors">
       <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2M4.1 4.1l1.4 1.4M10.5 10.5l1.4 1.4M4.1 11.9l1.4-1.4M10.5 5.5l1.4-1.4"/></svg>
-      Pizza Flavors
+      Custom Pizza Flavors
     </div>
     <div class="sidebar-item" data-panel="cancel-requests">
       <svg class="sidebar-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4"/></svg>
@@ -492,7 +492,7 @@ tr:hover td{background:#FDFAF5;}
     </div>
     <!-- PIZZA FLAVORS -->
     <div class="panel" id="panel-flavors">
-      <div class="page-title">Pizza Flavors</div>
+      <div class="page-title">Custom Pizza Flavors</div>
       <div class="page-sub">Manage flavors available in the pizza customizer — colors, pork-free flags, and ingredient recipes</div>
 
       <div class="card" style="margin-bottom:20px;">
@@ -2247,7 +2247,7 @@ window.deleteRecipe = (id) => {
   });
 };
 
-// ── LOGS ──
+// Logs
 async function loadIngLogs() {
   try {
     const { logs } = await api('/admin/ingredient-logs');
@@ -2269,9 +2269,6 @@ async function loadIngLogs() {
   } catch(e) { toast('Failed to load logs', 'error'); }
 }
 
-// ══════════════════════════════════════════════════════════════════
-// PIZZA FLAVORS MANAGEMENT
-// ══════════════════════════════════════════════════════════════════
 let flavorItems = [];
 let flavorRecipeItems = [];
 
