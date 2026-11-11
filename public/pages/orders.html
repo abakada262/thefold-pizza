@@ -287,7 +287,7 @@ function orderCard(o){
     if (o.status === 'pending' || o.status === 'confirmed') {
       actionBtn = `<button class="btn-cancel-order" onclick="openCancelModal('${o.id}')">Cancel Order</button>`;
     } else if (o.status === 'preparing' || o.status === 'out_for_delivery') {
-      actionBtn = `<button class="btn-contact-store" onclick="toast('Please call the store to request a cancellation.','info')">Contact Store</button>`;
+      actionBtn = `<a class="btn-contact-store" href="https://www.facebook.com/Thefoldpizza" target="_blank" style="display:inline-flex;align-items:center;text-decoration:none;">Contact Store</a>`;
     }
   }
 
