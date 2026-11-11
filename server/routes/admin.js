@@ -208,6 +208,115 @@ async function restoreIngredients(db, orderId, order) {
   await batch.commit();
 }
 
+// Preview ingredient levels before moving to preparing
+router.get('/orders/:id/prepare-preview', requireAdmin, async (req, res) => {
+  try {
+    const orderDoc = await db.collection('orders').doc(req.params.id).get();
+    if (!orderDoc.exists) return res.status(404).json({ message: 'Order not found' });
+    const order = orderDoc.data();
+
+    if (order.ingredientsDeducted) {
+      return res.json({ success: true, alreadyDeducted: true, ingredients: [], allSufficient: true });
+    }
+
+    const items = order.items || [];
+    if (!items.length) return res.json({ success: true, ingredients: [], allSufficient: true });
+
+    const recipesSnap = await db.collection('recipes').get();
+    const recipes = recipesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Build a map of needed ingredients: ingredientId -> { needed, name, unit }
+    const needed = {};
+
+    const addNeeded = (ingList, qty, divideBy = 1) => {
+      for (const ing of ingList) {
+        if (!ing.ingredientId) continue;
+        const q = ((parseFloat(ing.qty) || parseFloat(ing.amount) || 0) / divideBy) * qty;
+        if (!q) continue;
+        if (!needed[ing.ingredientId]) {
+          needed[ing.ingredientId] = { needed: 0, name: ing.ingredientName || '', unit: '' };
+        }
+        needed[ing.ingredientId].needed += q;
+      }
+    };
+
+    for (const item of items) {
+      const itemQty = parseInt(item.qty) || 1;
+
+      if (item.isCustom && Array.isArray(item.customFlavors) && item.customFlavors.length) {
+        const pizzaInches = item.sizeKey ? parseInt(item.sizeKey) : 30;
+        const sizeKey = String(pizzaInches);
+        const slotCount = Math.max(1, item.customFlavors.length);
+        for (const flavorName of item.customFlavors) {
+          if (!flavorName) continue;
+          const fRecipe = recipes.find(r => {
+            const nm = r.menuItemName && r.menuItemName.toLowerCase() === flavorName.toLowerCase();
+            if (!nm) return false;
+            if (r.size && r.size !== 'all' && r.size !== sizeKey) return false;
+            return true;
+          });
+          if (!fRecipe) continue;
+          addNeeded(fRecipe.ingredients || [], itemQty, slotCount);
+        }
+        continue;
+      }
+
+      const menuItemId = item.menuItemId || item.id;
+      const sizeMatch = item.name && item.name.match(/\((\d+)[""]/);
+      const itemSize = item.size || (sizeMatch ? sizeMatch[1] : null);
+      const recipe = recipes.find(r => {
+        if (menuItemId && r.menuItemId !== menuItemId) return false;
+        if (!menuItemId && r.menuItemName !== item.name) return false;
+        if (itemSize && r.size !== 'all' && r.size !== itemSize) return false;
+        return true;
+      });
+      if (!recipe) continue;
+      addNeeded(recipe.ingredients || [], itemQty);
+    }
+
+    if (!Object.keys(needed).length) {
+      return res.json({ success: true, ingredients: [], allSufficient: true });
+    }
+
+    // Fetch current stock for each ingredient
+    const ingIds = Object.keys(needed);
+    const ingDocs = await Promise.all(ingIds.map(id => db.collection('ingredients').doc(id).get()));
+
+    let allSufficient = true;
+    let hasLowStock = false;
+    const ingredients = ingDocs.map((doc, i) => {
+      const id = ingIds[i];
+      const info = needed[id];
+      const data = doc.exists ? doc.data() : {};
+      const currentStock = parseFloat(data.currentStock) || 0;
+      const lowStockAlert = parseFloat(data.lowStockAlert) || 0;
+      const unit = data.unit || info.unit || '';
+      const name = data.name || info.name || id;
+      const neededQty = Math.round(info.needed * 100) / 100;
+      const sufficient = currentStock >= neededQty;
+      const isLow = sufficient && lowStockAlert > 0 && currentStock <= lowStockAlert;
+
+      if (!sufficient) allSufficient = false;
+      if (isLow) hasLowStock = true;
+
+      return {
+        ingredientId: id,
+        name,
+        unit,
+        needed: neededQty,
+        currentStock: Math.round(currentStock * 100) / 100,
+        sufficient,
+        isLow,
+        lowStockAlert,
+      };
+    });
+
+    res.json({ success: true, ingredients, allSufficient, hasLowStock });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.patch('/orders/:id/status', requireAdmin, async (req, res) => {
   const { status, reason } = req.body;
   const validStatuses = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'];

@@ -1125,10 +1125,10 @@ tr:hover td{background:#FDFAF5;}
 <!-- PREPARING CONFIRMATION DIALOG -->
 <div id="prep-dialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9500;align-items:center;justify-content:center;padding:20px;">
   <div style="background:white;border-radius:8px;width:100%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.25);">
-    <div style="background:var(--green);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div id="prep-dialog-header" style="background:var(--green);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;">Confirm — Start Preparing</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:2px;">The following ingredients will be deducted from stock</div>
+        <div id="prep-dialog-sub" style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:2px;">The following ingredients will be deducted from stock</div>
       </div>
       <button onclick="closePrepDialog()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
     </div>
@@ -1145,8 +1145,13 @@ tr:hover td{background:#FDFAF5;}
         <tbody id="prep-ing-list"></tbody>
       </table>
     </div>
-    <div id="prep-warning" style="display:none;margin:0;padding:14px 20px;background:#FEE2E2;border-top:1px solid #FECACA;">
-      <div style="color:var(--red);font-size:13px;font-weight:600;">⚠ Insufficient stock — cannot proceed to Preparing until stock is restocked.</div>
+    <!-- Low stock warning (yellow) — can still proceed -->
+    <div id="prep-low-warning" style="display:none;margin:0;padding:12px 20px;background:#FFFBEB;border-top:1px solid #FDE68A;">
+      <div style="color:#92400E;font-size:13px;font-weight:600;">⚠ Some ingredients are running low — you can still proceed but consider restocking soon.</div>
+    </div>
+    <!-- Out of stock warning (red) — blocked -->
+    <div id="prep-out-warning" style="display:none;margin:0;padding:12px 20px;background:#FEE2E2;border-top:1px solid #FECACA;">
+      <div style="color:var(--red);font-size:13px;font-weight:600;">✕ One or more ingredients are out of stock. Proceed anyway or cancel to restock first.</div>
     </div>
     <div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;">
       <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="closePrepDialog()">Cancel</button>
@@ -1399,7 +1404,7 @@ function updateStatus(id,status,selectEl){
         _commitStatus(id,'preparing',selectEl,prevStatus);
         return;
       }
-      _showPrepDialog(data.ingredients,data.allSufficient);
+      _showPrepDialog(data.ingredients,data.allSufficient,data.hasLowStock);
     }).catch(e=>{
       // Endpoint not available — skip preview and commit directly
       selectEl.disabled=false;
@@ -1516,36 +1521,73 @@ async function _commitStatus(id,status,selectEl,prevStatus){
   }
 }
 
-function _showPrepDialog(ingredients,allSufficient){
+function _showPrepDialog(ingredients,allSufficient,hasLowStock){
   const el=document.getElementById('prep-dialog');
   const tbody=document.getElementById('prep-ing-list');
   const btnConfirm=document.getElementById('prep-confirm-btn');
-  const warning=document.getElementById('prep-warning');
+  const lowWarn=document.getElementById('prep-low-warning');
+  const outWarn=document.getElementById('prep-out-warning');
+  const header=document.getElementById('prep-dialog-header');
+  const sub=document.getElementById('prep-dialog-sub');
+
+  // Set header color based on severity
+  if(!allSufficient){
+    header.style.background='var(--red)';
+    sub.textContent='⚠ Stock warning — some ingredients are insufficient';
+  } else if(hasLowStock){
+    header.style.background='#D97706';
+    sub.textContent='⚠ Low stock warning — check ingredients before preparing';
+  } else {
+    header.style.background='var(--green)';
+    sub.textContent='The following ingredients will be deducted from stock';
+  }
 
   if(ingredients.length===0){
     tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;">No ingredient recipes defined for this order\'s items.<br><small>The order will proceed without ingredient deduction.</small></td></tr>';
-    warning.style.display='none';
+    lowWarn.style.display='none';
+    outWarn.style.display='none';
     btnConfirm.disabled=false;
     btnConfirm.style.opacity='1';
+    btnConfirm.textContent='Confirm & Deduct';
   } else {
-    tbody.innerHTML=ingredients.map(i=>`
-      <tr>
-        <td style="font-weight:500;">${i.name}</td>
-        <td style="color:var(--red);font-weight:600;">${i.needed} ${i.unit}</td>
-        <td style="color:${i.sufficient?'var(--green)':'var(--red)'};">${i.currentStock} ${i.unit}</td>
-        <td>${i.sufficient
-          ?'<span style="color:var(--green);font-weight:600;">✓ OK</span>'
-          :'<span style="color:var(--red);font-weight:700;">✗ Short by '+(i.needed-i.currentStock)+' '+i.unit+'</span>'
-        }</td>
-      </tr>`).join('');
+    tbody.innerHTML=ingredients.map(i=>{
+      let rowBg='';
+      let statusCell='';
+      let stockColor='var(--text-dark)';
+      if(!i.sufficient){
+        rowBg='background:#FFF5F5;';
+        stockColor='var(--red)';
+        statusCell=`<span style="color:var(--red);font-weight:700;">✕ Short by ${Math.round((i.needed-i.currentStock)*100)/100} ${i.unit}</span>`;
+      } else if(i.isLow){
+        rowBg='background:#FFFBEB;';
+        stockColor='#B45309';
+        statusCell=`<span style="color:#B45309;font-weight:700;">⚠ Low stock</span>`;
+      } else {
+        statusCell=`<span style="color:var(--green);font-weight:600;">✓ OK</span>`;
+      }
+      return `<tr style="${rowBg}">
+        <td style="padding:10px 16px;font-weight:500;font-size:13px;">${i.name}</td>
+        <td style="padding:10px 16px;font-size:13px;font-weight:600;">${i.needed} ${i.unit}</td>
+        <td style="padding:10px 16px;font-size:13px;color:${stockColor};font-weight:${!i.sufficient||i.isLow?'600':'400'};">${i.currentStock} ${i.unit}</td>
+        <td style="padding:10px 16px;font-size:13px;">${statusCell}</td>
+      </tr>`;
+    }).join('');
+
+    // Show appropriate warning banners
+    lowWarn.style.display=(allSufficient&&hasLowStock)?'block':'none';
+    outWarn.style.display=(!allSufficient)?'block':'none';
+
+    // Always allow proceeding — just change button label for out-of-stock
+    btnConfirm.disabled=false;
+    btnConfirm.style.opacity='1';
     if(!allSufficient){
-      warning.style.display='block';
-      btnConfirm.disabled=true;
-      btnConfirm.style.opacity='0.4';
+      btnConfirm.textContent='Proceed Anyway';
+      btnConfirm.style.background='var(--red)';
+      btnConfirm.style.borderColor='var(--red)';
     } else {
-      warning.style.display='none';
-      btnConfirm.disabled=false;
-      btnConfirm.style.opacity='1';
+      btnConfirm.textContent='Confirm & Deduct';
+      btnConfirm.style.background='';
+      btnConfirm.style.borderColor='';
     }
   }
   el.style.display='flex';
