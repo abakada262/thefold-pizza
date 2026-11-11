@@ -1196,6 +1196,21 @@ tr:hover td{background:#FDFAF5;}
 </div>
 
 <script>
+// Global refund modal opener — defined first so onclick always finds it
+function rfUpdate(id){
+  const ref = (window._refunds||[]).find(r=>r.id===id) || (window._refunds||[])[0];
+  if(!ref){alert('Refund record not found. Please refresh the page.');return;}
+  window._refundTargetId=ref.id;
+  document.getElementById('rsu-order-id').textContent='#'+(ref.orderId||'').slice(0,8).toUpperCase();
+  document.getElementById('rsu-customer').textContent=ref.customerName||'—';
+  document.getElementById('rsu-amount').textContent='₱'+Number(ref.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2});
+  document.getElementById('rsu-current-status').textContent=(window.REFUND_STATUS_LABELS||{})[ref.refundStatus]||ref.refundStatus||'Pending Review';
+  document.getElementById('rsu-status-select').value=ref.refundStatus||'pending_review';
+  document.getElementById('rsu-notes').value='';
+  document.getElementById('rsu-ref').value=ref.paymentRef||'';
+  document.getElementById('refund-status-modal').classList.add('open');
+}
+
 let allOrders=[],orderFilter='all',invItems=[],invFilter='all',currentInvItem=null,addonRowIds=[],menuItems=[],cachedOrders=[];
 
 // ── Mobile sidebar toggle ─────────────────────────────────────
@@ -3208,6 +3223,7 @@ async function loadRefunds() {
   try {
     const data = await api('/admin/refunds');
     _refunds = data.refunds || [];
+    window._refunds = _refunds;
     renderRefunds();
   } catch(e) {
     document.getElementById('rf-loading').textContent = 'Failed to load refunds';
@@ -3249,7 +3265,7 @@ function renderRefunds() {
       <td><span style="${statusStyle};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">${statusLabel}</span></td>
       <td style="font-size:11px;color:var(--text-mid);">${r.refundDate?formatDate(r.refundDate):'—'}</td>
       <td>${canUpdate
-        ? `<button class="btn btn-sm rf-update-btn" data-id="${r.id}" style="background:var(--red);color:#fff;border:none;">Update Status</button>`
+        ? `<button class="btn btn-sm" style="background:var(--red);color:#fff;border:none;" onclick="rfUpdate('${r.id}')">Update Status</button>`
         : `<span style="font-size:11px;color:var(--text-light);">${r.refundStatus==='refunded'?'Complete':'N/A'}</span>`
       }</td>
     </tr>`;
