@@ -67,9 +67,8 @@ async function deductIngredients(db, orderId, order) {
   const recipesSnap = await db.collection('recipes').get();
   const recipes = recipesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // Split into regular recipes and flavor recipes for quick lookup
-  const regularRecipes = recipes.filter(r => r.type !== 'flavor');
-  const flavorRecipes = recipes.filter(r => r.type === 'flavor');
+  // All recipes used for deduction (custom pizza flavors now use Recipes/BOM too)
+  const regularRecipes = recipes;
 
   const deductionLog = [];
   const batch = db.batch();
@@ -117,28 +116,30 @@ async function deductIngredients(db, orderId, order) {
   for (const item of items) {
     const itemQty = parseInt(item.qty) || 1;
 
-    // ── CUSTOM PIZZA: deduct per flavor (size-aware, divided by slot count) ──
+    // ── CUSTOM PIZZA: deduct per flavor using Recipes/BOM ──
+    // Each flavor slot corresponds to a menu item; find its recipe and divide by slot count
     if (item.isCustom && Array.isArray(item.customFlavors) && item.customFlavors.length) {
-      // Determine pizza size in inches from sizeKey ('30in'/'36in') or id ('custom_pizza_30')
       const pizzaInches = item.sizeKey
         ? parseInt(item.sizeKey)
         : (item.id ? parseInt((item.id.match(/\d+$/) || ['30'])[0]) : 30);
-      const is36 = pizzaInches >= 36;
+      const sizeKey = String(pizzaInches); // '30' or '36'
       const slotCount = Math.max(1, item.customFlavors.length);
 
       for (const flavorName of item.customFlavors) {
         if (!flavorName) continue;
-        const fRecipe = flavorRecipes.find(r =>
-          r.flavorName && r.flavorName.toLowerCase() === flavorName.toLowerCase()
-        );
-        if (!fRecipe) continue;
-        // Scale each ingredient: use size-specific qty, divide by number of slots
-        const scaledIngs = (fRecipe.ingredients || []).map(ing => {
-          const rawQty = is36
-            ? (ing.qty_36 ?? ing.qty ?? 0)
-            : (ing.qty_30 ?? ing.qty ?? 0);
-          return { ...ing, qty: rawQty / slotCount };
+        // Find the recipe for this flavor (match by menuItemName or size)
+        const fRecipe = regularRecipes.find(r => {
+          const nameMatch = r.menuItemName && r.menuItemName.toLowerCase() === flavorName.toLowerCase();
+          if (!nameMatch) return false;
+          if (r.size && r.size !== 'all' && r.size !== sizeKey) return false;
+          return true;
         });
+        if (!fRecipe) continue;
+        // Divide each ingredient qty by slot count (shared crust/resources)
+        const scaledIngs = (fRecipe.ingredients || []).map(ing => ({
+          ...ing,
+          qty: (parseFloat(ing.qty) || parseFloat(ing.amount) || 0) / slotCount,
+        }));
         await deductIngList(scaledIngs, itemQty, `${item.name} · ${flavorName}`);
       }
       continue; // skip regular recipe lookup for custom pizza
@@ -150,26 +151,8 @@ async function deductIngredients(db, orderId, order) {
     // Extract size from item name (e.g. 'BBQ Chicken (30")')
     const sizeMatch = item.name && item.name.match(/\((\d+)[""]/);
     const itemSize = item.size || (sizeMatch ? sizeMatch[1] : null);
-    const itemIs36 = itemSize ? parseInt(itemSize) >= 36 : false;
 
-    // ── Try flavor recipe first (single source of truth for pizza flavors) ──
-    // Strip size/variant suffixes to get base flavor name e.g. "BBQ Chicken (30\" Party)" → "BBQ Chicken"
-    const baseName = item.name ? item.name.replace(/\s*\(.*\).*$/, '').trim() : '';
-    const flavorRecipeForItem = baseName
-      ? flavorRecipes.find(r => r.flavorName && r.flavorName.toLowerCase() === baseName.toLowerCase())
-      : null;
-
-    if (flavorRecipeForItem) {
-      // Use size-specific qty — no slot division (this is a whole pizza)
-      const scaledIngs = (flavorRecipeForItem.ingredients || []).map(ing => ({
-        ...ing,
-        qty: itemIs36 ? (ing.qty_36 ?? ing.qty ?? 0) : (ing.qty_30 ?? ing.qty ?? 0),
-      }));
-      await deductIngList(scaledIngs, itemQty, item.name);
-      continue;
-    }
-
-    // ── Fall back to Recipes/BOM if no flavor recipe found ──
+    // ── Use Recipes/BOM ──
     const recipe = regularRecipes.find(r => {
       if (menuItemId && r.menuItemId !== menuItemId) return false;
       if (!menuItemId && r.menuItemName !== item.name) return false;
@@ -828,14 +811,19 @@ router.delete('/recipes/:id', requireAdmin, async (req, res) => {
 // GET is intentionally public (no requireAdmin) so the customer dashboard
 // can fetch the live flavor list without being logged-in as admin.
 router.get('/flavors', async (req, res) => {
+  // Flavors are now sourced from menu items with availableInCustom: true
   try {
-    const snap = await db.collection('flavors').orderBy('sortOrder').get();
-    const flavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    // Fall back to unsorted if no sortOrder field exists yet
-    if (!flavors.length) {
-      const snap2 = await db.collection('flavors').get();
-      return res.json({ success: true, flavors: snap2.docs.map(d => ({ id: d.id, ...d.data() })) });
-    }
+    const snap = await db.collection('menu').where('availableInCustom', '==', true).get();
+    const flavors = snap.docs.map(d => {
+      const data = d.data();
+      return {
+        id: d.id,
+        name: data.name || '',
+        color: data.color || '#C62828',
+        isPorkFree: !!data.isPorkFree,
+        active: data.active !== false,
+      };
+    });
     res.json({ success: true, flavors });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
