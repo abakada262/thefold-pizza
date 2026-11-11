@@ -1406,9 +1406,17 @@ function updateStatus(id,status,selectEl){
       }
       _showPrepDialog(data.ingredients,data.allSufficient,data.hasLowStock);
     }).catch(e=>{
-      // Endpoint not available — skip preview and commit directly
-      selectEl.disabled=false;
-      _commitStatus(id,'preparing',selectEl,prevStatus);
+      // If endpoint not found (404), proceed directly; otherwise show error and restore select
+      if(e.status===404||e.message==='Not Found'){
+        selectEl.disabled=false;
+        _commitStatus(id,'preparing',selectEl,prevStatus);
+      } else {
+        // Endpoint errored — restore the select so the admin can try again
+        selectEl.value=prevStatus;
+        selectEl.disabled=false;
+        _prepOrderId=null;_prepSelectEl=null;_prepPrevStatus=null;
+        toast('Could not load ingredient preview. Please try again.','error');
+      }
     });
     return;
   }

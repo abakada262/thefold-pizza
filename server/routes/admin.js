@@ -64,8 +64,26 @@ async function deductIngredients(db, orderId, order) {
   const items = order.items || [];
   if (!items.length) return;
 
-  const recipesSnap = await db.collection('recipes').get();
+  const [recipesSnap, menuSnap] = await Promise.all([
+    db.collection('recipes').get(),
+    db.collection('menu').where('availableInCustom', '==', true).get(),
+  ]);
   const recipes = recipesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const customMenuItems = menuSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Helper: find recipe for a custom flavor by name, using menuItemId when available
+  const findFlavorRecipe = (flavorName, sizeKey) => {
+    const menuItem = customMenuItems.find(m => m.name && m.name.toLowerCase() === flavorName.toLowerCase());
+    return recipes.find(r => {
+      if (menuItem) {
+        if (r.menuItemId !== menuItem.id) return false;
+      } else {
+        if (!r.menuItemName || r.menuItemName.toLowerCase() !== flavorName.toLowerCase()) return false;
+      }
+      if (r.size && r.size !== 'all' && r.size !== sizeKey) return false;
+      return true;
+    });
+  };
 
   // All recipes used for deduction (custom pizza flavors now use Recipes/BOM too)
   const regularRecipes = recipes;
@@ -127,13 +145,7 @@ async function deductIngredients(db, orderId, order) {
 
       for (const flavorName of item.customFlavors) {
         if (!flavorName) continue;
-        // Find the recipe for this flavor (match by menuItemName or size)
-        const fRecipe = regularRecipes.find(r => {
-          const nameMatch = r.menuItemName && r.menuItemName.toLowerCase() === flavorName.toLowerCase();
-          if (!nameMatch) return false;
-          if (r.size && r.size !== 'all' && r.size !== sizeKey) return false;
-          return true;
-        });
+        const fRecipe = findFlavorRecipe(flavorName, sizeKey);
         if (!fRecipe) continue;
         // Divide each ingredient qty by slot count (shared crust/resources)
         const scaledIngs = (fRecipe.ingredients || []).map(ing => ({
@@ -222,8 +234,25 @@ router.get('/orders/:id/prepare-preview', requireAdmin, async (req, res) => {
     const items = order.items || [];
     if (!items.length) return res.json({ success: true, ingredients: [], allSufficient: true });
 
-    const recipesSnap = await db.collection('recipes').get();
+    const [recipesSnap, menuSnap] = await Promise.all([
+      db.collection('recipes').get(),
+      db.collection('menu').where('availableInCustom', '==', true).get(),
+    ]);
     const recipes = recipesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const customMenuItems = menuSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const findFlavorRecipe = (flavorName, sizeKey) => {
+      const menuItem = customMenuItems.find(m => m.name && m.name.toLowerCase() === flavorName.toLowerCase());
+      return recipes.find(r => {
+        if (menuItem) {
+          if (r.menuItemId !== menuItem.id) return false;
+        } else {
+          if (!r.menuItemName || r.menuItemName.toLowerCase() !== flavorName.toLowerCase()) return false;
+        }
+        if (r.size && r.size !== 'all' && r.size !== sizeKey) return false;
+        return true;
+      });
+    };
 
     // Build a map of needed ingredients: ingredientId -> { needed, name, unit }
     const needed = {};
@@ -249,12 +278,7 @@ router.get('/orders/:id/prepare-preview', requireAdmin, async (req, res) => {
         const slotCount = Math.max(1, item.customFlavors.length);
         for (const flavorName of item.customFlavors) {
           if (!flavorName) continue;
-          const fRecipe = recipes.find(r => {
-            const nm = r.menuItemName && r.menuItemName.toLowerCase() === flavorName.toLowerCase();
-            if (!nm) return false;
-            if (r.size && r.size !== 'all' && r.size !== sizeKey) return false;
-            return true;
-          });
+          const fRecipe = findFlavorRecipe(flavorName, sizeKey);
           if (!fRecipe) continue;
           addNeeded(fRecipe.ingredients || [], itemQty, slotCount);
         }
