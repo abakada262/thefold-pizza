@@ -3259,9 +3259,14 @@ document.getElementById('rf-search')?.addEventListener('input', renderRefunds);
 document.getElementById('rf-filter')?.addEventListener('change', renderRefunds);
 
 let _refundTargetId = null;
-function openRefundStatusModal(id) {
+window.openRefundStatusModal = function(id) {
   const ref = _refunds.find(r => r.id === id);
-  if (!ref) return;
+  if (!ref) {
+    // ID mismatch fallback: try first refund if only one exists
+    if (_refunds.length === 1) { return window.openRefundStatusModal(_refunds[0].id); }
+    toast('Could not load refund record. Please refresh the page.', 'error');
+    return;
+  }
   _refundTargetId = id;
   // populate modal
   document.getElementById('rsu-order-id').textContent = '#' + (ref.orderId||'').slice(0,8).toUpperCase();
@@ -3273,7 +3278,7 @@ function openRefundStatusModal(id) {
   document.getElementById('rsu-ref').value = ref.paymentRef || '';
   document.getElementById('refund-status-modal').classList.add('open');
 }
-function closeRefundStatusModal() {
+window.closeRefundStatusModal = function() {
   document.getElementById('refund-status-modal').classList.remove('open');
   _refundTargetId = null;
 }
