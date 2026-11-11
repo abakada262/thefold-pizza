@@ -3248,7 +3248,7 @@ function renderRefunds() {
       <td><span style="${statusStyle};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;text-transform:uppercase;">${statusLabel}</span></td>
       <td style="font-size:11px;color:var(--text-mid);">${r.refundDate?formatDate(r.refundDate):'—'}</td>
       <td>${canUpdate
-        ? `<button class="btn btn-sm" style="background:var(--red);color:#fff;border:none;" onclick="openRefundStatusModal('${r.id}')">Update Status</button>`
+        ? `<button class="btn btn-sm rf-update-btn" data-id="${r.id}" style="background:var(--red);color:#fff;border:none;">Update Status</button>`
         : `<span style="font-size:11px;color:var(--text-light);">${r.refundStatus==='refunded'?'Complete':'N/A'}</span>`
       }</td>
     </tr>`;
@@ -3257,6 +3257,10 @@ function renderRefunds() {
 
 document.getElementById('rf-search')?.addEventListener('input', renderRefunds);
 document.getElementById('rf-filter')?.addEventListener('change', renderRefunds);
+document.getElementById('rf-tbody')?.addEventListener('click', e => {
+  const btn = e.target.closest('.rf-update-btn');
+  if (btn) window.openRefundStatusModal(btn.dataset.id);
+});
 
 let _refundTargetId = null;
 window.openRefundStatusModal = function(id) {
