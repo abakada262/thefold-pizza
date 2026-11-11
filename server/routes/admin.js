@@ -722,7 +722,12 @@ router.get('/refunds', requireAdmin, async (req, res) => {
     let refunds = [];
     try {
       const snap = await db.collection('refunds').get();
-      refunds = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const VALID_STATUSES = ['not_applicable','pending_review','approved','processing','refunded','rejected'];
+      refunds = snap.docs.map(d => {
+        const data = d.data();
+        if (!VALID_STATUSES.includes(data.refundStatus)) data.refundStatus = 'pending_review';
+        return { id: d.id, ...data };
+      });
     } catch (e) {}
     if (!refunds.length) {
       const snap = await db.collection('orders')
@@ -779,7 +784,7 @@ router.patch('/refunds/:id/status', requireAdmin, async (req, res) => {
       const ref = db.collection('refunds').doc(req.params.id);
       const doc = await ref.get();
       if (doc.exists) {
-        await ref.update({ status, refundReference: refundRef || '', notes: notes || '', resolvedAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        await ref.update({ refundStatus: status, refundReference: refundRef || '', refundNotes: notes || '', refundResolvedAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
         return res.json({ success: true });
       }
     } catch (e) {}
