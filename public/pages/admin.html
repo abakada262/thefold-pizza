@@ -3239,6 +3239,7 @@ function renderRefunds() {
     const statusStyle = REFUND_STATUS_COLORS[r.refundStatus] || REFUND_STATUS_COLORS.pending_review;
     const statusLabel = REFUND_STATUS_LABELS[r.refundStatus] || r.refundStatus;
     const canUpdate = !['not_applicable','refunded'].includes(r.refundStatus);
+    const rid = r.id;
     return `<tr>
       <td style="font-size:11px;font-weight:600;color:var(--text-mid);">#${(r.orderId||'').slice(0,8).toUpperCase()}</td>
       <td><div style="font-weight:500;font-size:13px;">${r.customerName||'—'}</div><div style="font-size:11px;color:var(--text-light);">${r.customerEmail||''}</div></td>
@@ -3253,14 +3254,16 @@ function renderRefunds() {
       }</td>
     </tr>`;
   }).join('');
+
+  // Attach click handlers directly after rendering
+  tbody.querySelectorAll('.rf-update-btn').forEach(btn => {
+    const refId = btn.dataset.id;
+    btn.addEventListener('click', () => window.openRefundStatusModal(refId));
+  });
 }
 
 document.getElementById('rf-search')?.addEventListener('input', renderRefunds);
 document.getElementById('rf-filter')?.addEventListener('change', renderRefunds);
-document.getElementById('rf-tbody')?.addEventListener('click', e => {
-  const btn = e.target.closest('.rf-update-btn');
-  if (btn) window.openRefundStatusModal(btn.dataset.id);
-});
 
 let _refundTargetId = null;
 window.openRefundStatusModal = function(id) {
